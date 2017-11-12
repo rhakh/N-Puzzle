@@ -23,8 +23,8 @@ OBJDIR = ./obj/
 OBJ = $(addprefix $(OBJDIR),$(SRC:.cpp=.o))
 
 ifeq ($(OS),Linux)
-    CFLAGS += -Wall -Wextra -Werror `pkg-config --cflags gtk+-3.0`
-    LFLAGS += `pkg-config --libs gtk+-3.0`
+    CFLAGS += -Wall -Wextra -Werror -fPIC `pkg-config --cflags QtDeclarative QtGui QtScript QtDesignerComponents  Qt5Test Qt5Core QtCore Qt5UiTools Qt5Gui Qt5WaylandCompositor Qt5X11Extras    QtUiTools  Qt5Widgets Qt5Concurrent  `
+    LFLAGS += `pkg-config --libs QtDeclarative QtGui QtScript QtDesignerComponents  Qt5Test Qt5Core QtCore Qt5UiTools Qt5Gui Qt5WaylandCompositor Qt5X11Extras    QtUiTools  Qt5Widgets Qt5Concurrent  `
 endif
 
 ifeq ($(OS),Darwin)
