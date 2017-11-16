@@ -12,13 +12,15 @@ init_buttons(void)
 {
 	/* TODO: set text size for button and style button*/
 	for (int i = 0; i < 16; i++) {
-		buttons[i] = new QPushButton(QString::number(i + 1));
+		buttons[i] = new NButton(QString::number(i + 1), i + 1, i);
 		buttons[i]->setMinimumSize(QSize(BUTTON_SIZE, BUTTON_SIZE));
 		buttons[i]->setMaximumSize(QSize(BUTTON_SIZE, BUTTON_SIZE));
 		grid->addWidget(buttons[i], i / 4, i % 4);
 	}
 	buttons[15]->setEnabled(false);
 	buttons[15]->setText("");
+	buttons[15]->setCheckable(true);
+	buttons[15]->setChecked(true);
 }
 
 void
