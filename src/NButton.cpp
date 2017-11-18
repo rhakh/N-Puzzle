@@ -11,7 +11,7 @@
  * Created on November 14, 2017, 11:55 PM
  */
 
-#include <qt5/QtWidgets/qpushbutton.h>
+#include <QtWidgets>
 
 #include "NButton.h"
 #include "main.hpp"

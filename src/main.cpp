@@ -13,7 +13,7 @@ std::vector<int>	button_values;
 static int
 processInput() {
 	QTextStream	stream(stdin);
-	QRegExp		rg("(\\ |\\t)");
+	QRegExp		rg("\\ |\\t");
 	QString		line;
 	QStringList	list;
 	
@@ -21,7 +21,7 @@ processInput() {
 		std::cout << "line = " << line.toLatin1().data() << std::endl;
 		if (line.at(0).toLatin1() == '#')
 			continue;
-		list = line.split(rg);
+		list = line.split(rg, QString::SkipEmptyParts);
 		if (list.size() == 1)
 			n_size = list.at(0).toInt();
 		else if (list.size() == n_size) {
@@ -31,6 +31,10 @@ processInput() {
 		}
 		else {
 			std::cout << "Error in line: " << line.toLatin1().data() << std::endl;
+			std::cout << "list.size = " << list.size() << std::endl;
+			foreach (const QString &elem, list) {
+				std::cout << "elem = " << elem.toLatin1().data() << std::endl;
+			}
 			return (1);
 		}
 	}

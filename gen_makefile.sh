@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#if macOS
+# qmake -project
+# qmake -spec macx-clang
+# make
+
 qmake -project
 qmake -makefile
 PRO_FILE="`find . -name "*.pro"`"
