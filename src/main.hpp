@@ -3,6 +3,7 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include <vector>
 #include "NButton.h"
 
 
