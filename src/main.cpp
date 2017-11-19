@@ -6,8 +6,8 @@ NButton		*buttons[16] = {0};
 QBoxLayout	*layout = 0;
 QGridLayout	*grid = 0;
 QLabel		*label;
-int			n_size = 4;
-int			dsize = 16;
+int			n_size = 0;
+int			dsize = 0;
 std::vector<int>	button_values;
 
 static int
@@ -18,7 +18,7 @@ processInput() {
 	QStringList	list;
 	
 	while ((line = stream.readLine()) != NULL) {
-		std::cout << "line = " << line.toLatin1().data() << std::endl;
+//		std::cout << "line = " << line.toLatin1().data() << std::endl;
 		if (line.at(0).toLatin1() == '#')
 			continue;
 		list = line.split(rg, QString::SkipEmptyParts);
@@ -31,16 +31,13 @@ processInput() {
 		}
 		else {
 			std::cout << "Error in line: " << line.toLatin1().data() << std::endl;
-			std::cout << "list.size = " << list.size() << std::endl;
-			foreach (const QString &elem, list) {
-				std::cout << "elem = " << elem.toLatin1().data() << std::endl;
-			}
 			return (1);
 		}
 	}
-	std::cout << "n_size = " << n_size << std::endl;
-	for (int i = 0; i < button_values.size(); i++)
-		std::cout << "v[" << i << "] = " << button_values[i] << std::endl;
+	dsize = n_size *  n_size;
+//	std::cout << "n_size = " << n_size << std::endl;
+//	for (int i = 0; i < button_values.size(); i++)
+//		std::cout << "v[" << i << "] = " << button_values[i] << std::endl;
 	return (0);
 }
 

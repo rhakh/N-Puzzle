@@ -31,9 +31,9 @@ NButton::~NButton() {
 	(a) = (a) ^ (b); \
 
 void NButton::swapButtonsFields(NButton* a, NButton* b) {
-	std::cout << "A: numb = " << a->numb << ", ser_num = " << a->ser_numb << std::endl;
-	std::cout << "B: numb = " << b->numb << ", ser_num = " << b->ser_numb << std::endl;
-	std::cout << std::endl;
+//	std::cout << "A: numb = " << a->numb << ", ser_num = " << a->ser_numb << std::endl;
+//	std::cout << "B: numb = " << b->numb << ", ser_num = " << b->ser_numb << std::endl;
+//	std::cout << std::endl;
 	
 	swap_int(a->numb, b->numb);
 	
@@ -65,16 +65,16 @@ void NButton::click() {
 	right = (x + 1 == n_size) ? (BIG_VAL) : ((x + 1) + (y * n_size));
 	bottom = x + ((y + 1) * n_size);
 	left = (x - 1 < 0) ? (BIG_VAL) : ((x - 1)  + (y * n_size));
-	if ((top >= 0 && top < dsize) && (buttons[top]->numb == dsize)) {
+	if ((top >= 0 && top < dsize) && (buttons[top]->numb == 0)) {
 		swapButtonsFields(this, buttons[top]);
 	}
-	else if ((right >= 0 && right < dsize) && (buttons[right]->numb == dsize)) {
+	else if ((right >= 0 && right < dsize) && (buttons[right]->numb == 0)) {
 		swapButtonsFields(this, buttons[right]);
 	}
-	else if ((bottom >= 0 && bottom < dsize) && (buttons[bottom]->numb == dsize)) {
+	else if ((bottom >= 0 && bottom < dsize) && (buttons[bottom]->numb == 0)) {
 		swapButtonsFields(this, buttons[bottom]);
 	}
-	else if ((left >= 0 && left < dsize) && (buttons[left]->numb == dsize)) {
+	else if ((left >= 0 && left < dsize) && (buttons[left]->numb == 0)) {
 		swapButtonsFields(this, buttons[left]);
 	}	
 }

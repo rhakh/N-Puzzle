@@ -24,7 +24,7 @@ extern QGridLayout	*grid;
 extern QLabel		*label;
 extern int			n_size;
 extern int			dsize;
-
+extern std::vector<int>		button_values;
 
 void
 init_window(void);
