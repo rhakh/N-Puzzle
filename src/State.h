@@ -3,45 +3,59 @@
 
 #include <vector>
 #include <set>
+#include <cstddef>
+#include <cmath>
+#include <iostream>
 
-#define N_SIZE 4
-#define DSIZE 16
-#define BIG_VAL 68761468
+typedef enum {UP, DOWN, RIGHT, LEFT, LAST} moves_e;
 
 class State {
-private:
-    int cost;
-    int length;
-    std::vector<int>    map;
-    State   *prev;
+public:
+	int	cost;
+	int	length;
+	std::vector<int>	map;
+	State   *prev;
 
 public:
-    State();
-    State(std::vector<int> _map, int _const, int _length);
-    virtual	~State();
-    void	setCost(int _cost) { this->cost = _cost; }
-    void	setLength(int _length) { this->length = _length; }
-    void	incLength() { this->length++; }
-    int		getCost() const { return this->cost; }
-    int		getLength() const { return this->length; }
-	void 	printState() const;
-	void 	setMapVal(int pos, int val) { this->map[pos] = val; }
-	int 	getMapVal(int pos) { return (this->map[pos]); }
-	std::vector<int> getMap() { return this->map; }
-	bool	operator<(const State &b) const {
-		return this->map < b.map;
+	State();
+
+	State(std::vector<int> _map, int _const, int _length);
+
+	virtual	~State() {};
+
+	void	setCost(int _cost);
+
+	void	setLength(int _length);
+
+	void	incLength();
+
+	int		getCost() const ;
+
+	int		getLength() const ;
+
+	void 	printState() const ;
+
+	void 	setMapVal(int pos, int val);
+
+	int 	getMapVal(int pos) const ;
+
+	std::vector<int>	getMap() const ;
+
+	std::vector<int>	*getptrMap();
+
+	bool	operator<(const State &b) const ;
+
+};
+
+/* comparator for set */
+struct CompareState {
+	bool operator()(const State &a, const State &b) {
+		if (a.cost == b.cost)
+			return a.length > b.length;
+		else
+			return a.cost > b.cost;
 	}
 };
 
-
-struct CompareState {
-public:
-    bool operator()(const State &a, const State &b) {
-        if (a.getCost() == b.getCost())
-            return a.getLength() > b.getLength();
-        else
-            return a.getCost() > b.getCost();
-    }
-};
 
 #endif //N_PUZZLE_STATE_H
