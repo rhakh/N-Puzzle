@@ -1,13 +1,13 @@
 #include "State.h"
 
 State::State() {
-	this->map = std::vector<int> (0);
+	this->map = std::vector<uint8_t> (0);
 	this->cost = 0;
 	this->length = 0;
 };
 
-State::State(std::vector<int> _map, int _const, int _length) {
-	this->map = _map;
+State::State(std::vector<uint8_t>&& _map, int _const, int _length) {
+	this->map = std::move(_map);
 	this->cost = _const;
 	this->length = _length;
 }
@@ -41,22 +41,22 @@ void	State::printState() const {
 	printf("\n");
 };
 
-void	State::setMapVal(int pos, int val) {
+void	State::setMapVal(int pos, uint8_t val) {
 	this->map[pos] = val;
 }
 
-int		State::getMapVal(int pos) const {
+uint8_t		State::getMapVal(int pos) const {
 	return (this->map[pos]);
 }
 
-std::vector<int>	State::getMap() const {
+const std::vector<uint8_t>&	State::getMap() const {
 	return this->map;
-}
-
-std::vector<int>	*State::getptrMap() {
-	return &map;
 }
 
 bool	State::operator<(const State &b) const {
 	return this->map > b.map;
+}
+
+bool	State::operator==(const State &b) const {
+	return this->map == b.map;
 }

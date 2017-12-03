@@ -13,15 +13,15 @@ class State {
 public:
 	int	cost;
 	int	length;
-	std::vector<int>	map;
+	std::vector<uint8_t>	map;
 	State   *prev;
 
 public:
 	State();
 
-	State(std::vector<int> _map, int _const, int _length);
+	State(std::vector<uint8_t>&& _map, int _const, int _length);
 
-	virtual	~State() {};
+	//virtual	~State() {};
 
 	void	setCost(int _cost);
 
@@ -35,16 +35,15 @@ public:
 
 	void 	printState() const ;
 
-	void 	setMapVal(int pos, int val);
+	void 	setMapVal(int pos, uint8_t val);
 
-	int 	getMapVal(int pos) const ;
+	uint8_t 	getMapVal(int pos) const ;
 
-	std::vector<int>	getMap() const ;
-
-	std::vector<int>	*getptrMap();
+	const std::vector<uint8_t>&	getMap() const ;
 
 	bool	operator<(const State &b) const ;
 
+	bool	operator==(const State &b) const ;
 };
 
 /* comparator for set */
@@ -57,5 +56,15 @@ struct CompareState {
 	}
 };
 
+struct HashState {
+	size_t operator()(const State& a) const {
+		const std::vector<uint8_t>& map = a.getMap();
+		std::size_t seed = map.size();
+		for(auto& i : map) {
+			seed ^= i + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+		}
+		return seed;
+	}
+};
 
 #endif //N_PUZZLE_STATE_H
