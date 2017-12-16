@@ -26,6 +26,7 @@ private:
 	uint8_t	cost = 0;
 	int 	length = 0;
 	uint8_t *map = nullptr;
+    State   *prev = nullptr;
 
 public:
 	static uint8_t n_size;
@@ -33,12 +34,15 @@ public:
 
 	State(uint8_t cost, int length, const uint8_t *map, uint8_t size);
 	State(uint8_t cost, int length);
+    State(const State *src);
 	~State();
 
 	uint8_t getCost() const { return this->cost; };
 	int 	getLength() const { return this->length; }
 	const uint8_t *getConstMap() const { return this->map; }
 	void 	setMap(uint8_t *map) { this->map = map; }
+    void    setPrev(State *prev) { this->prev = prev; }
+    const State   *getPrev() const { return this->prev; }
 
 	void 	printState() const ;
 };
