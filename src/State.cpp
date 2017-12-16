@@ -1,62 +1,55 @@
 #include "State.h"
 
-State::State() {
-	this->map = std::vector<uint8_t> (0);
-	this->cost = 0;
-	this->length = 0;
-};
+uint8_t State::n_size = 0;
+uint8_t State::d_size = 0;
 
-State::State(std::vector<uint8_t>&& _map, int _const, int _length) {
-	this->map = std::move(_map);
-	this->cost = _const;
-	this->length = _length;
+State::State(uint8_t cost, int length, const uint8_t *map, uint8_t size) {
+	this->map = new uint8_t[size];
+	/* TODO: Add exception handler, if memory can't be allocated */
+	if (this->map != nullptr)
+		memcpy(this->map, map, size);
+	else
+		dbg("Can't allocate memory\n");
+	this->cost = cost;
+	this->length = length;
+	this->d_size = size;
+	this->n_size = (uint8_t)sqrt(this->d_size);
+	this->prev = nullptr;
 }
 
-void	State::setCost(int _cost) {
-	this->cost = _cost;
+State::State(uint8_t cost, int length) {
+	this->cost = cost;
+	this->length = length;
+	this->map = nullptr;
+	this->prev = nullptr;
 }
 
-void	State::setLength(int _length) {
-	this->length = _length;
+State::State(const State *src) {
+	this->map = new uint8_t[d_size];
+	/* TODO: Add exception handler, if memory can't be allocated */
+	if (this->map != nullptr)
+		memcpy(this->map, src->map, d_size);
+	else
+		dbg("Can't allocate memory\n");
+
+	this->cost = src->cost;
+	this->length = src->length;
+	this->prev = src->prev;
 }
 
-void	State::incLength() {
-	this->length++;
+State::~State() {
+	if (this->map)
+		delete[](this->map);
 }
 
-int		State::getCost() const {
-	return this->cost;
-}
-
-int		State::getLength() const {
-	return this->length;
-}
-
-void	State::printState() const {
-	for (int i = 0; i < this->map.size(); i++) {
-		if (i % (int)sqrt(this->map.size()) == 0)
+void 	State::printState() const {
+	printf("State.cost = %u, State.length = %d\n", this->cost, this->length);
+	for (int i = 0; i < State::d_size; ++i) {
+		if (i % n_size == 0)
 			printf("\n");
-		printf("%2d ", this->map[i]);
+		printf("%2u ", this->map[i]);
 	}
 	printf("\n");
-};
-
-void	State::setMapVal(int pos, uint8_t val) {
-	this->map[pos] = val;
 }
 
-uint8_t		State::getMapVal(int pos) const {
-	return (this->map[pos]);
-}
 
-const std::vector<uint8_t>&	State::getMap() const {
-	return this->map;
-}
-
-bool	State::operator<(const State &b) const {
-	return this->map > b.map;
-}
-
-bool	State::operator==(const State &b) const {
-	return this->map == b.map;
-}

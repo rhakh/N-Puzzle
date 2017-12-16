@@ -1,161 +1,168 @@
 #include <iostream>
-#include <vector>
+#include <cmath>
 #include <queue>
-#include <set>
+#include <list>
 #include <unordered_set>
 #include "State.h"
 
-#define DBG_PRINT 0
-#define BIG_VAL 68761468
-int	n_size = 0;
-int	dsize = 0;
-int max_open = 0;
+#define BIG_VAL 12414532
 
-std::priority_queue<State, std::vector<State>, CompareState>   open;
+enum moves_e {UP, DOWN, LEFT, RIGHT, LAST};
 
-#if 1 /* to use unordered sed instead for set */
-std::unordered_set<State, HashState>  closed;
-#else
-std::set<State>  closed;
-#endif /* 0 */
 
-void	print_queue(std::priority_queue<State, std::vector<State>, CompareState> *open) {
-	State curr;
+std::list<State *>  *createPath(const State *finish) {
+    std::list<State *>  *path = new std::list<State *>;
+    State   *elem = nullptr;
+    const State *curr = finish;
 
-	while (!open->empty()) {
-		curr = open->top();
-		open->pop();
-		curr.printState();
-		printf("cost = %d, length = %d\n", curr.getCost(), curr.getLength());
-	}
+    while (curr != nullptr) {
+        elem = new State(curr);
+        path->push_back(elem);
+        curr->printState();
+        curr = curr->getPrev();
+    }
+
+    return (path);
 }
 
-void	print_set(std::set<State> *closed) {
-	std::set<State>::iterator iter;
-	State	elem;
-	for (iter = closed->begin(); iter != closed->end(); iter++) {
-		elem = *iter;
-		elem.printState();
-		printf("cost = %d, length = %d\n", elem.getCost(), elem.getLength());
-	}
+void    free_mem(std::priority_queue<State *, std::vector<State *>, CompareState> *open, std::unordered_set<State *, StateHash, StateEq> *closed) {
+    std::priority_queue<State *, std::vector<State *>, CompareState>::iterator  i_open;
+    std::unordered_set<State *, StateHash, StateEq>::iterator   i_closed;
+
+    for (i_open = open->begin(); i_open != open.end(); i_open++) {
+       delete *i_open;
+    }
+    for (i_closed = closed->begin(); i_closed != closed.end(); i_closed++) {
+        delete *i_closed;
+    }
 }
 
-int		hammiltonFunction(const std::vector<uint8_t>&  map) {
-	int inversions = 0;
+uint8_t	hamiltonDistance(const uint8_t *map, size_t size) {
+	uint8_t inversions = -1;
 
-	size_t size = map.size();
-	for (int i = 0; i < size; i++) {
-		if (map[i] != (i + 1))
+	for (uint8_t i = 0, j = 1; i < size; ++i, ++j) {
+		if (map[i] != j)
 			inversions++;
 	}
+
 	return (inversions);
 }
 
-State	doMove(std::vector<uint8_t> map, moves_e move) {
-	int	pos = 0;
-	int	x, y, up, down, right, left;
+#define swap_ints(x, y) \
+		(x) = (x) ^ (y); \
+		(y) = (x) ^ (y); \
+		(x) = (x) ^ (y); \
 
-	for (int i = 0; i < map.size(); i++)
-		if (map[i] == 0 && (pos = i) >= 0)
-			break ;
-	x = pos % n_size;
-	y = pos / n_size;
-	up = x + ((y - 1) * n_size);
-	down = x + ((y + 1) * n_size);
-	right = (x + 1 == n_size) ? (BIG_VAL) : ((x + 1) + (y * n_size));
-	left = (x - 1 < 0) ? (BIG_VAL) : ((x - 1)  + (y * n_size));
-
-	if (move == UP && up >=0 && up < dsize) {
-		std::swap(map[pos], map[up]);
+ static uint8_t inline *ret_new_map(uint8_t *ret_map, const uint8_t *map, size_t size,
+								   int pos, int new_pos) {
+	if ((ret_map = new uint8_t[size]) != nullptr) {
+		memcpy(ret_map, map, size);
+		swap_ints(ret_map[pos], ret_map[new_pos]);
+		return (ret_map);
 	}
-	else if (move == DOWN && down >= 0 && down < dsize) {
-		std::swap(map[pos], map[down]);
-
-	}
-	else if (move == LEFT && left >= 0 && left < dsize) {
-		std::swap(map[pos], map[left]);
-
-	}
-	else if (move == RIGHT && right >=0 && right < dsize) {
-		std::swap(map[pos], map[right]);
-	}
-	else {
-		return (State());
-	}
-	return (State(std::move(map), hammiltonFunction(map), 0));
+	return (nullptr);
 }
 
-State	aStar(State *start) {
-	State	curr;
-	State	afterMove;
+uint8_t *doMove(const uint8_t *map, size_t size, moves_e move) {
+	int	pos;
+	int	x, y, up, down, right, left;
+	uint8_t *ret_map = nullptr;
 
-	start->cost = hammiltonFunction(start->map);
-	open.push(*start);
+	for (pos = 0; pos < size; ++pos)
+		if (map[pos] == 0)
+			break ;
+
+	x = pos % State::n_size;
+	y = pos / State::n_size;
+	up = x + ((y - 1) * State::n_size);
+	down = x + ((y + 1) * State::n_size);
+	right = (x + 1 == State::n_size) ? (BIG_VAL) : ((x + 1) + (y * State::n_size));
+	left = (x - 1 < 0) ? (BIG_VAL) : ((x - 1)  + (y * State::n_size));
+
+	if (move == UP && up >= 0 && up < State::d_size)
+		return ret_new_map(ret_map, map, size, pos, up);
+	else if (move == DOWN && down >= 0 && down < State::d_size)
+		return ret_new_map(ret_map, map, size, pos, down);
+	else if (move == LEFT && left >= 0 && left < State::d_size)
+		return ret_new_map(ret_map, map, size, pos, left);
+	else if (move == RIGHT && right >= 0 && right < State::d_size)
+		return ret_new_map(ret_map, map, size, pos, right);
+	else
+		return (nullptr);
+}
+
+std::list<State *>  *aStar(State *start, uint8_t (* heuristicFunc)(const uint8_t *map, size_t size)) {
+    std::priority_queue<State *, std::vector<State *>, CompareState>   open;
+    std::unordered_set<State *, StateHash, StateEq>  closed;
+    std::list<State *> *path;
+
+	State	*curr;
+	State	*new_state;
+	uint8_t *new_map = nullptr;
+	uint8_t	i = 0;
+	unsigned long 	max_open = 0;
+
+	int a = 0;
+	open.push(start);
 	while (!open.empty()) {
 		curr = open.top();
 		open.pop();
 
-		/* check if it solved \
-		 * 1 insversion == solved*/
-		if (hammiltonFunction(curr.getMap()) == 1) {
-			printf("FINISH\n");
-			printf("max open size = %d, closed.size = %d\n", max_open, closed.size());
-			curr.printState();
-			printf("cost = %d, length = %d\n", curr.getCost(), curr.getLength());
-			return (curr);
+		if (!heuristicFunc(curr->getConstMap(), State::d_size)) {
+			curr->printState();
+			printf("max_open = %lu, closed.size = %lu\n", max_open, closed.size());
+            path = createPath(curr);
+            free_mem(&open, &closed);
+			return (path);
 		}
 
-		if (closed.find(curr) != closed.end()) {
-			/* curr already exist in closed set,
-			 * pop another node from open set*/
+		if (closed.find(curr) != closed.end())
 			continue;
-		}
 
 		closed.insert(curr);
 
-		for (int i = UP; i < LAST; i++) {
-			afterMove = doMove(curr.getMap(), (moves_e)i);
-			if (afterMove.cost == 0)
-				continue ;
-			else {
-				afterMove.length = curr.length + 1;
-				open.push(std::move(afterMove));
-				if (max_open < open.size())
-					max_open = open.size();
-			}
+		for (i = UP; i < LAST; ++i) {
+			new_map = doMove(curr->getConstMap(), State::d_size, (moves_e)i);
+			if (new_map == nullptr)
+				continue;
+			new_state = new State(heuristicFunc(new_map, State::d_size), curr->getLength() + 1);
+			new_state->setMap(new_map);
+            new_state->setPrev(curr);
+			open.push(new_state);
 		}
-
-#if DBG_PRINT
-		printf("########### POP FROM QUEUE #########\n");
-		printf("max open size = %d, closed.size = %d\n", max_open, closed.size());
-		curr.printState();
-		printf("cost = %d, length = %d\n", curr.getCost(), curr.getLength());
-		printf("########### END #########\n");
-#endif /* EN_DBG_PRINT */
-
+		if (max_open < open.size())
+			max_open = open.size();
 	}
-	return (State());
+    free_mem(&open, &closed);
+	printf("max_open = %lu, closed.size = %lu\n", max_open, closed.size());
+	printf("Unsolvable\n");
+    return nullptr;
 }
 
-int		main(void) {
-	std::vector<uint8_t>	map6 ({1, 14, 2, 4, 6, 18,
-									  9, 13, 3, 17, 11, 33,
-									  19, 7, 16, 10, 5, 12,
-									  8, 26, 20, 15, 22, 24,
-									  21, 31, 27, 29, 23, 30,
-									  25, 0, 32, 28, 34, 35});
+int main() {
+	uint8_t (*heuristicFunc)(const uint8_t *map, size_t size);
+	uint8_t	map4[16] = {11,  0,  9,  4,
+								  2, 15,  7,  1,
+								  13,  3, 12,  5,
+								  8,  6, 10, 14};
 
-	std::vector<uint8_t>	map4 ({	11,  0,  9,  4,
-									  2, 15,  7,  1,
-									  13,  3, 12,  5,
-									  8,  6, 10, 14,});
+//	uint8_t	map3[9] = {7, 1, 4,
+//                        3, 0, 8,
+//                        6, 5, 2};
 
-	std::vector<uint8_t>	path;
+//	uint8_t map6[36] = {1, 14, 2, 4, 6, 18,
+//						9, 13, 3, 17, 11, 33,
+//						19, 7, 16, 10, 5, 12,
+//						8, 26, 20, 15, 22, 24,
+//						21, 31, 27, 29, 23, 30,
+//						25, 0, 32, 28, 34, 35};
 
-	std::vector<uint8_t>& map = map6;
-	n_size = (int)sqrt(map.size());
-	dsize = n_size * n_size;
-	State	start(std::move(map), 0, 0);
-	State	solved = aStar(&start);
+	State	*start;
+    std::list<State *>  *path;
 
+	heuristicFunc = hamiltonDistance;
+	start = new State(heuristicFunc(map4, sizeof(map4)),
+								0, map4, sizeof(map4));
+	path = aStar(start, heuristicFunc);
+    while (1);
 }

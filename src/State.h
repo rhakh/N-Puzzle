@@ -1,70 +1,82 @@
-#ifndef N_PUZZLE_STATE_H
-#define N_PUZZLE_STATE_H
+#ifndef STATE_H
+#define STATE_H
 
-#include <vector>
-#include <set>
-#include <cstddef>
-#include <cmath>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
 #include <iostream>
+#include <cmath>
+#include <iomanip>
 
-typedef enum {UP, DOWN, RIGHT, LEFT, LAST} moves_e;
+#define DEBUG_FLAG 0
+
+#if DEBUG_FLAG
+#define dbg(fmt, args...) \
+    do { \
+        printf("%s():%d: ", __func__, __LINE__); \
+        printf(fmt, ##args); \
+       } while (0)
+#else /* DEBUG_FLAG */
+#define dbg(fmt, args...)
+#endif /* DEBUG_FLAG */
 
 class State {
-public:
-	int	cost;
-	int	length;
-	std::vector<uint8_t>	map;
-	State   *prev;
+
+private:
+	uint8_t	cost = 0;
+	int 	length = 0;
+	uint8_t *map = nullptr;
+    State   *prev = nullptr;
 
 public:
-	State();
+	static uint8_t n_size;
+	static uint8_t d_size;
 
-	State(std::vector<uint8_t>&& _map, int _const, int _length);
+	State(uint8_t cost, int length, const uint8_t *map, uint8_t size);
+	State(uint8_t cost, int length);
+    State(const State *src);
+	~State();
 
-	//virtual	~State() {};
-
-	void	setCost(int _cost);
-
-	void	setLength(int _length);
-
-	void	incLength();
-
-	int		getCost() const ;
-
-	int		getLength() const ;
+	uint8_t getCost() const { return this->cost; };
+	int 	getLength() const { return this->length; }
+	const uint8_t *getConstMap() const { return this->map; }
+	void 	setMap(uint8_t *map) { this->map = map; }
+    void    setPrev(State *prev) { this->prev = prev; }
+    const State   *getPrev() const { return this->prev; }
 
 	void 	printState() const ;
-
-	void 	setMapVal(int pos, uint8_t val);
-
-	uint8_t 	getMapVal(int pos) const ;
-
-	const std::vector<uint8_t>&	getMap() const ;
-
-	bool	operator<(const State &b) const ;
-
-	bool	operator==(const State &b) const ;
 };
 
-/* comparator for set */
 struct CompareState {
-	bool operator()(const State &a, const State &b) {
-		if (a.cost == b.cost)
-			return a.length > b.length;
-		else
-			return a.cost > b.cost;
+	bool operator()(const State *a, const State *b) {
+		if (a->getCost() != b->getCost())
+			return a->getCost() > b->getCost();
+		return a->getLength() > b->getLength();
 	}
 };
 
-struct HashState {
-	size_t operator()(const State& a) const {
-		const std::vector<uint8_t>& map = a.getMap();
-		std::size_t seed = map.size();
-		for(auto& i : map) {
-			seed ^= i + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-		}
+struct StateHash {
+	size_t operator()(const State *a) const {
+		const uint8_t *map = a->getConstMap();
+		std::size_t seed = State::d_size;
+
+		for(int i = 0; i < State::d_size; ++i)
+			seed ^= map[i] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 		return seed;
 	}
 };
 
-#endif //N_PUZZLE_STATE_H
+struct StateEq {
+	bool    operator()(State * const a, State * const b) const {
+		const uint8_t *mapa = a->getConstMap();
+		const uint8_t *mapb = b->getConstMap();
+
+		for (uint8_t i = 0; i < State::d_size; ++i) {
+			if (mapa[i] != mapb[i])
+				return false;
+		}
+		return true;
+	}
+};
+
+#endif /* STATE_H */
