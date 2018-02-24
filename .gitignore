@@ -2,3 +2,5 @@ obj
 obj/*
 npuzzle
 .qmake.stash
+cmake-build-debug/
+.idea/
