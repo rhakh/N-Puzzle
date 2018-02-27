@@ -4,3 +4,4 @@ npuzzle
 .qmake.stash
 cmake-build-debug/
 .idea/
+.DS_Store
