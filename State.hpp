@@ -13,16 +13,16 @@ class State
 {
 public:
 	static int	size;
-	static int	dsize;
+	static int	mapSize;
 
 private:
 	uint8_t	*map = nullptr;
 	int		price;
 	int		length;
+	size_t	hash;
 
 public:
 	State(const uint8_t *map, int price, int length);
-	//State( State const &src);
 	State();
 	~State();
 
@@ -31,21 +31,15 @@ public:
 	int				getLength() const { return (this->length); }
 	int				getPrice() const { return (this->price); }
 	const uint8_t	*getMapPtr() const { return (this->map); }
+	size_t 			getHash() const { return this->hash; }
 	void			printState() const;
-	State			&swapPieces(int a, int b) {	std::swap(map[a], map[b]); return (*this); }
-
-//	bool operator==(State const *rhs) const;
+	void			swapPieces(int a, int b) {	std::swap(map[a], map[b]); }
 
 };
 
 struct HashState {
 	size_t operator()(const State* a) const {
-		const uint8_t *map = a->getMapPtr();
-		std::size_t seed = State::size;
-		for(int i = 0; i < State::size; i++) {
-			seed ^= map[i] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-		}
-		return seed;
+		return (a->getHash());
 	}
 };
 
@@ -62,13 +56,13 @@ public:
 
 class EqualState {
 public:
-	bool operator()(const State *rhs, const State *lhs) {
+	bool operator()(State const *rhs, State const *lhs) const {
 		const uint8_t *pa;
 		const uint8_t *pb;
 
 		pa = rhs->getMapPtr();
 		pb = lhs->getMapPtr();
-		for (int i = 0; i < State::dsize; i++) {
+		for (int i = 0; i < State::mapSize; i++) {
 			if (pa[i] != pb[i])
 				return (false);
 		}
