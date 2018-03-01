@@ -1,7 +1,7 @@
 #include "NPuzzleSolver.h"
 #include "State.hpp"
 
-static int	hammiltonFunction(const uint8_t *map, uint8_t mapSize) {
+static int	hammiltonDistance(const uint8_t *map, uint8_t mapSize) {
 	int inversions = -1;
 
 	for (int i = 0; i < mapSize; i++) {
@@ -9,6 +9,31 @@ static int	hammiltonFunction(const uint8_t *map, uint8_t mapSize) {
 			inversions++;
 	}
 	return (inversions);
+}
+
+static int	manhattanDistance(const uint8_t *map, uint8_t mapSize) {
+	int	price = 0;
+	uint8_t	x1, x2, y1, y2, xres, yres;
+
+	for (int i = 0; i < mapSize; i++) {
+		if (map[i]) {
+			x2 = (map[i] - 1) % State::size;
+			y2 = (map[i] - 1) / State::size;
+
+			x1 = i % State::size;
+			y1 = i / State::size;
+
+			if ((xres = x1 - x2) < 0)
+				xres *= -1;
+
+			if ((yres = y1 - y2) < 0)
+				yres *=  -1;
+
+			price += xres + yres;
+		}
+	}
+
+	return (price);
 }
 
 #define INVAL_MOVE	123456
@@ -20,7 +45,7 @@ static int	hammiltonFunction(const uint8_t *map, uint8_t mapSize) {
 				default:		\
 					(_state) = new State((_curr)->getMapPtr(), 0, (_curr)->getLength() + 1);	\
                     (_state)->swapPieces((_emptyPos), (_newPos)); \
-					(_state)->setPrice(this->euristicFunc((_state)->getMapPtr(), State::mapSize));	\
+					(_state)->setPrice(this->heuristicFunc((_state)->getMapPtr(), State::mapSize));	\
 					break;		\
 			}
 
@@ -60,10 +85,10 @@ fail:
 #undef INVAL_MOVE
 #undef SWAP
 
-class iterator;
+typedef std::priority_queue<State *, std::vector<State *>, CompareState>	NPqueue;
+typedef std::unordered_set<State *, HashState, EqualState>	NPset;
 
-void    freeMem(std::priority_queue<State *, std::vector<State *>, CompareState>   *open,
-				std::unordered_set<State *, HashState, EqualState>  *closed) {
+void    freeMem(NPqueue *open, NPset *closed) {
     State   *curr = nullptr;
 
     while (!open->empty()) {
@@ -72,17 +97,17 @@ void    freeMem(std::priority_queue<State *, std::vector<State *>, CompareState>
 		delete curr;
     }
 
-    curr = nullptr;
+	State	*element = nullptr;
 	std::unordered_set<State*, HashState, EqualState>::iterator i;
     for (i = closed->begin(); i != closed->end(); i++) {
-		State *element = *i;
+		element = *i;
 		delete element;
 	}
 }
 
 path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
-	std::priority_queue<State *, std::vector<State *>, CompareState>   open;
-	std::unordered_set<State *, HashState, EqualState>	closed;
+	NPqueue	open;
+	NPset	closed;
 	State	*root;
 	State	*curr;
     State	*newMove;
@@ -93,13 +118,20 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
 	State::mapSize = mapSize;
 	State::size = (int)std::sqrt(mapSize);
 	//todo check for mem alloc
-	root = new State(map, euristicFunc(map, mapSize), 0);
+	root = new State(map, heuristicFunc(map, mapSize), 0);
 
 	open.push(root);
 
 	while (!open.empty()) {
 		curr = open.top();
 		open.pop();
+
+		if (closed.find(curr) != closed.end()) {
+			/* curr already exist in closed set
+			 * pop another one */
+			delete curr;
+			continue;
+		}
 
 		if (curr->getPrice() == 0) {
 			/* create path */
@@ -108,13 +140,6 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
             freeMem(&open, &closed);
             delete curr;
 			return (nullptr);
-		}
-
-		if (closed.find(curr) != closed.end()) {
-			/* curr already exist in closed set
-			 * pop another one */
-			delete curr;
-			continue;
 		}
 
 		closed.insert(curr);
@@ -138,17 +163,20 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
 			maxOpen = open.size();
 	}
 	printf("Can't find the solution\n");
-
+	freeMem(&open, &closed);
     return (nullptr);
 }
 
-NPuzzleSolver::NPuzzleSolver(euristicFunc_e func, solver_e algo) {
+NPuzzleSolver::NPuzzleSolver(heuristicFunc_e func = HAMMILTON_DISTANCE, solver_e algo = ASTAR) {
 	switch (func) {
 		case HAMMILTON_DISTANCE:
-			this->euristicFunc = hammiltonFunction;
+			this->heuristicFunc = hammiltonDistance;
+			break;
+		case MANHATTAN_DISTANCE:
+			this->heuristicFunc = manhattanDistance;
 			break;
 		default:
-			this->euristicFunc = hammiltonFunction;
+			this->heuristicFunc = hammiltonDistance;
 			break;
 	}
 

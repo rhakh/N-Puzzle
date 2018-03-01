@@ -12,18 +12,6 @@ State::State(const uint8_t *map, int price, int length) {
 
 	this->price = price;
 	this->length = length;
-
-	this->hash = State::size;
-	for(int i = 0; i < State::size; i++) {
-		this->hash ^= map[i] + 0x9e3779b9 + (this->hash << 6) + (this->hash >> 2);
-	}
-}
-
-State::State() {
-	this->map = nullptr;
-	this->price = 0;
-	this->length = 0;
-	this->hash = 0;
 }
 
 State::~State() {
@@ -35,9 +23,9 @@ void	State::printState() const {
     if (this->map != nullptr) {
         for (int i = 0; i < State::mapSize; i++) {
             if ((i + 1) % State::size == 0)
-                printf("%d\n", this->map[i]);
+                printf("%2u\n", this->map[i]);
             else
-                printf("%d ", this->map[i]);
+                printf("%2u ", this->map[i]);
         }
     }
     else

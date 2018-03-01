@@ -30,6 +30,14 @@ int		main(void) {
 			15, 9, 2, 4, 1
 	};
 
+	uint8_t map5a[25] = {
+			13, 14, 1, 15, 8,
+			20, 11, 0, 22, 23,
+			6, 3, 12, 2, 5,
+			4, 18, 7, 21, 9,
+			10, 19, 16, 24, 17
+	};
+
 	NPuzzleSolver	solver(HAMMILTON_DISTANCE, ASTAR);
 
 	solver.solve(map4, 16);

@@ -19,7 +19,7 @@ typedef struct	path_s {
 typedef enum {
 	HAMMILTON_DISTANCE,
 	MANHATTAN_DISTANCE,
-}		euristicFunc_e;
+}		heuristicFunc_e;
 
 typedef enum {
 	ASTAR,
@@ -28,7 +28,7 @@ typedef enum {
 
 class NPuzzleSolver
 {
-	int		(*euristicFunc)(const uint8_t *map, uint8_t mapSize);
+	int		(*heuristicFunc)(const uint8_t *map, uint8_t mapSize);
 	path_t	*(NPuzzleSolver::*algoFunc)(const uint8_t *map, uint8_t mapSize);
 
 	// algo functions
@@ -39,7 +39,7 @@ class NPuzzleSolver
 public:
 	path_t	*solve(const uint8_t *map, uint8_t mapSize);
 
-	NPuzzleSolver(euristicFunc_e func = HAMMILTON_DISTANCE, solver_e algo = ASTAR);
+	NPuzzleSolver(heuristicFunc_e func, solver_e algo);
 	~NPuzzleSolver() {};
 
 };
