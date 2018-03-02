@@ -1,40 +1,6 @@
 #include "NPuzzleSolver.h"
 #include "State.hpp"
-
-static int	hammiltonDistance(const uint8_t *map, uint8_t mapSize) {
-	int inversions = -1;
-
-	for (int i = 0; i < mapSize; i++) {
-		if (map[i] != (i + 1))
-			inversions++;
-	}
-	return (inversions);
-}
-
-static int	manhattanDistance(const uint8_t *map, uint8_t mapSize) {
-	int	price = 0;
-	uint8_t	x1, x2, y1, y2, xres, yres;
-
-	for (int i = 0; i < mapSize; i++) {
-		if (map[i]) {
-			x2 = (map[i] - 1) % State::size;
-			y2 = (map[i] - 1) / State::size;
-
-			x1 = i % State::size;
-			y1 = i / State::size;
-
-			if ((xres = x1 - x2) < 0)
-				xres *= -1;
-
-			if ((yres = y1 - y2) < 0)
-				yres *=  -1;
-
-			price += xres + yres;
-		}
-	}
-
-	return (price);
-}
+#include "heuristicFunctions.h"
 
 #define INVAL_MOVE	123456
 #define SWAP(_state, _curr, _emptyPos, _newPos)	\
@@ -167,7 +133,7 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
     return (nullptr);
 }
 
-NPuzzleSolver::NPuzzleSolver(heuristicFunc_e func = HAMMILTON_DISTANCE, solver_e algo = ASTAR) {
+NPuzzleSolver::NPuzzleSolver(heuristicFunc_e func, solver_e algo) {
 	switch (func) {
 		case HAMMILTON_DISTANCE:
 			this->heuristicFunc = hammiltonDistance;
