@@ -14,6 +14,10 @@ State::State(const uint8_t *map, int price, int length) {
 	this->length = length;
 }
 
+State::State() {
+	this->map = new uint8_t[State::mapSize];
+}
+
 State::~State() {
 	delete[] this->map;
 }
@@ -31,4 +35,9 @@ void	State::printState() const {
     else
         printf("map is null\n");
 	printf("\n\n");
+}
+
+void	State::setMap(const uint8_t *srcMap) {
+	for (int i = 0; i < State::mapSize; i++)
+		this->map[i] = srcMap[i];
 }

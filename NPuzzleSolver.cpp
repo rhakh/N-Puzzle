@@ -2,17 +2,49 @@
 #include "State.hpp"
 #include "heuristicFunctions.h"
 
+void	NPuzzleSolver::poolAlloc() {
+	//todo check mem alloc
+	this->currPool = new State[this->currPoolSize]();
+	this->currPoolPos = 0;
+	this->ptrPool.push_back(this->currPool);
+}
+
+void	NPuzzleSolver::poolRealloc() {
+	//todo check mem alloc
+	this->currPoolSize *= 2;
+	this->currPool = new State[this->currPoolSize]();
+	this->currPoolPos = 0;
+	this->ptrPool.push_back(this->currPool);
+}
+
+State	*NPuzzleSolver::getNewState() {
+	State	*ret;
+	if (this->currPoolPos < this->currPoolSize) {
+		ret = &(this->currPool[this->currPoolPos]);
+		this->currPoolPos++;
+		return (ret);
+	}
+	else {
+		poolRealloc();
+		ret = &(this->currPool[this->currPoolPos]);
+		this->currPoolPos++;
+		return (ret);
+	}
+}
+
 #define INVAL_MOVE	123456
-#define SWAP(_state, _curr, _emptyPos, _newPos)	\
-			switch((_newPos)) {	\
-				case INVAL_MOVE:	\
-					goto fail;	\
-					break;		\
-				default:		\
-					(_state) = new State((_curr)->getMapPtr(), 0, (_curr)->getLength() + 1);	\
-                    (_state)->swapPieces((_emptyPos), (_newPos)); \
+#define SWAP(_state, _curr, _emptyPos, _newPos)														\
+			switch((_newPos)) {																		\
+				case INVAL_MOVE:																	\
+					goto fail;																		\
+					break;																			\
+				default:																			\
+					(_state) = this->getNewState();													\
+					(_state)->setMap((_curr)->getMapPtr());											\
+					(_state)->swapPieces((_emptyPos), (_newPos));									\
+					(_state)->setLength((_curr)->getLength() + 1);									\
 					(_state)->setPrice(this->heuristicFunc((_state)->getMapPtr(), State::mapSize));	\
-					break;		\
+					break;																			\
 			}
 
 //todo: check for no memory alloc
@@ -71,7 +103,13 @@ void    freeMem(NPqueue *open, NPset *closed) {
 	}
 }
 
-path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
+void	NPuzzleSolver::freeMem() {
+	for (int i = 0; i < this->ptrPool.size(); ++i) {
+		delete[] this->ptrPool[i];
+	}
+}
+
+path_t	*NPuzzleSolver::aStar(const uint8_t *map, const uint8_t mapSize) {
 	NPqueue	open;
 	NPset	closed;
 	State	*root;
@@ -84,7 +122,11 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
 	State::mapSize = mapSize;
 	State::size = (int)std::sqrt(mapSize);
 	//todo check for mem alloc
-	root = new State(map, heuristicFunc(map, mapSize), 0);
+
+	root = this->getNewState();
+	root->setMap(map);
+	root->setPrice(heuristicFunc(map, mapSize));
+	root->setLength(0);
 
 	open.push(root);
 
@@ -95,7 +137,6 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
 		if (closed.find(curr) != closed.end()) {
 			/* curr already exist in closed set
 			 * pop another one */
-			delete curr;
 			continue;
 		}
 
@@ -103,8 +144,8 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
 			/* create path */
             printf("\nFINISH\nmaxOpen = %d, closed.size = %zu\n", maxOpen, closed.size());
 			curr->printState();
-            freeMem(&open, &closed);
-            delete curr;
+            //freeMem(&open, &closed);
+			this->freeMem();
 			return (nullptr);
 		}
 
@@ -114,6 +155,9 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
 		for (emptyPos = 0; emptyPos < mapSize; emptyPos++)
 			if (currMap[emptyPos] == 0)
 				break;
+
+		printf("\nCURR\n");
+		curr->printState();
 
 		for (int move = UP; move < LAST; move++) {
 			newMove = doMove(curr, move, emptyPos);
@@ -128,8 +172,9 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
 		if (open.size() > maxOpen)
 			maxOpen = open.size();
 	}
-	printf("Can't find the solution\n");
-	freeMem(&open, &closed);
+	printf("Can't find the solution\nmaxOpen = %d, closed.size %zu\n", maxOpen, closed.size());
+	//freeMem(&open, &closed);
+	this->freeMem();
     return (nullptr);
 }
 
@@ -154,6 +199,8 @@ NPuzzleSolver::NPuzzleSolver(heuristicFunc_e func, solver_e algo) {
 			this->algoFunc = &NPuzzleSolver::aStar;
 			break;
 	}
+
+	this->poolAlloc();
 }
 
 path_t	*NPuzzleSolver::solve(const uint8_t *map, uint8_t mapSize) {

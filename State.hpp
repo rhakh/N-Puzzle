@@ -22,10 +22,12 @@ private:
 
 public:
 	State(const uint8_t *map, int price, int length);
+	State();
 	~State();
 
 	void			setLength(int length) { this->length = length; }
 	void			setPrice(int price) { this->price = price; }
+	void			setMap(const uint8_t *map);
 	int				getLength() const { return (this->length); }
 	int				getPrice() const { return (this->price); }
 	const uint8_t	*getMapPtr() const { return (this->map); }
