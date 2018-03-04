@@ -40,7 +40,7 @@ int		main(void) {
 
 	NPuzzleSolver	solver(HAMMILTON_DISTANCE, ASTAR);
 
-	solver.solve(map6, 36);
+	solver.solve(map4, 16);
 
 	return (0);
 }

@@ -30,7 +30,7 @@ class NPuzzleSolver
 {
 	std::vector<State *>	ptrPool;
 	State					*currPool = nullptr;
-	std::size_t 			currPoolSize = 512;
+	std::size_t 			currPoolSize = 8192;
 	std::size_t				currPoolPos = 0;
 
 	int		(*heuristicFunc)(const uint8_t *map, uint8_t mapSize);

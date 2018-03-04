@@ -86,27 +86,9 @@ fail:
 typedef std::priority_queue<State *, std::vector<State *>, CompareState>	NPqueue;
 typedef std::unordered_set<State *, HashState, EqualState>	NPset;
 
-void    freeMem(NPqueue *open, NPset *closed) {
-    State   *curr = nullptr;
-
-    while (!open->empty()) {
-        curr = open->top();
-		open->pop();
-		delete curr;
-    }
-
-	State	*element = nullptr;
-	std::unordered_set<State*, HashState, EqualState>::iterator i;
-    for (i = closed->begin(); i != closed->end(); i++) {
-		element = *i;
-		delete element;
-	}
-}
-
 void	NPuzzleSolver::freeMem() {
-	for (int i = 0; i < this->ptrPool.size(); ++i) {
+	for (int i = 0; i < this->ptrPool.size(); ++i)
 		delete[] this->ptrPool[i];
-	}
 }
 
 path_t	*NPuzzleSolver::aStar(const uint8_t *map, const uint8_t mapSize) {
@@ -146,7 +128,6 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, const uint8_t mapSize) {
 			/* create path */
             printf("\nFINISH\nmaxOpen = %d, closed.size = %zu\n", maxOpen, closed.size());
 			curr->printState();
-            //freeMem(&open, &closed);
 			this->freeMem();
 			return (nullptr);
 		}
@@ -172,7 +153,6 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, const uint8_t mapSize) {
 			maxOpen = open.size();
 	}
 	printf("Can't find the solution\nmaxOpen = %d, closed.size %zu\n", maxOpen, closed.size());
-	//freeMem(&open, &closed);
 	this->freeMem();
     return (nullptr);
 }
