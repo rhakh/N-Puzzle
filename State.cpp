@@ -1,7 +1,7 @@
 #include "State.hpp"
 
-int State::size = 4;
-int State::mapSize = size * size;
+int State::size = -1;
+int State::mapSize = -1;
 
 State::State(const uint8_t *map, int price, int length) {
 	//todo: check for mem alloc

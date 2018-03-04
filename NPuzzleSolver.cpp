@@ -4,7 +4,7 @@
 
 void	NPuzzleSolver::poolAlloc() {
 	//todo check mem alloc
-	this->currPool = new State[this->currPoolSize]();
+	this->currPool = new State[this->currPoolSize];
 	this->currPoolPos = 0;
 	this->ptrPool.push_back(this->currPool);
 }
@@ -12,7 +12,7 @@ void	NPuzzleSolver::poolAlloc() {
 void	NPuzzleSolver::poolRealloc() {
 	//todo check mem alloc
 	this->currPoolSize *= 2;
-	this->currPool = new State[this->currPoolSize]();
+	this->currPool = new State[this->currPoolSize];
 	this->currPoolPos = 0;
 	this->ptrPool.push_back(this->currPool);
 }
@@ -20,7 +20,7 @@ void	NPuzzleSolver::poolRealloc() {
 State	*NPuzzleSolver::getNewState() {
 	State	*ret;
 	if (this->currPoolPos < this->currPoolSize) {
-		ret = &(this->currPool[this->currPoolPos]);
+		ret = &this->currPool[this->currPoolPos];
 		this->currPoolPos++;
 		return (ret);
 	}
@@ -123,6 +123,8 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, const uint8_t mapSize) {
 	State::size = (int)std::sqrt(mapSize);
 	//todo check for mem alloc
 
+	this->poolAlloc();
+
 	root = this->getNewState();
 	root->setMap(map);
 	root->setPrice(heuristicFunc(map, mapSize));
@@ -155,9 +157,6 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, const uint8_t mapSize) {
 		for (emptyPos = 0; emptyPos < mapSize; emptyPos++)
 			if (currMap[emptyPos] == 0)
 				break;
-
-		printf("\nCURR\n");
-		curr->printState();
 
 		for (int move = UP; move < LAST; move++) {
 			newMove = doMove(curr, move, emptyPos);
@@ -199,8 +198,6 @@ NPuzzleSolver::NPuzzleSolver(heuristicFunc_e func, solver_e algo) {
 			this->algoFunc = &NPuzzleSolver::aStar;
 			break;
 	}
-
-	this->poolAlloc();
 }
 
 path_t	*NPuzzleSolver::solve(const uint8_t *map, uint8_t mapSize) {
