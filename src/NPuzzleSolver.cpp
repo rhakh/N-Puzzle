@@ -78,7 +78,7 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
 	State	*curr;
     State	*newMove;
 	path_t	*path = nullptr;
-	int		maxOpen = 0, emptyPos = 0;
+	unsigned int	maxOpen = 0, emptyPos = 0;
 	const uint8_t	*currMap = 0;
 
 	State::mapSize = mapSize;
