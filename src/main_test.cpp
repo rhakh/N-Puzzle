@@ -50,4 +50,5 @@ int		main(void) {
  * $ g++ -std=c++11 -O2 -pg ...
  * $ ./a.out
  * $ gprof a.out > prof.txt
+ * g++ -std=c++11 -I $HOME/.brew/Cellar/boost/1.67.0_1/include -L $HOME/.brew/Cellar/boost/1.67.0_1/lib  -lboost_system  -lboost_thread-mt
  */
