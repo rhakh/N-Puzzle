@@ -1,5 +1,5 @@
-#ifndef NPUZZLE_SOLVER_H
-#define NPUZZLE_SOLVER_H
+#ifndef NPUZZLE_SOLVER_HPP
+#define NPUZZLE_SOLVER_HPP
 
 #include "State.hpp"
 
@@ -44,4 +44,4 @@ public:
 
 };
 
-#endif /* NPUZZLE_SOLVER_H */
+#endif /* NPUZZLE_SOLVER_HPP */

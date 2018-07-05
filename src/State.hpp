@@ -1,5 +1,5 @@
-#ifndef STATE_H
-#define STATE_H
+#ifndef STATE_HPP
+#define STATE_HPP
 
 #include <cstdint>
 #include <cstdio>
@@ -70,4 +70,4 @@ struct EqualState {
 	}
 };
 
-#endif /* STATE_H */
+#endif /* STATE_HPP */

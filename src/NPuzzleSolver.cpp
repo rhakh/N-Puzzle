@@ -1,6 +1,6 @@
-#include "NPuzzleSolver.h"
+#include "NPuzzleSolver.hpp"
 #include "State.hpp"
-#include "heuristicFunctions.h"
+#include "heuristicFunctions.hpp"
 
 #define INVAL_MOVE	123456
 #define SWAP(_state, _curr, _emptyPos, _newPos)	\

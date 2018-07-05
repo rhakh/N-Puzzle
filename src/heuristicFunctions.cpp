@@ -1,4 +1,4 @@
-#include "heuristicFunctions.h"
+#include "heuristicFunctions.hpp"
 
 int	hammiltonDistance(const uint8_t *map, uint8_t mapSize) {
 	int inversions = -1;
@@ -22,10 +22,10 @@ int	manhattanDistance(const uint8_t *map, uint8_t mapSize) {
 			x1 = i % State::size;
 			y1 = i / State::size;
 
-			if ((xres = x1 - x2) < 0)
+			if ((int8_t)(xres = x1 - x2) < 0)
 				xres *= -1;
 
-			if ((yres = y1 - y2) < 0)
+			if ((int8_t)(yres = y1 - y2) < 0)
 				yres *= -1;
 
 			price += xres + yres;

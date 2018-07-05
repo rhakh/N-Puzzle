@@ -20,15 +20,15 @@ State::~State() {
 
 void	State::printState() const {
 	printf("State price = %d, length = %d\n", this->price, this->length);
-    if (this->map != nullptr) {
-        for (int i = 0; i < State::mapSize; i++) {
-            if ((i + 1) % State::size == 0)
-                printf("%2u\n", this->map[i]);
-            else
-                printf("%2u ", this->map[i]);
-        }
-    }
-    else
-        printf("map is null\n");
+	if (this->map != nullptr) {
+		for (int i = 0; i < State::mapSize; i++) {
+			if ((i + 1) % State::size == 0)
+			printf("%2u\n", this->map[i]);
+			else
+			printf("%2u ", this->map[i]);
+		}
+	}
+	else
+	printf("map is null\n");
 	printf("\n\n");
 }

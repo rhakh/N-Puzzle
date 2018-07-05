@@ -1,17 +1,17 @@
-CXX=clang++
+CXX=g++
 
 NAME = n-puzzle
 
-FLAGS =  -Wall -Wextra -Werror -std=c++11 -Wno-unused
+FLAGS =  -Wall -Wextra -Werror -std=c++11 -Wno-unused -lboost_filesystem  -lboost_system  -pthread -lboost_thread
 
 OBJDIR = obj/
 
 SRCDIR = src/
 
 _SRC = heuristicFunctions.cpp \
-		main_test.cpp \
 		NPuzzleSolver.cpp \
 		State.cpp \
+		main.cpp \
 
 SRC = $(addprefix $(SRCDIR), $(_SRC))
 
