@@ -1,4 +1,4 @@
-#include "NPuzzleSolver.h"
+#include "NPuzzleSolver.hpp"
 
 int		main(void) {
 	uint8_t	map4[16] = {
@@ -40,7 +40,7 @@ int		main(void) {
 
 	NPuzzleSolver	solver(HAMMILTON_DISTANCE, ASTAR);
 
-	solver.solve(map4, 16);
+	solver.solve(map3, 9);
 
 	return (0);
 }

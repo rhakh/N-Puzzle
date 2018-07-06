@@ -1,6 +1,8 @@
 #include "main.hpp"
 #include "client_http.hpp"
 #include "server_http.hpp"
+#include "NPuzzleSolver.hpp"
+#include <array>
 
 // Added for the json-example
 #define BOOST_SPIRIT_THREADSAFE
@@ -12,6 +14,8 @@
 #include <boost/filesystem.hpp>
 #include <fstream>
 #include <vector>
+
+#include "messageProtocol.hpp"
 
 using namespace std;
 // Added for the json-example:
@@ -25,16 +29,15 @@ void	serverInit(HttpServer &server) {
 
 	server.resource["^/message$"]["POST"] = [](shared_ptr<HttpServer::Response> response, shared_ptr<HttpServer::Request> request) {
 		try {
-			using namespace boost::property_tree;
+			namespace pt = boost::property_tree;
+			std::string	result;
+			pt::ptree	json;
 
-			ptree pt;
-			read_json(request->content, pt);
-
-			auto name = pt.get<string>("firstName") + " " + pt.get<string>("lastName");
-
+			read_json(request->content, json);
+			taskHandler(json, result);
 			*response << "HTTP/1.1 200 OK\r\n"
-						<< "Content-Length: " << name.length() << "\r\n\r\n"
-						<< name;
+						<< "Content-Length: " << result.length() << "\r\n\r\n"
+						<< result;
 		}
 		catch(const exception &e) {
 			*response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << strlen(e.what()) << "\r\n\r\n"
@@ -118,21 +121,44 @@ int		main(int argc, char ** argv) {
     // Client examples
     HttpClient client("localhost:8080");
 
-    string json_string = "{\"firstName\": \"John\",\"lastName\": \"Smith\",\"age\": 25}";
-	boost::property_tree::ptree		taskJson;
+	string json_string = "{\"firstName\": \"John\",\"lastName\": \"Smith\",\"age\": 25}";
 
-	taskJson.push_back();
+	// Synchronous request examples
+	try {
+		namespace pt = boost::property_tree;
+		std::array<int, 9>		map = {{0, 3, 5, 6, 7, 1, 4, 2, 8}};
+		pt::ptree		taskJson;
+		pt::ptree		dataNode;
+		pt::ptree		mapNode;
 
-    // Synchronous request examples
-    try {
-      auto r2 = client.request("POST", "/string", json_string);
-      cout << r2->content.rdbuf() << endl;
-    }
-    catch(const SimpleWeb::system_error &e) {
-      cerr << "Client request error: " << e.what() << endl;
-    }
+		taskJson.put("messageType", NP_TASK);
 
-    server_thread.join();
+		for (size_t i = 0; i < map.size(); i++) {
+			pt::ptree	mapElem;
+
+			mapElem.put("", map[i]);
+			mapNode.push_back(std::make_pair("", mapElem));
+		}
+		dataNode.add_child("map", mapNode);
+
+		dataNode.put("algorithm", ASTAR);
+
+		dataNode.put("heuristicFunction", HAMMILTON_DISTANCE);
+
+		taskJson.add_child("data", dataNode);
+
+		std::stringstream	ss;
+		boost::property_tree::json_parser::write_json(ss, taskJson);
+		std::cout << ss.str() << std::endl;
+
+		auto r2 = client.request("POST", "/message", ss.str());
+		cout << r2->content.rdbuf() << endl;
+	}
+	catch(const SimpleWeb::system_error &e) {
+		cerr << "Client request error: " << e.what() << endl;
+	}
+
+	server_thread.join();
 
 }
 

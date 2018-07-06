@@ -2,7 +2,16 @@ CXX=g++
 
 NAME = n-puzzle
 
-FLAGS =  -Wall -Wextra -Werror -std=c++11 -Wno-unused -lboost_filesystem  -lboost_system  -pthread -lboost_thread
+FLAGS = -std=c++11 -Wall -Wextra -Werror -std=c++11 -lboost_filesystem  -lboost_system  -pthread -lboost_thread-mt \
+		-Wno-unused-command-line-argument -Wno-unused -Wno-unused-parameter \
+
+OS := $(shell uname)
+ifeq ($(OS),Darwin)
+  INCLUDE_AND_LIBS = -I $(HOME)/.brew/Cellar/boost/1.67.0_1/include -L $(HOME)/.brew/Cellar/boost/1.67.0_1/lib
+else
+  INCLUDE_AND_LIBS = ""
+endif
+
 
 OBJDIR = obj/
 
@@ -12,6 +21,7 @@ _SRC = heuristicFunctions.cpp \
 		NPuzzleSolver.cpp \
 		State.cpp \
 		main.cpp \
+		messageProtocol.cpp \
 
 SRC = $(addprefix $(SRCDIR), $(_SRC))
 
@@ -23,10 +33,10 @@ make_dir:
 	mkdir -p $(OBJDIR)
 
 $(OBJDIR)%.o: $(SRCDIR)%.cpp
-	$(CXX) $(FLAGS) -o $@ -c $<
+	$(CXX) $(FLAGS) $(INCLUDE_AND_LIBS) -o $@ -c $<
 
 $(NAME): $(OBJ) $(SRC)
-	$(CXX) $(FLAGS) -lncurses -o $(NAME) $(OBJ)
+	$(CXX) $(FLAGS) $(INCLUDE_AND_LIBS) -o $(NAME) $(OBJ)
 
 clean:
 	rm -rf $(OBJDIR)

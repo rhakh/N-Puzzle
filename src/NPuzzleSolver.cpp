@@ -133,7 +133,7 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
     return (nullptr);
 }
 
-NPuzzleSolver::NPuzzleSolver(heuristicFunc_e func, solver_e algo) {
+NPuzzleSolver::NPuzzleSolver(int func, int algo) {
 	switch (func) {
 		case HAMMILTON_DISTANCE:
 			this->heuristicFunc = hammiltonDistance;
