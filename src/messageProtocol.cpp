@@ -10,6 +10,7 @@
 #define BOOST_SPIRIT_THREADSAFE
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <boost/thread.hpp>
 
 // Added for the default_resource example
 #include <algorithm>
@@ -36,4 +37,29 @@ void	taskHandler(boost::property_tree::ptree &json, std::string &result) {
 		map[i] = it->second.get<int>("");
 
 	solver.solve(map, mapNode.size());
+}
+
+void	stopHandler(boost::property_tree::ptree &json, std::string &result) {
+	namespace pt = boost::property_tree;
+
+	
+}
+
+void	processMessage(boost::property_tree::ptree &json, std::string &result) {
+	namespace pt = boost::property_tree;
+
+	int		messageType = json.get<int>("messageType");
+
+	switch (messageType) {
+		case NP_TASK:
+			taskHandler(json, result);
+			break;
+		case NP_STOP:
+			stopHandler(json, result);
+			break;
+		default: {
+
+			}
+			break;
+	}
 }

@@ -34,7 +34,7 @@ void	serverInit(HttpServer &server) {
 			pt::ptree	json;
 
 			read_json(request->content, json);
-			taskHandler(json, result);
+			processMessage(json, result);
 			*response << "HTTP/1.1 200 OK\r\n"
 						<< "Content-Length: " << result.length() << "\r\n\r\n"
 						<< result;
@@ -167,6 +167,7 @@ int		main(int argc, char ** argv) {
 		1. Everything in camelCase
 		2. 'using' / 'using namespace' can be applied in scope of function
 		3. Short alias for this namespace -> namespace pt = boost::property_tree;
+		4. Names of enumes and defines starts with 'NP_'
 
 	TODO:
 		1. Makefile for macos
@@ -176,5 +177,6 @@ int		main(int argc, char ** argv) {
 		4. Use unsigned int in everywhere in NPuzzleSolver
 		5. Make an API of NPuzzleSolver, means in header files must be
 			everything what needs for NPuzzleSolver
+		6. Think about using enum as argument in NPuzzleSolver class
 
 */
