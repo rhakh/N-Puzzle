@@ -10,7 +10,7 @@
 					break;		\
 				default:		\
 					(_state) = new State((_curr)->getMapPtr(), 0, (_curr)->getLength() + 1);	\
-                    (_state)->swapPieces((_emptyPos), (_newPos)); \
+					(_state)->swapPieces((_emptyPos), (_newPos)); \
 					(_state)->setPrice(this->heuristicFunc((_state)->getMapPtr(), State::mapSize));	\
 					break;		\
 			}
@@ -71,6 +71,10 @@ void    freeMem(NPqueue *open, NPset *closed) {
 	}
 }
 
+void NPuzzleSolver::stopProcess(void) {
+	this->stopRequested = true;
+}
+
 path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
 	NPqueue	open;
 	NPset	closed;
@@ -99,12 +103,12 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
 			continue;
 		}
 
-		if (curr->getPrice() == 0) {
-			/* create path */
-            printf("\nFINISH\nmaxOpen = %d, closed.size = %zu\n", maxOpen, closed.size());
+		if (curr->getPrice() == 0 || this->stopRequested) {
+			/* todo: create path */
+			printf("\nFINISH\nmaxOpen = %d, closed.size = %zu\n", maxOpen, closed.size());
 			curr->printState();
-            freeMem(&open, &closed);
-            delete curr;
+			freeMem(&open, &closed);
+			delete curr;
 			return (nullptr);
 		}
 
@@ -133,7 +137,17 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
     return (nullptr);
 }
 
-NPuzzleSolver::NPuzzleSolver(int func, int algo) {
+NPuzzleSolver::NPuzzleSolver() {
+	stopRequested = false;
+}
+
+NPuzzleSolver::~NPuzzleSolver() {
+
+}
+
+path_t	*NPuzzleSolver::solve(int func, int algo, const uint8_t *map, uint8_t mapSize) {
+	//todo: replace nullptr for error codes.
+
 	switch (func) {
 		case HAMMILTON_DISTANCE:
 			this->heuristicFunc = hammiltonDistance;
@@ -154,10 +168,6 @@ NPuzzleSolver::NPuzzleSolver(int func, int algo) {
 			this->algoFunc = &NPuzzleSolver::aStar;
 			break;
 	}
-}
-
-path_t	*NPuzzleSolver::solve(const uint8_t *map, uint8_t mapSize) {
-	//todo: replace nullptr for error codes.
 
 	if (mapSize < 9 || mapSize > 100) {
 		printf("This map size is invalid or not supported.\n" );

@@ -6,32 +6,34 @@
 #define THREAD_TEST
 
 #ifdef THREAD_TEST
-volatile int i = 0;
+volatile int iter = 0;
 
 using th = boost::thread;
 
 void 	signal_handler(int a) {
 	std::cout << "From thred " << boost::this_thread::get_id()
-				<< ": i = " << i << std::endl;
+				<< ": iter = " << iter << std::endl << std::flush;
 }
 
-void	work(int i) {
+void	work(int a) {
 	boost::thread::id	id = boost::this_thread::get_id();
 
-	switch (i) {
+	switch (a) {
 		case 0: {
-			std::cout << "counter: Thread " << id << "  starts." << std::endl;
+			std::cout << "counter: Thread " << id << "  starts." << std::endl << std::flush;
+			usleep(100);
 			std::signal(SIGINT, signal_handler);
-			for (i = 0; i < 2147483647; )
-				i += 1;
-			std::cout << "Thread " << id << "  end." << std::endl;
+			for (iter = 0; iter < 2147483647; )
+				iter += 1;
+			std::cout << "Thread " << id << "  end." << std::endl << std::flush;
 		}
 		break;
 		case 1: {
-			std::cout << "raiser: Thread " << id << " starts." << std::endl;
-			sleep(1);
+			usleep(200);
+			std::cout << "raiser: Thread " << id << " starts." << std::endl << std::flush;
+			usleep(100);
 			std::raise(SIGINT);
-			std::cout << "Thread " << id << "  end." << std::endl;
+			std::cout << "Thread " << id << "  end." << std::endl << std::flush;
 		}
 		break;
 	}
@@ -39,8 +41,6 @@ void	work(int i) {
 
 int main()
 {
-  // Установка обработчика сигнала
-
 	boost::thread	*t[2];
 
 	t[0] = new boost::thread(work, 0);

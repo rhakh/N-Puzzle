@@ -24,7 +24,7 @@ void	taskHandler(boost::property_tree::ptree &json, std::string &result) {
 
 	pt::ptree		mapNode = json.get_child("data.map");
 	pt::ptree		dataNode = json.get_child("data");
-	NPuzzleSolver	solver(dataNode.get<int>("heuristicFunction"), dataNode.get<int>("algorithm"));
+	NPuzzleSolver	solver;
 	unsigned char	map[mapNode.size()];
 	int				i;
 
@@ -36,13 +36,15 @@ void	taskHandler(boost::property_tree::ptree &json, std::string &result) {
 	for (i = 0; it != mapNode.end(); it++, i++)
 		map[i] = it->second.get<int>("");
 
-	solver.solve(map, mapNode.size());
+	solver.solve(dataNode.get<int>("heuristicFunction"),
+					dataNode.get<int>("algorithm"),
+					map, mapNode.size());
 }
 
 void	stopHandler(boost::property_tree::ptree &json, std::string &result) {
 	namespace pt = boost::property_tree;
 
-	
+
 }
 
 void	processMessage(boost::property_tree::ptree &json, std::string &result) {
