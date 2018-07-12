@@ -7,7 +7,7 @@
 #include <algorithm>
 
 
-enum moves_e {UP, DOWN, LEFT, RIGHT, LAST};
+enum moves_e {ROOT, UP, DOWN, LEFT, RIGHT, LAST};
 
 class State
 {
@@ -19,9 +19,16 @@ private:
 	uint8_t	*map = nullptr;
 	int		price;
 	int		length;
+	uint8_t	movement;
+	const State	*prev;
+
+	//disable copy constructor;
+	State(const State &rhs) {};
+	State	&operator=(const State &rhs) {return (*this);};
 
 public:
 	State(const uint8_t *map, int price, int length);
+	State(const State &src, int price, int length, uint8_t move);
 	~State();
 
 	void			setLength(int length) { this->length = length; }
@@ -31,6 +38,8 @@ public:
 	const uint8_t	*getMapPtr() const { return (this->map); }
 	void			printState() const;
 	void			swapPieces(int a, int b) {	std::swap(map[a], map[b]); }
+	uint8_t			getMove() const;
+	const State		*getPrev() const;
 
 };
 

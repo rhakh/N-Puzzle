@@ -1,11 +1,10 @@
 #include <csignal>
 #include <iostream>
 
+// #define THREAD_TEST
+#ifdef THREAD_TEST
 #include <boost/thread/thread.hpp>
 
-#define THREAD_TEST
-
-#ifdef THREAD_TEST
 volatile int iter = 0;
 
 using th = boost::thread;
@@ -53,3 +52,64 @@ int main()
 	delete t[1];
 }
 #endif // THREAD_TEST
+
+#define RVALUE_TEST
+#ifdef RVALUE_TEST
+
+#include <utility>
+#include <iostream>
+
+struct Tclass {
+	Tclass(int _value, int _n) {
+		value = _value;
+		n = _n;
+	};
+
+	Tclass(Tclass &&rhs) {
+		std::cout << "move constructor was called" << std::endl;
+		this->value = std::move(rhs.value);
+		this->n = std::move(rhs.n);
+	};
+
+	Tclass &operator=(Tclass &&rhs) {
+		std::cout << "operator 'move' was called" << std::endl;
+		this->value = std::move(rhs.value);
+		this->n = std::move(rhs.n);
+		return *this;
+	};
+
+	~Tclass() {};
+	int value;
+	int n;
+
+private:
+	// to disable copy constr. and copy operator
+	Tclass &operator=(const Tclass &src) {};
+	Tclass(const Tclass &src) {};
+};
+
+Tclass	&&foo() {
+	Tclass	a(42, 21);
+
+	std::cout << __func__ << ": &a = " << &a
+				<< " &value = " << &a.value
+				<< " &n = " << &a.n
+				<< ", n = " << a.n
+				<< ", value = " << a.value << std::endl;
+
+	return (std::move(a));
+}
+
+int		main() {
+	Tclass &&a = foo();
+
+	std::cout << __func__ << ": &a = " << &a
+				<< " &value = " << &a.value
+				<< " &n = " << &a.n
+				<< ", n = " << a.n
+				<< ", value = " << a.value << std::endl;
+
+	return (0);
+}
+
+#endif // RVALUE_TEST

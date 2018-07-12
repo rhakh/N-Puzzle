@@ -38,9 +38,10 @@ int		main(void) {
 			10, 19, 16, 24, 17
 	};
 
-	NPuzzleSolver	solver(HAMMILTON_DISTANCE, ASTAR);
+	NPuzzleSolver	solver;
+	std::list<uint8_t> res;
 
-	solver.solve(map3, 9);
+	solver.solve(HAMMILTON_DISTANCE, ASTAR, map3, 9, res);
 
 	return (0);
 }

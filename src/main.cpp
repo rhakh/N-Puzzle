@@ -178,5 +178,7 @@ int		main(int argc, char ** argv) {
 		5. Make an API of NPuzzleSolver, means in header files must be
 			everything what needs for NPuzzleSolver
 		6. Think about using enum as argument in NPuzzleSolver class
+		7. Use incline function in NPuzzleSolver.cpp instead of SWAP
+		8. Leaks in NPsolver
 
 */

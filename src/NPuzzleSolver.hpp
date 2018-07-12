@@ -8,6 +8,7 @@
 #include <cassert>
 #include <cmath>
 #include <atomic>
+#include <list>
 
 typedef struct	path_s path_t;
 
@@ -34,12 +35,12 @@ class NPuzzleSolver
 	path_t	*(NPuzzleSolver::*algoFunc)(const uint8_t *map, uint8_t mapSize);
 
 	// algo functions
-	path_t	*aStar(const uint8_t *map, uint8_t mapSize);
-	path_t	*aStarIDA(const uint8_t *map, uint8_t mapSize);
+	path_t	*aStar(const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &result);
+	path_t	*aStarIDA(const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &result);
 
-	State	*doMove(const State *curr, int move, int emptyPos);
+	State	*doMove(const State *curr, uint8_t move, int emptyPos);
 public:
-	path_t	*solve(int func, int algo, const uint8_t *map, uint8_t mapSize);
+	path_t	*solve(int func, int algo, const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &result);
 
 	NPuzzleSolver();
 	~NPuzzleSolver();

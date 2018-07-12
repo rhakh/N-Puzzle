@@ -3,20 +3,20 @@
 #include "heuristicFunctions.hpp"
 
 #define INVAL_MOVE	123456
-#define SWAP(_state, _curr, _emptyPos, _newPos)	\
+#define SWAP(_state, _curr, _emptyPos, _newPos, _move)	\
 			switch((_newPos)) {	\
 				case INVAL_MOVE:	\
 					goto fail;	\
 					break;		\
 				default:		\
-					(_state) = new State((_curr)->getMapPtr(), 0, (_curr)->getLength() + 1);	\
+					(_state) = new State(*(_curr), 0, (_curr)->getLength() + 1, (_move));	\
 					(_state)->swapPieces((_emptyPos), (_newPos)); \
 					(_state)->setPrice(this->heuristicFunc((_state)->getMapPtr(), State::mapSize));	\
 					break;		\
 			}
 
 //todo: check for no memory alloc
-State * NPuzzleSolver::doMove(const State *curr, int move, int emptyPos) {
+State * NPuzzleSolver::doMove(const State *curr, uint8_t move, int emptyPos) {
 	State	*newState = nullptr;
 	const int	size = State::size;
 	int	x, y, up, down, right, left;
@@ -27,19 +27,19 @@ State * NPuzzleSolver::doMove(const State *curr, int move, int emptyPos) {
 	switch (move) {
 		case UP:
 			up = (y - 1 < 0) ? (INVAL_MOVE) : x + ((y - 1) * size);
-			SWAP(newState, curr, emptyPos, up);
+			SWAP(newState, curr, emptyPos, up, move);
 			break;
 		case DOWN:
 			down = (y + 1 == size) ? (INVAL_MOVE) : x + ((y + 1) * size);
-			SWAP(newState, curr, emptyPos, down);
+			SWAP(newState, curr, emptyPos, down, move);
 			break;
 		case LEFT:
 			left = (x - 1 < 0) ? (INVAL_MOVE) : (x - 1) + (y * size);
-			SWAP(newState, curr, emptyPos, left);
+			SWAP(newState, curr, emptyPos, left, move);
 			break;
 		case RIGHT:
 			right = (x + 1 == size) ? (INVAL_MOVE) : (x + 1) + (y * size);
-			SWAP(newState, curr, emptyPos, right);
+			SWAP(newState, curr, emptyPos, right, move);
 			break;
 		default: /* Bug */
 			assert(0);
@@ -55,17 +55,17 @@ typedef std::priority_queue<State *, std::vector<State *>, CompareState>	NPqueue
 typedef std::unordered_set<State *, HashState, EqualState>	NPset;
 
 void    freeMem(NPqueue *open, NPset *closed) {
-    State   *curr = nullptr;
+	State   *curr = nullptr;
 
-    while (!open->empty()) {
-        curr = open->top();
+	while (!open->empty()) {
+		curr = open->top();
 		open->pop();
 		delete curr;
-    }
+	}
 
 	State	*element = nullptr;
 	std::unordered_set<State*, HashState, EqualState>::iterator i;
-    for (i = closed->begin(); i != closed->end(); i++) {
+	for (i = closed->begin(); i != closed->end(); i++) {
 		element = *i;
 		delete element;
 	}
@@ -75,12 +75,12 @@ void NPuzzleSolver::stopProcess(void) {
 	this->stopRequested = true;
 }
 
-path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
+path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &result) {
 	NPqueue	open;
 	NPset	closed;
 	State	*root;
 	State	*curr;
-    State	*newMove;
+	State	*newMove;
 	path_t	*path = nullptr;
 	unsigned int	maxOpen = 0, emptyPos = 0;
 	const uint8_t	*currMap = 0;
@@ -90,6 +90,8 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
 	//todo check for mem alloc
 	root = new State(map, heuristicFunc(map, mapSize), 0);
 
+	printf("\nSTART\n");
+	root->printState();
 	open.push(root);
 
 	while (!open.empty()) {
@@ -107,6 +109,16 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
 			/* todo: create path */
 			printf("\nFINISH\nmaxOpen = %d, closed.size = %zu\n", maxOpen, closed.size());
 			curr->printState();
+
+			{
+				const State *it = const_cast<const State *>(curr);
+
+				while (it->getMove() != ROOT) {
+					result.push_back(it->getMove());
+					it = it->getPrev();
+				}
+			}
+
 			freeMem(&open, &closed);
 			delete curr;
 			return (nullptr);
@@ -121,9 +133,9 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
 
 		for (int move = UP; move < LAST; move++) {
 			newMove = doMove(curr, move, emptyPos);
-            if (newMove != nullptr) {
-                open.push(newMove);
-            }
+			if (newMove != nullptr) {
+				open.push(newMove);
+			}
 		}
 
 //		 printf("\nPOP\nopen.size = %zu\n", open.size());
@@ -134,7 +146,7 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize) {
 	}
 	printf("Can't find the solution\n");
 	freeMem(&open, &closed);
-    return (nullptr);
+	return (nullptr);
 }
 
 NPuzzleSolver::NPuzzleSolver() {
@@ -145,8 +157,18 @@ NPuzzleSolver::~NPuzzleSolver() {
 
 }
 
-path_t	*NPuzzleSolver::solve(int func, int algo, const uint8_t *map, uint8_t mapSize) {
+path_t	*NPuzzleSolver::solve(int func, int algo, const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &result) {
 	//todo: replace nullptr for error codes.
+
+	if (mapSize < 9 || mapSize > 100) {
+		printf("This map size is invalid or not supported.\n" );
+		return (nullptr);
+	}
+
+	if (map == nullptr) {
+		printf("Map is null.\n");
+		return (nullptr);
+	}
 
 	switch (func) {
 		case HAMMILTON_DISTANCE:
@@ -162,21 +184,11 @@ path_t	*NPuzzleSolver::solve(int func, int algo, const uint8_t *map, uint8_t map
 
 	switch (algo) {
 		case ASTAR:
-			this->algoFunc = &NPuzzleSolver::aStar;
+			return aStar(map, mapSize, result);
 			break;
 		default:
-			this->algoFunc = &NPuzzleSolver::aStar;
+			return aStar(map, mapSize, result);
 			break;
-	}
-
-	if (mapSize < 9 || mapSize > 100) {
-		printf("This map size is invalid or not supported.\n" );
-		return (nullptr);
-	}
-
-	if (map == nullptr) {
-		printf("Map is null.\n");
-		return (nullptr);
 	}
 
 	//todo check map (map is squared ? , map is solvable ?)
@@ -184,5 +196,4 @@ path_t	*NPuzzleSolver::solve(int func, int algo, const uint8_t *map, uint8_t map
 	// 	printf("Map is unsolvable.\n");
 	// 	return (nullptr);
 	// }
-	return ((this->*algoFunc)(map, mapSize));
 }

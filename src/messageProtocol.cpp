@@ -19,7 +19,7 @@
 #include <vector>
 #include <iostream>
 
-void	taskHandler(boost::property_tree::ptree &json, std::string &result) {
+void	taskHandler(boost::property_tree::ptree &json, std::string &resultStr) {
 	namespace pt = boost::property_tree;
 
 	pt::ptree		mapNode = json.get_child("data.map");
@@ -27,6 +27,7 @@ void	taskHandler(boost::property_tree::ptree &json, std::string &result) {
 	NPuzzleSolver	solver;
 	unsigned char	map[mapNode.size()];
 	int				i;
+	std::list<uint8_t>	result;
 
 	std::stringstream	ss;
 	boost::property_tree::json_parser::write_json(ss, json);
@@ -38,7 +39,12 @@ void	taskHandler(boost::property_tree::ptree &json, std::string &result) {
 
 	solver.solve(dataNode.get<int>("heuristicFunction"),
 					dataNode.get<int>("algorithm"),
-					map, mapNode.size());
+					map, mapNode.size(),
+					result);
+
+	for (auto const &move: result) {
+		std::cout << (char)(move + '0') << ", ";
+	}
 }
 
 void	stopHandler(boost::property_tree::ptree &json, std::string &result) {
