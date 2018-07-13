@@ -39,6 +39,7 @@ class NPuzzleSolver
 	path_t	*aStarIDA(const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &result);
 
 	State	*doMove(const State *curr, uint8_t move, int emptyPos);
+	State	*getNewState(const State *curr, int emptyPos, int newPos, uint8_t move);
 public:
 	path_t	*solve(int func, int algo, const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &result);
 

@@ -3,53 +3,51 @@
 #include "heuristicFunctions.hpp"
 
 #define INVAL_MOVE	123456
-#define SWAP(_state, _curr, _emptyPos, _newPos, _move)	\
-			switch((_newPos)) {	\
-				case INVAL_MOVE:	\
-					goto fail;	\
-					break;		\
-				default:		\
-					(_state) = new State(*(_curr), 0, (_curr)->getLength() + 1, (_move));	\
-					(_state)->swapPieces((_emptyPos), (_newPos)); \
-					(_state)->setPrice(this->heuristicFunc((_state)->getMapPtr(), State::mapSize));	\
-					break;		\
-			}
+inline State	*NPuzzleSolver::getNewState(const State *curr, int emptyPos, int newPos, uint8_t move) {
+	State	*newState = nullptr;
+
+	switch (newPos) {
+		case INVAL_MOVE:
+			break;
+		default:
+			newState = new State(*curr, 0, curr->getLength() + 1, move);
+			newState->swapPieces(emptyPos, newPos);
+			newState->setPrice(this->heuristicFunc(newState->getMapPtr(), State::mapSize));
+			break;
+	}
+	return (newState);
+}
 
 //todo: check for no memory alloc
 State * NPuzzleSolver::doMove(const State *curr, uint8_t move, int emptyPos) {
-	State	*newState = nullptr;
 	const int	size = State::size;
-	int	x, y, up, down, right, left;
+	int			x, y, newPos;
 
 	x = emptyPos % size;
 	y = emptyPos / size;
 
 	switch (move) {
 		case UP:
-			up = (y - 1 < 0) ? (INVAL_MOVE) : x + ((y - 1) * size);
-			SWAP(newState, curr, emptyPos, up, move);
+			newPos = (y - 1 < 0) ? (INVAL_MOVE) : x + ((y - 1) * size);
+			return (getNewState(curr, emptyPos, newPos, move));
 			break;
 		case DOWN:
-			down = (y + 1 == size) ? (INVAL_MOVE) : x + ((y + 1) * size);
-			SWAP(newState, curr, emptyPos, down, move);
+			newPos = (y + 1 == size) ? (INVAL_MOVE) : x + ((y + 1) * size);
+			return (getNewState(curr, emptyPos, newPos, move));
 			break;
 		case LEFT:
-			left = (x - 1 < 0) ? (INVAL_MOVE) : (x - 1) + (y * size);
-			SWAP(newState, curr, emptyPos, left, move);
+			newPos = (x - 1 < 0) ? (INVAL_MOVE) : (x - 1) + (y * size);
+			return (getNewState(curr, emptyPos, newPos, move));
 			break;
 		case RIGHT:
-			right = (x + 1 == size) ? (INVAL_MOVE) : (x + 1) + (y * size);
-			SWAP(newState, curr, emptyPos, right, move);
+			newPos = (x + 1 == size) ? (INVAL_MOVE) : (x + 1) + (y * size);
+			return (getNewState(curr, emptyPos, newPos, move));
 			break;
 		default: /* Bug */
 			assert(0);
 	}
-
-fail:
-	return (newState);
 }
 #undef INVAL_MOVE
-#undef SWAP
 
 typedef std::priority_queue<State *, std::vector<State *>, CompareState>	NPqueue;
 typedef std::unordered_set<State *, HashState, EqualState>	NPset;
@@ -114,9 +112,10 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, std::list<uint
 				const State *it = const_cast<const State *>(curr);
 
 				while (it->getMove() != ROOT) {
-					result.push_back(it->getMove());
+					result.push_front(it->getMove());
 					it = it->getPrev();
 				}
+				result.push_front(ROOT);
 			}
 
 			freeMem(&open, &closed);

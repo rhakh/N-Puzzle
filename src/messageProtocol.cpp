@@ -18,6 +18,7 @@
 #include <fstream>
 #include <vector>
 #include <iostream>
+#include <ctime>
 
 void	taskHandler(boost::property_tree::ptree &json, std::string &resultStr) {
 	namespace pt = boost::property_tree;
@@ -27,6 +28,7 @@ void	taskHandler(boost::property_tree::ptree &json, std::string &resultStr) {
 	NPuzzleSolver	solver;
 	unsigned char	map[mapNode.size()];
 	int				i;
+	clock_t			start;
 	std::list<uint8_t>	result;
 
 	std::stringstream	ss;
@@ -37,11 +39,14 @@ void	taskHandler(boost::property_tree::ptree &json, std::string &resultStr) {
 	for (i = 0; it != mapNode.end(); it++, i++)
 		map[i] = it->second.get<int>("");
 
+	start = clock();
 	solver.solve(dataNode.get<int>("heuristicFunction"),
 					dataNode.get<int>("algorithm"),
 					map, mapNode.size(),
 					result);
+	start = clock() - start;
 
+	std::cout << "Elapsed time: " << start / CLOCKS_PER_SEC << " in sec." << std::endl;
 	for (auto const &move: result) {
 		std::cout << (char)(move + '0') << ", ";
 	}
