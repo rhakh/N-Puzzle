@@ -108,6 +108,7 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, std::list<uint
 			printf("\nFINISH\nmaxOpen = %d, closed.size = %zu\n", maxOpen, closed.size());
 			curr->printState();
 
+			if (!this->stopRequested)
 			{
 				const State *it = const_cast<const State *>(curr);
 
@@ -117,6 +118,10 @@ path_t	*NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, std::list<uint
 				}
 				result.push_front(ROOT);
 			}
+			else
+				result.push_front(ROOT);
+
+			this->stopRequested = false;
 
 			freeMem(&open, &closed);
 			delete curr;

@@ -4,13 +4,17 @@ NAME = n-puzzle
 
 OS := $(shell uname)
 ifeq ($(OS),Darwin)
-  INCLUDE_AND_LIBS = -I $(HOME)/.brew/Cellar/boost/1.67.0_1/include -L $(HOME)/.brew/Cellar/boost/1.67.0_1/lib
-  FLAGS = -std=c++11 -Wall -Wextra -Werror -lboost_filesystem  -lboost_system  -pthread -lboost_thread-mt \
-		-Wno-unused-command-line-argument -Wno-unused -Wno-unused-parameter
+  INCLUDE_AND_LIBS = -I $(HOME)/.brew/Cellar/boost/1.67.0_1/include \
+  					-L $(HOME)/.brew/Cellar/boost/1.67.0_1/lib \
+					-I Simple-Web-Server
+  FLAGS = -std=c++11 -Wall -Wextra -Werror -lboost_filesystem  -lboost_system \
+  			-pthread -lboost_thread-mt -Wno-unused-command-line-argument \
+			-Wno-unused -Wno-unused-parameter
 else
-  INCLUDE_AND_LIBS =
-  FLAGS = -std=c++11 -Wall -Wextra -Werror -lboost_filesystem  -lboost_system  -pthread -lboost_thread \
-		-Wno-unused-command-line-argument -Wno-unused -Wno-unused-parameter
+  INCLUDE_AND_LIBS = -I Simple-Web-Server
+  FLAGS = -std=c++11 -Wall -Wextra -Werror -lboost_filesystem  -lboost_system \
+  			-pthread -lboost_thread -Wno-unused-command-line-argument \
+			-Wno-unused -Wno-unused-parameter
 endif
 
 

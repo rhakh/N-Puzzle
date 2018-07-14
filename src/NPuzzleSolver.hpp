@@ -12,12 +12,6 @@
 
 typedef struct	path_s path_t;
 
-typedef struct	path_s {
-	State		*state;
-	path_t		*next;
-	path_s() : state(NULL), next(NULL) {}
-}				path_t;
-
 typedef enum {
 	HAMMILTON_DISTANCE, //hammingDistance
 	MANHATTAN_DISTANCE,

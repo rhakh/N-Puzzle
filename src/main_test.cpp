@@ -43,6 +43,7 @@ int		main(void) {
 
 	solver.solve(HAMMILTON_DISTANCE, ASTAR, map3, 9, res);
 
+	while (1);
 	return (0);
 }
 

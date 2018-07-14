@@ -8,7 +8,6 @@
 	"messageType": 0,
 	"data":
 	{
-		"length": 9,
 		"map": [0, 3, 5, 6, 7, 1, 4, 2, 8],
 		"algorithm" : 0,
 		"heuristicFunction": 0,
@@ -27,12 +26,11 @@
 	"messageType": 1,
 	"data":
 	{
-		"length": 20,
 		"movements": [0, 1, 3, 2, 1, 0, 3],
 		"openNodes": 123,
 		"closedNodes": 123,
-		"memory": 124,
-		"time": 124
+		"usedMemory": 124,
+		"elapsedTime": 124
 	}
 }
 
