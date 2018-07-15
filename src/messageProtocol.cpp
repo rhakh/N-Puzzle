@@ -1,27 +1,12 @@
 #include "messageProtocol.hpp"
 
-#include "main.hpp"
-#include <client_http.hpp>
-#include <server_http.hpp>
-#include "NPuzzleSolver.hpp"
-#include <array>
-
-// Added for the json-example
-#define BOOST_SPIRIT_THREADSAFE
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <boost/thread.hpp>
-
-// Added for the default_resource example
-#include <algorithm>
-#include <boost/filesystem.hpp>
-#include <fstream>
-#include <vector>
-#include <iostream>
+#include <iostream> //del this
 #include <ctime>
 
-void	MessageProtocol::constructTaskResponse(unsigned int openNodes, unsigned int closedNodes,
-								unsigned int usedMemory, double elapsedTime,
+void	MessageProtocol::constructTaskResponse(size_t openNodes, size_t closedNodes,
+								size_t usedMemory, double elapsedTime,
 								std::list<uint8_t> &result,
 								std::string &resultStr) {
 	namespace pt = boost::property_tree;
@@ -55,9 +40,27 @@ void	MessageProtocol::constructTaskResponse(unsigned int openNodes, unsigned int
 	resultStr = ss.str();
 }
 
+void	MessageProtocol::constructErrorResponse(std::exception &e, std::string &resultStr) {
+	namespace pt = boost::property_tree;
+
+	pt::ptree		taskJsonRes;
+	pt::ptree		dataNode;
+
+	taskJsonRes.put("messageType", NP_ERROR);
+
+	dataNode.put("message", e.what());
+
+	taskJsonRes.add_child("data", dataNode);
+
+	std::stringstream	ss;
+	boost::property_tree::json_parser::write_json(ss, taskJsonRes, false);
+	resultStr = ss.str();
+}
+
 void	MessageProtocol::taskHandler(boost::property_tree::ptree &json, std::string &resultStr) {
 	namespace pt = boost::property_tree;
 
+	std::tuple<size_t, size_t, size_t>	retVal;
 	pt::ptree		mapNode = json.get_child("data.map");
 	pt::ptree		dataNode = json.get_child("data");
 	unsigned char	map[mapNode.size()];
@@ -70,15 +73,21 @@ void	MessageProtocol::taskHandler(boost::property_tree::ptree &json, std::string
 	for (i = 0; it != mapNode.end(); it++, i++)
 		map[i] = it->second.get<int>("");
 
-	start = clock();
-	this->solver.solve(dataNode.get<int>("heuristicFunction"),
-						dataNode.get<int>("algorithm"),
-						map, mapNode.size(),
-						result);
-	start = clock() - start;
-
-	constructTaskResponse(openNodes, closedNodes, usedMemory,
-							(double)start / CLOCKS_PER_SEC, result, resultStr);
+	try {
+		start = clock();
+		retVal = this->solver.solve(dataNode.get<int>("heuristicFunction"),
+							dataNode.get<int>("algorithm"),
+							map, mapNode.size(),
+							result);
+		start = clock() - start;
+		constructTaskResponse(std::get<0>(retVal), std::get<1>(retVal), std::get<2>(retVal),
+								(double)start / CLOCKS_PER_SEC, result, resultStr);
+	}
+	catch (std::exception &e) {
+		std::cout << "Error:" << __func__ << ":" << __LINE__ << ":"
+					<< e.what() << std::endl;
+		constructErrorResponse(e, resultStr);
+	}
 
 	std::cout << "Server resp json:" << resultStr << std::endl;
 	std::cout << std::flush;
@@ -87,7 +96,6 @@ void	MessageProtocol::taskHandler(boost::property_tree::ptree &json, std::string
 void	MessageProtocol::stopHandler(boost::property_tree::ptree &json, std::string &resultStr) {
 	namespace pt = boost::property_tree;
 
-	resultStr = "Task was stopped";
 	this->solver.stopProcess();
 }
 

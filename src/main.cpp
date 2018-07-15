@@ -115,6 +115,18 @@ void	constructTaskRequest(std::string &requestStr) {
 	// 								8, 26, 20, 15, 22, 24,
 	// 								21, 31, 27, 29, 23, 30,
 	// 								25, 0, 32, 28, 34, 35}};
+
+	// snail solution
+	// std::array<int, 16>		map = {{0,	10,	5,	7,
+	// 								11,	14,	4,	8,
+	// 								1,	2,	6,	13,
+	// 								12,	3,	15,	9}};
+
+	// regular solution
+	// std::array<int, 16>		map = {{12, 1, 11, 0,
+	// 								3, 2, 14, 10,
+	// 								15, 6, 4, 5,
+	// 								9, 13, 8, 7}};
 	pt::ptree		taskJson;
 	pt::ptree		dataNode;
 	pt::ptree		mapNode;
@@ -258,7 +270,7 @@ int		main(int argc, char ** argv) {
 		4. Names of enumes and defines starts with 'NP_'
 
 	TODO:
-		1. Makefile for macos
+		+1. Makefile for macos
 		2. -std=c++11 in Makefile ?
 		3. Start new thread to solve puzzle, and send signal if client
 			was send a stop message
@@ -274,4 +286,6 @@ int		main(int argc, char ** argv) {
 		12. Put to NPuzzleSolver opennodes, closednodes, momory used
 		13. rvalue reference, use it to return value from function
 		14. Add mutex to NPuzzleSolver: stop task only when task is running
+		15. Snail solution, discovery
+		16. Asynchronus response from server
 */

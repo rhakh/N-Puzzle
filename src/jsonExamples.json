@@ -40,3 +40,12 @@
 	"messageType": 2,
 	"data": {}
 }
+
+# messageType: 3 - Error, stops execution of current task
+# data - payload of message is empty
+{
+	"messageType": 3,
+	"data": {
+		"message" : "payload of error"
+	}
+}

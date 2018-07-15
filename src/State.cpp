@@ -1,10 +1,12 @@
 #include "State.hpp"
 
+#include <cstdio>
+#include <algorithm>
+
 int State::size = 4;
 int State::mapSize = State::size * State::size;
 
 State::State(const uint8_t *map, int price, int length) {
-	//todo: check for mem alloc
 	this->map = new uint8_t[State::mapSize];
 
 	for (int i = 0; i < State::mapSize; i++)
@@ -19,7 +21,6 @@ State::State(const uint8_t *map, int price, int length) {
 State::State(const State &src, int price, int length, uint8_t move) {
 	const uint8_t	*map = src.getMapPtr();
 
-	//todo: check for mem alloc
 	this->map = new uint8_t[State::mapSize];
 	for (int i = 0; i < State::mapSize; i++)
 		this->map[i] = map[i];
@@ -55,4 +56,38 @@ void	State::printState() const {
 	else
 	printf("map is null\n");
 	printf("\n\n");
+}
+
+void			State::swapPieces(int a, int b) {
+	std::swap(map[a], map[b]);
+}
+
+size_t HashState::operator()(const State* a) const {
+	size_t	seed = State::mapSize;
+
+	const uint8_t	*map = a->getMapPtr();
+
+	for(int i = 0; i < State::mapSize; i++) {
+		seed ^= map[i] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+	}
+
+	return (seed);
+}
+
+bool CompareState::operator()(const State *a, const State *b) {
+	if (a->getPrice() != b->getPrice())
+		return a->getPrice() > b->getPrice();
+	else
+		return a->getLength() > b->getLength();
+}
+
+bool EqualState::operator()(const State *lhs, const State *rhs) const {
+	const uint8_t *pa = rhs->getMapPtr();
+	const uint8_t *pb = lhs->getMapPtr();
+
+	for (int i = 0; i < State::mapSize; i++) {
+		if (pa[i] != pb[i])
+			return (false);
+	}
+	return (true);
 }

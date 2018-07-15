@@ -2,10 +2,7 @@
 #define STATE_HPP
 
 #include <cstdint>
-#include <cstdio>
 #include <iostream>
-#include <algorithm>
-
 
 enum moves_e {ROOT, UP, DOWN, LEFT, RIGHT, LAST};
 
@@ -37,46 +34,22 @@ public:
 	int				getPrice() const { return (this->price); }
 	const uint8_t	*getMapPtr() const { return (this->map); }
 	void			printState() const;
-	void			swapPieces(int a, int b) {	std::swap(map[a], map[b]); }
+	void			swapPieces(int a, int b);
 	uint8_t			getMove() const;
 	const State		*getPrev() const;
 
 };
 
 struct HashState {
-	size_t operator()(const State* a) const {
-		size_t	seed = State::mapSize;
-
-		const uint8_t	*map = a->getMapPtr();
-
-		for(int i = 0; i < State::mapSize; i++) {
-			seed ^= map[i] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-		}
-
-		return (seed);
-	}
+	size_t operator()(const State* a) const;
 };
 
 struct CompareState {
-	bool operator()(const State *a, const State *b) {
-		if (a->getPrice() != b->getPrice())
-			return a->getPrice() > b->getPrice();
-		else
-			return a->getLength() > b->getLength();
-	}
+	bool operator()(const State *a, const State *b);
 };
 
 struct EqualState {
-	bool operator()(const State *lhs, const State *rhs) const {
-		const uint8_t *pa = rhs->getMapPtr();
-		const uint8_t *pb = lhs->getMapPtr();
-
-		for (int i = 0; i < State::mapSize; i++) {
-			if (pa[i] != pb[i])
-				return (false);
-		}
-		return (true);
-	}
+	bool operator()(const State *lhs, const State *rhs) const;
 };
 
 #endif /* STATE_HPP */
