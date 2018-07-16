@@ -25,6 +25,7 @@ private:
 
 public:
 	State(const uint8_t *map, int price, int length);
+	State(); //build finish state
 	State(const State &src, int price, int length, uint8_t move);
 	~State();
 

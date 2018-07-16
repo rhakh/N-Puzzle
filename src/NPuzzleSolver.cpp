@@ -6,7 +6,7 @@
 #include <unordered_set>
 #include <cassert>
 #include <cmath>
-
+#include <functional>
 
 #define INVAL_MOVE	123456
 inline State	*NPuzzleSolver::getNewState(const State *curr, int emptyPos, int newPos, uint8_t move) {
@@ -18,16 +18,27 @@ inline State	*NPuzzleSolver::getNewState(const State *curr, int emptyPos, int ne
 		default:
 			newState = new State(*curr, 0, curr->getLength() + 1, move);
 			newState->swapPieces(emptyPos, newPos);
-			newState->setPrice(this->heuristicFunc(newState->getMapPtr(), State::mapSize));
+			newState->setPrice(this->heuristicFunc(newState->getMapPtr(), this->finishState->getMapPtr(), State::mapSize));
 			break;
 	}
 	return (newState);
 }
 
 //todo: check for no memory alloc
-State * NPuzzleSolver::doMove(const State *curr, uint8_t move, int emptyPos) {
+State * NPuzzleSolver::doMove(const State *curr, uint8_t move) {
 	const int	size = State::size;
-	int			x, y, newPos;
+	int			x, y, newPos, emptyPos;
+
+	auto		_emptyPos = [curr]() -> int {
+		const	uint8_t	*map = curr->getMapPtr();
+
+		for (int i = 0; i < State::mapSize; i++)
+			if (map[i] == 0)
+				return (i);
+		throw NP_InvalidMap();
+	};
+
+	emptyPos = _emptyPos();
 
 	x = emptyPos % size;
 	y = emptyPos / size;
@@ -117,7 +128,9 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &re
 
 	State::mapSize = mapSize;
 	State::size = (int)std::sqrt(mapSize);
-	root = new State(map, heuristicFunc(map, mapSize), 0);
+
+	this->finishState = new State();
+	root = new State(map, heuristicFunc(map, this->finishState->getMapPtr(), mapSize), 0);
 	open.push(root);
 
 	while (!open.empty()) {
@@ -136,24 +149,22 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &re
 			this->stopRequested = false;
 			retVal = constructRetVal(&open, &closed, maxOpen);
 			freeMem(&open, &closed, curr);
+			delete this->finishState;
 			return retVal;
 		}
 
 		closed.insert(curr);
-		currMap = curr->getMapPtr();
-
-		for (emptyPos = 0; emptyPos < mapSize; emptyPos++)
-			if (currMap[emptyPos] == 0)
-				break;
-
+		// std::cout << "******* POP" << std::endl;
+		// curr->printState();
 		for (int move = UP; move < LAST; move++) {
 			try {
-				newMove = doMove(curr, move, emptyPos);
+				newMove = doMove(curr, move);
 			}
 			catch (std::exception &e) {
 				// if memory was not allocated, you should free mem
 				this->stopRequested = false;
 				freeMem(&open, &closed, nullptr);
+				delete this->finishState;
 				std::cout << "Error:" << __func__ << ":" << __LINE__ << ":"
 							<< e.what() << std::endl;
 				throw e;
@@ -167,6 +178,7 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &re
 	}
 	retVal = constructRetVal(&open, &closed, maxOpen);
 	freeMem(&open, &closed, curr);
+	delete this->finishState;
 	return (retVal);
 }
 

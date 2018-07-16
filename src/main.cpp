@@ -36,11 +36,23 @@ void	serverInit(HttpServer &server) {
 
 			read_json(request->content, json);
 			mp.processMessage(json, result);
+
+
+			// thread process_msg_thread([](pt::ptree	json, std::string result) {
+			// 	// Start server
+			// 	mp.processMessage(json, result);
+			// 	std::cout << "PROCESS_MSG_THREAD: " << result << std::endl;
+			// });
+			// process_msg_thread.join();
+
+
+			result += "Wait for response";
 			*response << "HTTP/1.1 200 OK\r\n"
 						<< "Content-Length: " << result.length() << "\r\n\r\n"
 						<< result;
 		}
 		catch(const exception &e) {
+			// TODO: construct json error here
 			*response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << strlen(e.what()) << "\r\n\r\n"
 						<< e.what();
 		}
@@ -288,4 +300,7 @@ int		main(int argc, char ** argv) {
 		14. Add mutex to NPuzzleSolver: stop task only when task is running
 		15. Snail solution, discovery
 		16. Asynchronus response from server
+		17. Figure out how to build finishState
+		18. Fix manhattanDistance for snail solution
+		19. Redesign class State
 */

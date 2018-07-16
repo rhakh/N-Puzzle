@@ -53,7 +53,7 @@ int main()
 }
 #endif // THREAD_TEST
 
-#define RVALUE_TEST
+//#define RVALUE_TEST
 #ifdef RVALUE_TEST
 
 #include <utility>
@@ -113,3 +113,70 @@ int		main() {
 }
 
 #endif // RVALUE_TEST
+
+#define sNAIL_TEST
+#ifdef sNAIL_TEST
+
+#include <utility>
+#include <iostream>
+#include <array>
+#include <functional>
+#include <cmath>
+
+#define msize	16
+
+int		main() {
+
+	int		arr[(int)std::sqrt(msize)][(int)std::sqrt(msize)];
+	int		i;
+
+	auto	fillArr = [&arr](int c) {
+		for (int i = 0; i < std::sqrt(msize); i++)
+			for (int j = 0; j < std::sqrt(msize); j++)
+				arr[i][j] = c;
+	};
+
+	auto	printArr = [&arr]() {
+		for (int i = 0; i < std::sqrt(msize); i++)
+			for (int j = 0; j < std::sqrt(msize); j++)
+				(j + 1 == std::sqrt(msize)) ? std::cout << arr[i][j] << std::endl : std::cout << arr[i][j] << " ";
+	};
+
+	auto	genArr = [&arr]() {
+		int	row = 0;
+		int	col = 0;
+		int	dx = 1;
+		int	dy = 0;
+		int	dirCh = 0;
+		int	vis = std::sqrt(msize);
+
+		int matr[(int)std::sqrt(msize)][(int)std::sqrt(msize)];
+
+		for (int i = 0; i < msize; i++) {
+			matr[row][col] = i + 1;
+			if (i + 1 == msize)
+				matr[row][col] = 0;
+			vis--;
+			if (vis == 0) {
+				vis = (int)std::sqrt(msize) * (dirCh % 2) + (int)std::sqrt(msize) * ((dirCh + 1) % 2) - (dirCh / 2 - 1) - 2;
+				int tmp = dx;
+				dx = -dy;
+				dy = tmp;
+				dirCh++;
+			}
+			col += dx;
+			row += dy;
+		}
+		for (int i = 0; i < std::sqrt(msize); i++)
+			for (int j = 0; j < std::sqrt(msize); j++)
+				arr[i][j] = matr[i][j];
+	};
+
+	fillArr(0);
+	genArr();
+	printArr();
+
+	return (0);
+}
+
+#endif // sNAIL_TEST

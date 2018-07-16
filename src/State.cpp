@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <algorithm>
+#include <cmath>
 
 int State::size = 4;
 int State::mapSize = State::size * State::size;
@@ -15,6 +16,44 @@ State::State(const uint8_t *map, int price, int length) {
 	this->price = price;
 	this->length = length;
 	this->movement = ROOT;
+	this->prev = nullptr;
+}
+
+State::State() {
+	int	row = 0;
+	int	col = 0;
+	int	dx = 1;
+	int	dy = 0;
+	int	dirCh = 0;
+	int	vis = State::size;
+
+	uint8_t matr[State::size][State::size];
+
+	for (int i = 0; i < State::mapSize; i++) {
+		matr[row][col] = i + 1;
+		if (i + 1 == State::mapSize)
+			matr[row][col] = 0;
+		vis--;
+		if (vis == 0) {
+			vis = State::size * (dirCh % 2) + State::size * ((dirCh + 1) % 2) - (dirCh / 2 - 1) - 2;
+			int tmp = dx;
+			dx = -dy;
+			dy = tmp;
+			dirCh++;
+		}
+		col += dx;
+		row += dy;
+	}
+
+	int m = 0;
+	this->map = new uint8_t[State::mapSize];
+	for (int i = 0; i < State::size; i++)
+		for (int j = 0; j < State::size; j++)
+			this->map[m] = matr[i][j];
+
+	this->price = 0;
+	this->length = 0;
+	this->movement = 0;
 	this->prev = nullptr;
 }
 

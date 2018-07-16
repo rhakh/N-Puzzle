@@ -24,7 +24,7 @@
     </body>
 	<script src = "app.js"></script>
     <script>
-        var puzzle = new Puzzle(document.getElementById("puzzle"));
+        //var puzzle = new Puzzle(document.getElementById("puzzle"));
 
 		function sendJson(json){
    			var x = new XMLHttpRequest();
@@ -35,8 +35,8 @@
    			console.log(json);
    		}
 
-		
-	
+
+
 
 		$("#form").submit(function(e){
 			e.preventDefault()
@@ -46,13 +46,18 @@
 	             url: "/message",
 	             data: document.getElementById("json_in").value,
 	             success: function(msg) {
-	                alert("Form Submitted: " + msg);
+	                //alert("Form Submitted: " + msg);
 	             }
 	          });
-
+			  console.log($('#json_in').val());
 	       });
-			console.log($('#json_in').val())
-		}
-		
+
+		var eventSource = new EventSource("/message");
+
+		eventSource.onmessage = function(e) {
+			console.log("Message received: " + e.data);
+		};
+		console.log("****** END OF SCRIPT");
+
     </script>
 </html>
