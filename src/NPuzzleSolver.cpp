@@ -88,21 +88,12 @@ void    freeMem(NPqueue *open, NPset *closed, State *last) {
 		delete last;
 }
 
-void NPuzzleSolver::stopProcess(void) {
-	this->stopRequested = true;
-}
-
 void 	NPuzzleSolver::createPath(std::list<uint8_t> &result, const State *curr) const {
-	if (!this->stopRequested)
-	{
-		while (curr->getMove() != ROOT) {
-			result.push_front(curr->getMove());
-			curr = curr->getPrev();
-		}
-		result.push_front(ROOT);
+	while (curr->getMove() != ROOT) {
+		result.push_front(curr->getMove());
+		curr = curr->getPrev();
 	}
-	else // If process was stopped
-		result.push_front(ROOT);
+	result.push_front(ROOT);
 }
 
 std::tuple<size_t, size_t, size_t>
@@ -144,11 +135,10 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &re
 			continue;
 		}
 
-		if (curr->getPrice() == 0 || this->stopRequested) {
+		if (curr->getPrice() == 0) {
 			std::cout << "******* SOLVED" << std::endl;
 			curr->printState();
 			createPath(result, const_cast<const State *>(curr));
-			this->stopRequested = false;
 			retVal = constructRetVal(&open, &closed, maxOpen);
 			freeMem(&open, &closed, curr);
 			delete this->finishState;
@@ -163,7 +153,6 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &re
 			}
 			catch (std::exception &e) {
 				// if memory was not allocated, you should free mem
-				this->stopRequested = false;
 				freeMem(&open, &closed, nullptr);
 				delete this->finishState;
 				std::cout << "Error:" << __func__ << ":" << __LINE__ << ":"
@@ -184,7 +173,7 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &re
 }
 
 NPuzzleSolver::NPuzzleSolver() {
-	stopRequested = false;
+
 }
 
 NPuzzleSolver::~NPuzzleSolver() {

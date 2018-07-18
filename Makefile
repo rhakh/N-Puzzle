@@ -26,7 +26,7 @@ _SRC = heuristicFunctions.cpp \
 		NPuzzleSolver.cpp \
 		State.cpp \
 		main.cpp \
-		messageProtocol.cpp \
+		CSC.cpp \
 
 SRC = $(addprefix $(SRCDIR), $(_SRC))
 

@@ -3,7 +3,6 @@
 
 #include "State.hpp"
 
-#include <atomic>
 #include <list>
 
 typedef enum {
@@ -18,7 +17,6 @@ typedef enum {
 
 class NPuzzleSolver
 {
-	std::atomic_bool	stopRequested;
 	State				*finishState;
 
 	int		(*heuristicFunc)(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize);
