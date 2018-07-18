@@ -121,6 +121,7 @@ void	constructTaskRequest(std::string &requestStr) {
 	namespace pt = boost::property_tree;
 	// std::array<int, 9>		map = {{0, 3, 5, 6, 7, 1, 4, 2, 8}};
 	std::array<int, 16>		map = {{11, 0, 9, 4, 2, 15, 7, 1, 13, 3, 12, 5, 8, 6, 10, 14}};
+	// std::array<int, 16>		map = {{5, 6, 11, 14, 1, 15, 3, 4, 8, 2, 10, 12, 0, 9, 7, 13}};
 	// std::array<int, 36>		map = {{1, 14, 2, 4, 6, 18,
 	// 								9, 13, 3, 17, 11, 33,
 	// 								19, 7, 16, 10, 5, 12,
@@ -303,4 +304,5 @@ int		main(int argc, char ** argv) {
 		17. Figure out how to build finishState
 		18. Fix manhattanDistance for snail solution
 		19. Redesign class State
+		20. Abort when solving 3*3 puzzle
 */

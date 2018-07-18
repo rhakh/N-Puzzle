@@ -145,6 +145,8 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &re
 		}
 
 		if (curr->getPrice() == 0 || this->stopRequested) {
+			std::cout << "******* SOLVED" << std::endl;
+			curr->printState();
 			createPath(result, const_cast<const State *>(curr));
 			this->stopRequested = false;
 			retVal = constructRetVal(&open, &closed, maxOpen);
@@ -154,8 +156,7 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &re
 		}
 
 		closed.insert(curr);
-		// std::cout << "******* POP" << std::endl;
-		// curr->printState();
+
 		for (int move = UP; move < LAST; move++) {
 			try {
 				newMove = doMove(curr, move);

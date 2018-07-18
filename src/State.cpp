@@ -49,7 +49,7 @@ State::State() {
 	this->map = new uint8_t[State::mapSize];
 	for (int i = 0; i < State::size; i++)
 		for (int j = 0; j < State::size; j++)
-			this->map[m] = matr[i][j];
+			this->map[m++] = matr[i][j];
 
 	this->price = 0;
 	this->length = 0;
