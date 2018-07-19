@@ -19,7 +19,7 @@ State::State(const uint8_t *map, int price, int length) {
 	this->prev = nullptr;
 }
 
-State::State() {
+void	State::makeSnailState() {
 	int	row = 0;
 	int	col = 0;
 	int	dx = 1;
@@ -55,6 +55,25 @@ State::State() {
 	this->length = 0;
 	this->movement = 0;
 	this->prev = nullptr;
+}
+
+void	State::makeNormalState() {
+	this->map = new uint8_t[State::mapSize];
+	for (int i = 0; i < State::mapSize; i++)
+		this->map[i] = i + 1;
+	this->map[State::mapSize - 1] = 0;
+
+	this->price = 0;
+	this->length = 0;
+	this->movement = 0;
+	this->prev = nullptr;
+}
+
+State::State(int solutionType) {
+	if (solutionType == SNAIL_SOLUTION)
+		makeSnailState();
+	else
+		makeNormalState();
 }
 
 State::State(const State &src, int price, int length, uint8_t move) {

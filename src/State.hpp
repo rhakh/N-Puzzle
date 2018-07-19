@@ -6,6 +6,8 @@
 
 enum moves_e {ROOT, UP, DOWN, LEFT, RIGHT, LAST};
 
+enum solutionType {SNAIL_SOLUTION, NORMAL_SOLUTION};
+
 class State
 {
 public:
@@ -22,10 +24,12 @@ private:
 	//disable copy constructor;
 	State(const State &rhs) {};
 	State	&operator=(const State &rhs) {return (*this);};
+	void	makeSnailState();
+	void	makeNormalState();
 
 public:
 	State(const uint8_t *map, int price, int length);
-	State(); //build finish state
+	State(int solutionType); //build finish state
 	State(const State &src, int price, int length, uint8_t move);
 	~State();
 

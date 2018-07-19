@@ -66,6 +66,8 @@ void	constructTaskRequest(std::string &requestStr) {
 
 	dataNode.put("heuristicFunction", HAMMILTON_DISTANCE);
 
+	dataNode.put("solutionType", SNAIL_SOLUTION);
+
 	taskJson.add_child("data", dataNode);
 
 	std::stringstream	ss;
@@ -123,7 +125,7 @@ int		main(int argc, char **argv) {
 	// *** delete this
 
 	server_thread->join();
-	delete server_http;
+	delete server_thread;
 	return (0);
 }
 

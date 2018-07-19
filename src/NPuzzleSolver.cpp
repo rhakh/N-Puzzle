@@ -106,7 +106,7 @@ constructRetVal(NPqueue *open, NPset *closed, unsigned int maxOpen) {
 }
 
 std::tuple<size_t, size_t, size_t>
-NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &result) {
+NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, int solutionType, std::list<uint8_t> &result) {
 	std::tuple<size_t, size_t, size_t>	retVal;
 	NPqueue	open;
 	NPset	closed;
@@ -120,7 +120,7 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &re
 	State::mapSize = mapSize;
 	State::size = (int)std::sqrt(mapSize);
 
-	this->finishState = new State();
+	this->finishState = new State(solutionType);
 	root = new State(map, heuristicFunc(map, this->finishState->getMapPtr(), mapSize), 0);
 	open.push(root);
 
@@ -181,7 +181,8 @@ NPuzzleSolver::~NPuzzleSolver() {
 }
 
 std::tuple<size_t, size_t, size_t>
-NPuzzleSolver::solve(int func, int algo, const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &result) {
+NPuzzleSolver::solve(int func, int algo, int solutionType,
+		const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &result) {
 	//todo: replace nullptr for error codes.
 
 	if (mapSize < 9 || mapSize > 100)
@@ -209,10 +210,10 @@ NPuzzleSolver::solve(int func, int algo, const uint8_t *map, uint8_t mapSize, st
 
 	switch (algo) {
 		case ASTAR:
-			return (aStar(map, mapSize, result));
+			return (aStar(map, mapSize, solutionType, result));
 			break;
 		default:
-			return (aStar(map, mapSize, result));
+			return (aStar(map, mapSize, solutionType, result));
 			break;
 	}
 }

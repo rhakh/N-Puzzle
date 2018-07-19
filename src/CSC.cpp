@@ -81,6 +81,7 @@ void	CSC::taskHandler(boost::property_tree::ptree &json, std::string &resultStr)
 		start = clock();
 		retVal = this->solver.solve(dataNode.get<int>("heuristicFunction"),
 							dataNode.get<int>("algorithm"),
+							dataNode.get<int>("solutionType"),
 							map, mapNode.size(),
 							result);
 		start = clock() - start;

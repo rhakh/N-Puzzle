@@ -23,9 +23,9 @@ class NPuzzleSolver
 
 	// algo functions
 	std::tuple<size_t, size_t, size_t>
-		aStar(const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &result);
+		aStar(const uint8_t *map, uint8_t mapSize, int solutionType, std::list<uint8_t> &result);
 	std::tuple<size_t, size_t, size_t>
-		aStarIDA(const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &result);
+		aStarIDA(const uint8_t *map, uint8_t mapSize, int solutionType, std::list<uint8_t> &result);
 
 	void 	createPath(std::list<uint8_t> &result, const State *curr) const;
 	State	*doMove(const State *curr, uint8_t move);
@@ -33,7 +33,8 @@ class NPuzzleSolver
 
 public:
 	std::tuple<size_t, size_t, size_t>
-		solve(int func, int algo, const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &result);
+	solve(int func, int algo, int solutionType,
+			const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &result);
 
 	NPuzzleSolver();
 	~NPuzzleSolver();
