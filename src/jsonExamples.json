@@ -3,7 +3,7 @@
 # length: Does json knows length of array ?
 # map: pieces of puzzle
 # algorithm: 0 - AStar, 1 - AStarIDA
-# heuristicFunction: 0 - hammingDistance, 1 - manhattenDistance
+# heuristicFunction: 0 - hammingDistance, 1 - manhattenDistance, 2 - MD + linearConflicts
 # solutionType: 0 - snail solution, 1 - normal solution
 {
 	"messageType": 0,

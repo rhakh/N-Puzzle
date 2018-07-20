@@ -64,7 +64,7 @@ void	constructTaskRequest(std::string &requestStr) {
 
 	dataNode.put("algorithm", ASTAR);
 
-	dataNode.put("heuristicFunction", MISPLACED_TILES);
+	dataNode.put("heuristicFunction", MANHATTAN_DISTANCE_PLUS_LINEAR_CONFLICTS);
 
 	dataNode.put("solutionType", SNAIL_SOLUTION);
 

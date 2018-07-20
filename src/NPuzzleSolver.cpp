@@ -21,11 +21,6 @@ inline State	*NPuzzleSolver::getNewState(const State *curr, int emptyPos, int ne
 			newState->setPrice(this->heuristicFunc(newState->getMapPtr(),
 								this->finishState->getMapPtr(),
 								State::mapSize));
-			if (this->linearConflicts != nullptr)
-				newState->setPrice(newState->getPrice() +
-									this->linearConflicts(newState->getMapPtr(),
-												this->finishState->getMapPtr(),
-												State::mapSize));
 			break;
 	}
 	return (newState);
@@ -121,8 +116,6 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, int solutionType, std:
 	State	*curr = nullptr;
 	State	*newMove;
 	size_t	maxOpen = 0;
-	unsigned int	emptyPos = 0;
-	const uint8_t	*currMap = 0;
 
 	State::mapSize = mapSize;
 	State::size = (int)std::sqrt(mapSize);
@@ -181,7 +174,6 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, int solutionType, std:
 
 NPuzzleSolver::NPuzzleSolver() {
 	this->heuristicFunc = nullptr;
-	this->linearConflicts = nullptr;
 	this->finishState = nullptr;
 }
 
@@ -200,25 +192,28 @@ NPuzzleSolver::solve(int func, int algo, int solutionType,
 	if (map == nullptr)
 		throw NP_MapisNullException();
 
-	switch (func) {
-		case func & MISPLACED_TILES:
-			this->heuristicFunc = mislacedTiles;
-			break;
-		case func & MANHATTAN_DISTANCE:
-			this->heuristicFunc = manhattanDistance;
-			break;
-		case func & LINEAR_CONFLICTS:
-			this->conflictsFunc = linearConflicts;
-			break;
-		default:
-			this->heuristicFunc = mislacedTiles;
-			break;
-	}
-
 	//todo check map (map is squared ? , map is solvable ?)
 	// if (checkMap(map, mapSize) == 0) {
 	// 	throw NP_InvalidMap;
 	// }
+
+	switch (func) {
+		case MISPLACED_TILES:
+			this->heuristicFunc = misplacedTiles;
+			break;
+		case MANHATTAN_DISTANCE:
+			this->heuristicFunc = manhattanDistance;
+			break;
+		case MANHATTAN_DISTANCE_PLUS_LINEAR_CONFLICTS:
+			this->heuristicFunc = MDplusLinearConflicts;
+			break;
+		case MISPLACED_TILES_PLUS_LINEAR_CONFLICTS:
+			this->heuristicFunc = MTplusLinearConflicts;
+			break;
+		default:
+			this->heuristicFunc = misplacedTiles;
+			break;
+	}
 
 	switch (algo) {
 		case ASTAR:

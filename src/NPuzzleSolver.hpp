@@ -6,9 +6,10 @@
 #include <list>
 
 typedef enum {
-	MISPLACED_TILES = 0x01,
-	MANHATTAN_DISTANCE = 0x02,
-	LINEAR_CONFLICTS = 0x04
+	MISPLACED_TILES,
+	MANHATTAN_DISTANCE,
+	MANHATTAN_DISTANCE_PLUS_LINEAR_CONFLICTS,
+	MISPLACED_TILES_PLUS_LINEAR_CONFLICTS
 }		heuristicFunc_e;
 
 typedef enum {
@@ -20,7 +21,6 @@ class NPuzzleSolver
 {
 	State				*finishState;
 
-	int		(*conflictsFunc)(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize);
 	int		(*heuristicFunc)(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize);
 
 	// algo functions
