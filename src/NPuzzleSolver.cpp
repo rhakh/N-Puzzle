@@ -18,7 +18,14 @@ inline State	*NPuzzleSolver::getNewState(const State *curr, int emptyPos, int ne
 		default:
 			newState = new State(*curr, 0, curr->getLength() + 1, move);
 			newState->swapPieces(emptyPos, newPos);
-			newState->setPrice(this->heuristicFunc(newState->getMapPtr(), this->finishState->getMapPtr(), State::mapSize));
+			newState->setPrice(this->heuristicFunc(newState->getMapPtr(),
+								this->finishState->getMapPtr(),
+								State::mapSize));
+			if (this->linearConflicts != nullptr)
+				newState->setPrice(newState->getPrice() +
+									this->linearConflicts(newState->getMapPtr(),
+												this->finishState->getMapPtr(),
+												State::mapSize));
 			break;
 	}
 	return (newState);
@@ -173,7 +180,9 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, int solutionType, std:
 }
 
 NPuzzleSolver::NPuzzleSolver() {
-
+	this->heuristicFunc = nullptr;
+	this->linearConflicts = nullptr;
+	this->finishState = nullptr;
 }
 
 NPuzzleSolver::~NPuzzleSolver() {
@@ -192,11 +201,14 @@ NPuzzleSolver::solve(int func, int algo, int solutionType,
 		throw NP_MapisNullException();
 
 	switch (func) {
-		case MISPLACED_TILES:
+		case func & MISPLACED_TILES:
 			this->heuristicFunc = mislacedTiles;
 			break;
-		case MANHATTAN_DISTANCE:
+		case func & MANHATTAN_DISTANCE:
 			this->heuristicFunc = manhattanDistance;
+			break;
+		case func & LINEAR_CONFLICTS:
+			this->conflictsFunc = linearConflicts;
 			break;
 		default:
 			this->heuristicFunc = mislacedTiles;
