@@ -1,7 +1,7 @@
 #include "heuristicFunctions.hpp"
 #include <iostream>
 
-int	hammiltonDistance(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize) {
+int	mislacedTiles(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize) {
 	int inversions = 0;
 
 	for (int i = 0; i < mapSize; i++) {

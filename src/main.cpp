@@ -16,7 +16,7 @@
 #include <fstream>
 #include <vector>
 
-#include "CSC.hpp"
+#include "CSCP.hpp"
 
 using namespace std;
 // Added for the json-example:
@@ -64,24 +64,9 @@ void	constructTaskRequest(std::string &requestStr) {
 
 	dataNode.put("algorithm", ASTAR);
 
-	dataNode.put("heuristicFunction", HAMMILTON_DISTANCE);
+	dataNode.put("heuristicFunction", MISPLACED_TILES);
 
 	dataNode.put("solutionType", SNAIL_SOLUTION);
-
-	taskJson.add_child("data", dataNode);
-
-	std::stringstream	ss;
-	boost::property_tree::json_parser::write_json(ss, taskJson, false);
-	requestStr = ss.str();
-}
-
-void	constructStopRequest(std::string &requestStr) {
-	namespace pt = boost::property_tree;
-
-	pt::ptree		taskJson;
-	pt::ptree		dataNode;
-
-	taskJson.put("messageType", NP_STOP);
 
 	taskJson.add_child("data", dataNode);
 
@@ -109,7 +94,7 @@ void	clientCode() {
 }
 
 int		main(int argc, char **argv) {
-	CSC				mp;
+	CSCP			mp;
 	boost::thread	*server_thread;
 
 	server_thread = mp.serverStart();
@@ -159,4 +144,5 @@ int		main(int argc, char **argv) {
 		18. Fix manhattanDistance for snail solution
 		19. Redesign class State
 		20. Abort when solving 3*3 puzzle
+		21. Rename HAMMILTON_DISTANCE to MISPLACED_TILES
 */

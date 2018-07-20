@@ -6,7 +6,7 @@
 #include <list>
 
 typedef enum {
-	HAMMILTON_DISTANCE, //hammingDistance
+	MISPLACED_TILES, //hammingDistance
 	MANHATTAN_DISTANCE,
 }		heuristicFunc_e;
 

@@ -11,11 +11,10 @@
 typedef enum MessageType_e {
 	NP_TASK,
 	NP_SOLUTION,
-	NP_STOP,
 	NP_ERROR
 } MessageType_E;
 
-class CSC {
+class CSCP {
 	SimpleWeb::Server<SimpleWeb::HTTP>	server;
 	NPuzzleSolver	solver;
 
@@ -29,8 +28,8 @@ class CSC {
 	void			serverInit();
 
 public:
-	CSC();
-	~CSC();
+	CSCP();
+	~CSCP();
 
 	boost::thread	*serverStart();
 

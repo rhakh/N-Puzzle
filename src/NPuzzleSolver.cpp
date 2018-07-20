@@ -192,14 +192,14 @@ NPuzzleSolver::solve(int func, int algo, int solutionType,
 		throw NP_MapisNullException();
 
 	switch (func) {
-		case HAMMILTON_DISTANCE:
-			this->heuristicFunc = hammiltonDistance;
+		case MISPLACED_TILES:
+			this->heuristicFunc = mislacedTiles;
 			break;
 		case MANHATTAN_DISTANCE:
 			this->heuristicFunc = manhattanDistance;
 			break;
 		default:
-			this->heuristicFunc = hammiltonDistance;
+			this->heuristicFunc = mislacedTiles;
 			break;
 	}
 

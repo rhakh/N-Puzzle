@@ -41,7 +41,7 @@ int		main(void) {
 	NPuzzleSolver	solver;
 	std::list<uint8_t> res;
 
-	solver.solve(HAMMILTON_DISTANCE, ASTAR, map3, 9, res);
+	solver.solve(MISPLACED_TILES, ASTAR, map3, 9, res);
 
 	while (1);
 	return (0);

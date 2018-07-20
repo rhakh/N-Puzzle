@@ -1,4 +1,4 @@
-#include "CSC.hpp"
+#include "CSCP.hpp"
 
 #define BOOST_SPIRIT_THREADSAFE
 
@@ -9,7 +9,7 @@
 #include <ctime>
 #include <vector>
 
-void	CSC::constructTaskResponse(size_t openNodes, size_t closedNodes,
+void	CSCP::constructTaskResponse(size_t openNodes, size_t closedNodes,
 								size_t usedMemory, double elapsedTime,
 								std::list<uint8_t> &result,
 								std::string &resultStr) {
@@ -44,7 +44,7 @@ void	CSC::constructTaskResponse(size_t openNodes, size_t closedNodes,
 	resultStr = ss.str();
 }
 
-void	CSC::constructErrorResponse(std::exception &e, std::string &resultStr) {
+void	CSCP::constructErrorResponse(std::exception &e, std::string &resultStr) {
 	namespace pt = boost::property_tree;
 
 	pt::ptree		taskJsonRes;
@@ -61,7 +61,7 @@ void	CSC::constructErrorResponse(std::exception &e, std::string &resultStr) {
 	resultStr = ss.str();
 }
 
-void	CSC::taskHandler(boost::property_tree::ptree &json, std::string &resultStr) {
+void	CSCP::taskHandler(boost::property_tree::ptree &json, std::string &resultStr) {
 	namespace pt = boost::property_tree;
 
 	std::tuple<size_t, size_t, size_t>	retVal;
@@ -98,7 +98,7 @@ void	CSC::taskHandler(boost::property_tree::ptree &json, std::string &resultStr)
 	std::cout << std::flush;
 }
 
-void	CSC::processMessage(boost::property_tree::ptree &json, std::string &resultStr) {
+void	CSCP::processMessage(boost::property_tree::ptree &json, std::string &resultStr) {
 	namespace pt = boost::property_tree;
 
 	int		messageType = json.get<int>("messageType");
@@ -118,7 +118,7 @@ void	CSC::processMessage(boost::property_tree::ptree &json, std::string &resultS
 	}
 }
 
-void	CSC::serverInit() {
+void	CSCP::serverInit() {
 	using HttpServer = SimpleWeb::Server<SimpleWeb::HTTP>;
 
 	server.config.port = 8080;
@@ -202,7 +202,7 @@ void	CSC::serverInit() {
 	};
 }
 
-boost::thread	*CSC::serverStart() {
+boost::thread	*CSCP::serverStart() {
 	boost::thread	*server_thread;
 
 	server_thread = new boost::thread([this]{
@@ -212,10 +212,10 @@ boost::thread	*CSC::serverStart() {
 	return (server_thread);
 }
 
-CSC::CSC() {
+CSCP::CSCP() {
 	serverInit();
 }
 
-CSC::~CSC() {
+CSCP::~CSCP() {
 
 }
