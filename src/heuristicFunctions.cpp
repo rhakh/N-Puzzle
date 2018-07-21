@@ -3,6 +3,45 @@
 #include <iostream>
 #include <functional>
 
+auto findIndexInMap = [](uint8_t value, const uint8_t *map, uint8_t mapSize) {
+	for (int i = 0; i < mapSize; i++)
+		if (map[i] == value)
+			return (i);
+	return (-1);
+};
+
+int	nMaxSwap(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize) {
+
+	int retVal = 0;
+
+	// check if solved
+	if (misplacedTiles(map, finishMap, mapSize) == 0)
+		return (0);
+
+	int i0 = findIndexInMap(0, map, mapSize);
+	int x0 = i0 % State::size;
+	int y0 = i0 / State::size;
+	int index = x0 * 3 + y0;
+
+	if (index == 9) {
+		for (int i = 0; i < 9; i++) {
+			int tj = findIndexInMap(i, map, mapSize);
+			int ti = (tj % mapSize) * 3 + (tj / mapSize);
+
+			if (ti != i) {
+				
+			}
+
+		}
+	}
+	else {
+
+	}
+
+
+	return (0);
+}
+
 int	misplacedTiles(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize) {
 	int inversions = 0;
 
@@ -15,15 +54,24 @@ int	misplacedTiles(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize
 
 int	manhattanDistance(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize) {
 	int	price = 0;
-	uint8_t	x1, x2, y1, y2, xres, yres;
-//TODO: maybe it work not properly
+	uint8_t	x1, x2, y1, y2, xres, yres, j;
+
+	// auto findIndexInMap = [](uint8_t value, const uint8_t *finishMap, uint8_t mapSize) {
+	// 	for (int i = 0; i < mapSize; i++)
+	// 		if (finishMap[i] == value)
+	// 			return (i);
+	// 	return (-1);
+	// };
+
 	for (int i = 0; i < mapSize; i++) {
 		if (map[i]) {
-			x2 = (map[i] - 1) % State::size;
-			y2 = (map[i] - 1) / State::size;
+			x1 = i % State::size;
+			y1 = i / State::size;
 
-			x1 = (finishMap[i] - 1) % State::size;
-			y1 = (finishMap[i] - 1) / State::size;
+			j = findIndexInMap(map[i], finishMap, mapSize);
+
+			x2 = j % State::size;
+			y2 = j / State::size;
 
 			if ((int8_t)(xres = x1 - x2) < 0)
 				xres *= -1;
