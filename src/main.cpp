@@ -64,7 +64,7 @@ void	constructTaskRequest(std::string &requestStr) {
 
 	dataNode.put("algorithm", ASTAR);
 
-	dataNode.put("heuristicFunction", MANHATTAN_DISTANCE_PLUS_LINEAR_CONFLICTS);
+	dataNode.put("heuristicFunction", MANHATTAN_DISTANCE);
 
 	dataNode.put("solutionType", SNAIL_SOLUTION);
 
@@ -145,4 +145,5 @@ int		main(int argc, char **argv) {
 		19. Redesign class State
 		20. Abort when solving 3*3 puzzle
 		21. Rename HAMMILTON_DISTANCE to MISPLACED_TILES
+		22. Usetwo dimension array in State.cpp
 */

@@ -8,8 +8,9 @@
 typedef enum {
 	MISPLACED_TILES,
 	MANHATTAN_DISTANCE,
-	MANHATTAN_DISTANCE_PLUS_LINEAR_CONFLICTS,
-	MISPLACED_TILES_PLUS_LINEAR_CONFLICTS
+	MISPLACED_TILES_PLUS_LINEAR_CONFLICTS,
+	MANHATTAN_DISTANCE_PLUS_LINEAR_CONFLICTS
+
 }		heuristicFunc_e;
 
 typedef enum {
@@ -40,9 +41,6 @@ public:
 
 	NPuzzleSolver();
 	~NPuzzleSolver();
-
-	// to stop solving puzzle
-	void 	stopProcess(void);
 
 	class	NP_MapisNullException : public std::exception {
 	public:
