@@ -150,21 +150,55 @@ NPuzzleSolver::~NPuzzleSolver() {
 
 }
 
+bool	isSolvableForNormal(const uint8_t *map, uint8_t mapSize) {
+	int	inversions = 0;
+	int size = (int)std::sqrt(mapSize);
+	int zeroY = -1;
+
+	for (int i = 0; i < mapSize; i++)
+		for (int j = i + 1; j < mapSize; j++) {
+			if (map[i] > map[j])
+				inversions++;
+			if (map[i] == 0)
+				zeroY = i / size;
+		}
+
+	if (zeroY == -1)
+		return (false);
+
+	zeroY = size - zeroY - 1;
+
+	printf("size = %d, inversions = %d, zeroY = %d\n", size, inversions, zeroY);
+	printf("(%d) == (%d)\n", (zeroY % 2 != 0), (inversions % 2 == 0));
+
+	if (size % 2 != 0)
+		return (inversions % 2 == 0);
+	else
+		return ((zeroY % 2 != 0) == (inversions % 2 == 0));
+}
+
+bool NPuzzleSolver::isSolvable(const uint8_t *map, uint8_t mapSize, int solutionType) {
+	if (solutionType == NORMAL_SOLUTION)
+		return (isSolvableForNormal(map, mapSize));
+	else
+		return (isSolvableForNormal(map, mapSize));
+}
+
 std::tuple<size_t, size_t, size_t>
 NPuzzleSolver::solve(int func, int algo, int solutionType,
 		const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &result) {
-	//todo: replace nullptr for error codes.
 
-	if (mapSize < 9 || mapSize > 100)
+	if (mapSize < 9)
 		throw NP_InvalidMapSize();
 
 	if (map == nullptr)
 		throw NP_MapisNullException();
 
-	//todo check map (map is squared ? , map is solvable ?)
-	// if (checkMap(map, mapSize) == 0) {
-	// 	throw NP_InvalidMap;
-	// }
+	if (std::sqrt(mapSize) - (int)(std::sqrt(mapSize)) != 0.0)
+		throw NP_InvalidMapSize();
+
+	if (!isSolvable(map, mapSize, solutionType))
+		throw NP_InvalidMap();
 
 	switch (func) {
 		case MISPLACED_TILES:

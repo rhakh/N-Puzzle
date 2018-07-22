@@ -37,6 +37,7 @@ class NPuzzleSolver
 
 	// use to check path if it's correct
 	void	checkPath(const State *root, const std::list<uint8_t> &result) const;
+	bool	isSolvable(const uint8_t *map, uint8_t mapSize, int solutionType);
 
 public:
 	std::tuple<size_t, size_t, size_t>

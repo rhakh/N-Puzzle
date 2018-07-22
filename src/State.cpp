@@ -87,12 +87,12 @@ State::State(const State &src, int move) {
 	const uint8_t	*map = src.getMapPtr();
 
 	const int	size = State::size;
-	int			x, y, newPos, emptyPos;
+	int			x, y, newPos, zeroIndex;
 
-	emptyPos = findIndexInMap(0, map, State::mapSize);
+	zeroIndex = findIndexInMap(0, map, State::mapSize);
 
-	x = emptyPos % size;
-	y = emptyPos / size;
+	x = zeroIndex % size;
+	y = zeroIndex / size;
 
 	switch (move) {
 		case UP:
@@ -116,7 +116,7 @@ State::State(const State &src, int move) {
 			newPos = (x + 1) + (y * size);
 			break;
 		case ROOT: // just make a copy
-			newPos = emptyPos;
+			newPos = zeroIndex;
 			break;
 		default:
 			throw NP_InvalidMove();
@@ -126,7 +126,7 @@ State::State(const State &src, int move) {
 	this->map = new uint8_t[State::mapSize];
 	for (int i = 0; i < State::mapSize; i++)
 		this->map[i] = map[i];
-	this->swapPieces(emptyPos, newPos);
+	this->swapPieces(zeroIndex, newPos);
 
 	this->price = 0;
 	this->length = src.getLength() + 1;

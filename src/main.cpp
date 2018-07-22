@@ -49,6 +49,30 @@ void	constructTaskRequest(std::string &requestStr) {
 	// 								3, 2, 14, 10,
 	// 								15, 6, 4, 5,
 	// 								9, 13, 8, 7}};
+
+	//hard
+	// std::array<int, 16>		map = {{10, 2, 14,  9,
+	// 								3, 12, 11, 13,
+	// 								15, 6, 7, 1,
+	// 								4, 5, 0, 8}};
+
+	//pdf
+	// unsolvable 1
+	// std::array<int, 16>		map = {{0, 10, 5, 7,
+	// 								11, 14, 4, 8,
+	// 								1, 2, 6, 13,
+	// 								12, 3, 15, 9}};
+
+	// /* 0,10,5,7,11,14,4,8,1,2,6,13,12,3,15,9 */
+
+	// pdf 3;3
+	// solved for snail, unsolvable for normal
+	// std::array<int, 9>		map = {{3, 2, 6,
+	// 								1, 4, 0,
+	// 								8, 7, 5}};
+
+	// /* 3,2,6,1,4,0,8,7,5 */
+
 	pt::ptree		taskJson;
 	pt::ptree		dataNode;
 	pt::ptree		mapNode;
