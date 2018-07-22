@@ -24,13 +24,14 @@ private:
 	//disable copy constructor;
 	State(const State &rhs) {};
 	State	&operator=(const State &rhs) {return (*this);};
+
 	void	makeSnailState();
 	void	makeNormalState();
 
 public:
 	State(const uint8_t *map, int price, int length);
 	State(int solutionType); //build finish state
-	State(const State &src, int price, int length, uint8_t move);
+	State(const State &src, int move);
 	~State();
 
 	void			setLength(int length) { this->length = length; }
@@ -43,6 +44,10 @@ public:
 	uint8_t			getMove() const;
 	const State		*getPrev() const;
 
+	class	NP_InvalidMove : public std::exception {
+	public:
+		virtual const char	*what() const throw() {return ("Invalid move, can't create state");};
+	};
 };
 
 struct HashState {

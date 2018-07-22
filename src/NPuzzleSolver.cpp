@@ -8,68 +8,27 @@
 #include <cmath>
 #include <functional>
 
-#define INVAL_MOVE	123456
-inline State	*NPuzzleSolver::getNewState(const State *curr, int emptyPos, int newPos, uint8_t move) {
-	State	*newState = nullptr;
-
-	switch (newPos) {
-		case INVAL_MOVE:
-			break;
-		default:
-			newState = new State(*curr, 0, curr->getLength() + 1, move);
-			newState->swapPieces(emptyPos, newPos);
-			newState->setPrice(this->heuristicFunc(newState->getMapPtr(),
-								this->finishState->getMapPtr(),
-								State::mapSize));
-			break;
-	}
-	return (newState);
-}
-
-//todo: check for no memory alloc
-State * NPuzzleSolver::doMove(const State *curr, uint8_t move) {
-	const int	size = State::size;
-	int			x, y, newPos, emptyPos;
-
-	auto		_emptyPos = [curr]() -> int {
-		const	uint8_t	*map = curr->getMapPtr();
-
-		for (int i = 0; i < State::mapSize; i++)
-			if (map[i] == 0)
-				return (i);
-		throw NP_InvalidMap();
-	};
-
-	emptyPos = _emptyPos();
-
-	x = emptyPos % size;
-	y = emptyPos / size;
-
-	switch (move) {
-		case UP:
-			newPos = (y - 1 < 0) ? (INVAL_MOVE) : x + ((y - 1) * size);
-			return (getNewState(curr, emptyPos, newPos, move));
-			break;
-		case DOWN:
-			newPos = (y + 1 == size) ? (INVAL_MOVE) : x + ((y + 1) * size);
-			return (getNewState(curr, emptyPos, newPos, move));
-			break;
-		case LEFT:
-			newPos = (x - 1 < 0) ? (INVAL_MOVE) : (x - 1) + (y * size);
-			return (getNewState(curr, emptyPos, newPos, move));
-			break;
-		case RIGHT:
-			newPos = (x + 1 == size) ? (INVAL_MOVE) : (x + 1) + (y * size);
-			return (getNewState(curr, emptyPos, newPos, move));
-			break;
-		default: // Bug
-			assert(0);
-	}
-}
-#undef INVAL_MOVE
-
 typedef std::priority_queue<State *, std::vector<State *>, CompareState>	NPqueue;
 typedef std::unordered_set<State *, HashState, EqualState>	NPset;
+
+void	NPuzzleSolver::checkPath(const State *root, const std::list<uint8_t> &result) const {
+	std::string ss[] = {"ROOT", "UP", "DOWN", "LEFT", "RIGHT"};
+	State *state;
+	State *prev;
+
+	std::cout << "###### PRINT PATH ######" << std::endl;
+	for (auto const &move: result) {
+		std::cout << "Move: " << ss[move] << std::endl << std::flush;
+		if (move == 0)
+			state = new State(*root, move);
+		else // if can't create State with this move, then constructor throw exception
+			state = new State(*prev, move);
+		prev = state;
+		state->printState();
+	}
+	std::cout << "###### END PRINT PATH ######" << std::endl;
+	// if you see this message, then path is correct
+}
 
 void    freeMem(NPqueue *open, NPset *closed, State *last) {
 	State	*curr = nullptr;
@@ -114,7 +73,7 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, int solutionType, std:
 	NPset	closed;
 	State	*root;
 	State	*curr = nullptr;
-	State	*newMove;
+	State	*newState;
 	size_t	maxOpen = 0;
 
 	State::mapSize = mapSize;
@@ -129,8 +88,8 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, int solutionType, std:
 		open.pop();
 
 		if (closed.find(curr) != closed.end()) {
-			/* curr already exist in closed set
-			 * pop another one */
+			// curr already exist in closed set
+			// pop another one
 			delete curr;
 			continue;
 		}
@@ -140,6 +99,8 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, int solutionType, std:
 			curr->printState();
 			createPath(result, const_cast<const State *>(curr));
 			retVal = constructRetVal(&open, &closed, maxOpen);
+
+			// del allocated mem
 			freeMem(&open, &closed, curr);
 			delete this->finishState;
 			return retVal;
@@ -149,24 +110,32 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, int solutionType, std:
 
 		for (int move = UP; move < LAST; move++) {
 			try {
-				newMove = doMove(curr, move);
+				newState = new State(*curr, move);
+				newState->setPrice(this->heuristicFunc(newState->getMapPtr(),
+									this->finishState->getMapPtr(),
+									State::mapSize));
+				open.push(newState);
+			}
+			catch (State::NP_InvalidMove &e) {
+				// can't create State with this move, let's try next move
 			}
 			catch (std::exception &e) {
-				// if memory was not allocated, you should free mem
-				freeMem(&open, &closed, nullptr);
-				delete this->finishState;
 				std::cout << "Error:" << __func__ << ":" << __LINE__ << ":"
 							<< e.what() << std::endl;
+
+				// del allocated mem
+				freeMem(&open, &closed, nullptr);
+				delete this->finishState;
 				throw e;
 			}
-			if (newMove != nullptr)
-				open.push(newMove);
 		}
 
 		if (open.size() > maxOpen)
 			maxOpen = open.size();
 	}
 	retVal = constructRetVal(&open, &closed, maxOpen);
+
+	//del allocated mem
 	freeMem(&open, &closed, curr);
 	delete this->finishState;
 	return (retVal);

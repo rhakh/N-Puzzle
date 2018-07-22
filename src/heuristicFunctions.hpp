@@ -11,4 +11,6 @@ int	MDplusLinearConflicts(const uint8_t *map, const uint8_t *finishMap, uint8_t 
 
 int	MTplusLinearConflicts(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize);
 
+int	nMaxSwap(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize);
+
 #endif //N_PUZZLE_HEURISTICFUNCTIONS_HPP

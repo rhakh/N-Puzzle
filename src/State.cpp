@@ -7,6 +7,13 @@
 int State::size = 4;
 int State::mapSize = State::size * State::size;
 
+auto findIndexInMap = [](uint8_t value, const uint8_t *map, uint8_t mapSize) {
+	for (int i = 0; i < mapSize; i++)
+		if (map[i] == value)
+			return (i);
+	return (-1);
+};
+
 State::State(const uint8_t *map, int price, int length) {
 	this->map = new uint8_t[State::mapSize];
 
@@ -76,15 +83,53 @@ State::State(int solutionType) {
 		makeNormalState();
 }
 
-State::State(const State &src, int price, int length, uint8_t move) {
+State::State(const State &src, int move) {
 	const uint8_t	*map = src.getMapPtr();
+
+	const int	size = State::size;
+	int			x, y, newPos, emptyPos;
+
+	emptyPos = findIndexInMap(0, map, State::mapSize);
+
+	x = emptyPos % size;
+	y = emptyPos / size;
+
+	switch (move) {
+		case UP:
+			if (y - 1 < 0)
+				throw NP_InvalidMove();
+			newPos = x + ((y - 1) * size);
+			break;
+		case DOWN:
+			if (y + 1 == size)
+				throw NP_InvalidMove();
+			newPos = x + ((y + 1) * size);
+			break;
+		case LEFT:
+			if (x - 1 < 0)
+				throw NP_InvalidMove();
+			newPos = (x - 1) + (y * size);
+			break;
+		case RIGHT:
+			if (x + 1 == size)
+				throw NP_InvalidMove();
+			newPos = (x + 1) + (y * size);
+			break;
+		case ROOT: // just make a copy
+			newPos = emptyPos;
+			break;
+		default:
+			throw NP_InvalidMove();
+			break;
+	}
 
 	this->map = new uint8_t[State::mapSize];
 	for (int i = 0; i < State::mapSize; i++)
 		this->map[i] = map[i];
+	this->swapPieces(emptyPos, newPos);
 
-	this->price = price;
-	this->length = length;
+	this->price = 0;
+	this->length = src.getLength() + 1;
 	this->movement = move;
 	this->prev = &src;
 }
@@ -106,17 +151,17 @@ void	State::printState() const {
 	if (this->map != nullptr) {
 		for (int i = 0; i < State::mapSize; i++) {
 			if ((i + 1) % State::size == 0)
-			printf("%2u\n", this->map[i]);
+				printf("%2u\n", this->map[i]);
 			else
-			printf("%2u ", this->map[i]);
+				printf("%2u ", this->map[i]);
 		}
 	}
 	else
-	printf("map is null\n");
+		printf("map is null\n");
 	printf("\n\n");
 }
 
-void			State::swapPieces(int a, int b) {
+void	State::swapPieces(int a, int b) {
 	std::swap(map[a], map[b]);
 }
 

@@ -89,8 +89,6 @@ void	CSCP::taskHandler(boost::property_tree::ptree &json, std::string &resultStr
 								(double)start / CLOCKS_PER_SEC, result, resultStr);
 	}
 	catch (std::exception &e) {
-		std::cout << "Error:" << __func__ << ":" << __LINE__ << ":"
-					<< e.what() << std::endl;
 		constructErrorResponse(e, resultStr);
 	}
 
@@ -111,8 +109,12 @@ void	CSCP::processMessage(boost::property_tree::ptree &json, std::string &result
 		case NP_TASK:
 			taskHandler(json, resultStr);
 			break;
-		default: {
-			// TODO: constructError response
+		default:
+			try {
+				throw CSCP_InvalidMessageType();
+			}
+			catch (CSCP::CSCP_InvalidMessageType &e) {
+				constructErrorResponse(e, resultStr);
 			}
 			break;
 	}

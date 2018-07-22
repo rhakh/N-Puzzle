@@ -9,7 +9,8 @@ typedef enum {
 	MISPLACED_TILES,
 	MANHATTAN_DISTANCE,
 	MISPLACED_TILES_PLUS_LINEAR_CONFLICTS,
-	MANHATTAN_DISTANCE_PLUS_LINEAR_CONFLICTS
+	MANHATTAN_DISTANCE_PLUS_LINEAR_CONFLICTS,
+	N_MAXSWAP
 
 }		heuristicFunc_e;
 
@@ -33,6 +34,9 @@ class NPuzzleSolver
 	void 	createPath(std::list<uint8_t> &result, const State *curr) const;
 	State	*doMove(const State *curr, uint8_t move);
 	State	*getNewState(const State *curr, int emptyPos, int newPos, uint8_t move);
+
+	// use to check path if it's correct
+	void	checkPath(const State *root, const std::list<uint8_t> &result) const;
 
 public:
 	std::tuple<size_t, size_t, size_t>

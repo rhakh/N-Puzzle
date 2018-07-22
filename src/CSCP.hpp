@@ -34,6 +34,11 @@ public:
 	boost::thread	*serverStart();
 
 	void	processMessage(boost::property_tree::ptree &json, std::string &result);
+
+	class	CSCP_InvalidMessageType : public std::exception {
+	public:
+		virtual const char	*what() const throw() {return ("Invalid messageType");};
+	};
 };
 
 #endif // CLIENT_SERVER_COMMUNICATION_PROTOCOL

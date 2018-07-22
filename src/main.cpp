@@ -25,17 +25,18 @@ using namespace boost::property_tree;
 using HttpServer = SimpleWeb::Server<SimpleWeb::HTTP>;
 using HttpClient = SimpleWeb::Client<SimpleWeb::HTTP>;
 
+// *** delete this
 void	constructTaskRequest(std::string &requestStr) {
 	namespace pt = boost::property_tree;
 	// std::array<int, 9>		map = {{0, 3, 5, 6, 7, 1, 4, 2, 8}};
-	std::array<int, 16>		map = {{11, 0, 9, 4, 2, 15, 7, 1, 13, 3, 12, 5, 8, 6, 10, 14}};
+	// std::array<int, 16>		map = {{11, 0, 9, 4, 2, 15, 7, 1, 13, 3, 12, 5, 8, 6, 10, 14}};
 	// std::array<int, 16>		map = {{5, 6, 11, 14, 1, 15, 3, 4, 8, 2, 10, 12, 0, 9, 7, 13}};
-	// std::array<int, 36>		map = {{1, 14, 2, 4, 6, 18,
-	// 								9, 13, 3, 17, 11, 33,
-	// 								19, 7, 16, 10, 5, 12,
-	// 								8, 26, 20, 15, 22, 24,
-	// 								21, 31, 27, 29, 23, 30,
-	// 								25, 0, 32, 28, 34, 35}};
+	std::array<int, 36>		map = {{1, 14, 2, 4, 6, 18,
+									9, 13, 3, 17, 11, 33,
+									19, 7, 16, 10, 5, 12,
+									8, 26, 20, 15, 22, 24,
+									21, 31, 27, 29, 23, 30,
+									25, 0, 32, 28, 34, 35}};
 
 	// snail solution
 	// std::array<int, 16>		map = {{0,	10,	5,	7,
@@ -92,6 +93,7 @@ void	clientCode() {
 		cerr << "Client request error: " << e.what() << endl;
 	}
 }
+// *** delete this
 
 int		main(int argc, char **argv) {
 	CSCP			mp;
@@ -146,4 +148,6 @@ int		main(int argc, char **argv) {
 		20. Abort when solving 3*3 puzzle
 		21. Rename HAMMILTON_DISTANCE to MISPLACED_TILES
 		22. Usetwo dimension array in State.cpp
+		23. rewrite default GET method for server
+		24. Delete all debug print
 */
