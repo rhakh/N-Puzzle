@@ -18,28 +18,30 @@
 				</form>
 			</div>
 		</div>
-		<div id=puzzle>
+		<div id="puzzle">
 
 		</div>
     </body>
 	<script src = "app.js"></script>
     <script>
-        //var puzzle = new Puzzle(document.getElementById("puzzle"));
+       
+		// function sendJson(json){
+  //  			var x = new XMLHttpRequest();
+  //  			var json = document.getElementById("json_in").value;
 
-		function sendJson(json){
-   			var x = new XMLHttpRequest();
-   			var json = document.getElementById("json_in").value;
-
-   			x.open("POST", '/message', true);
-   			x.send(json);
-   			console.log(json);
-   		}
+  //  			x.open("POST", '/message', true);
+  //  			x.send(json);
+  //  			console.log(json);
+  //  		}
 
 
 
 
 		$("#form").submit(function(e){
 			e.preventDefault()
+			side = JSON.parse(document.getElementById("json_in").value);
+			// var side = Object.keys(out.data["map"])  
+ 			var puzzle = new Puzzle(document.getElementById("puzzle"), 5);
 
 	          $.ajax({
 	             type: "POST",
