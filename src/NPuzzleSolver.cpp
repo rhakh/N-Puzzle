@@ -14,7 +14,7 @@ typedef std::unordered_set<State *, HashState, EqualState>	NPset;
 void	NPuzzleSolver::checkPath(const State *root, const std::list<uint8_t> &result) const {
 	std::string ss[] = {"ROOT", "UP", "DOWN", "LEFT", "RIGHT"};
 	State *state;
-	State *prev;
+	State *prev = nullptr;
 
 	std::cout << "###### PRINT PATH ######" << std::endl;
 	for (auto const &move: result) {
@@ -159,14 +159,15 @@ bool	isSolvableForNormal(const uint8_t *map, uint8_t mapSize) {
 		for (int j = i + 1; j < mapSize; j++) {
 			if (map[i] > map[j])
 				inversions++;
-			if (map[i] == 0)
-				zeroY = i / size;
+			if (map[i] == 0) {
+				zeroY = i / size + 1;
+			}
 		}
 
 	if (zeroY == -1)
 		return (false);
 
-	zeroY = size - zeroY - 1;
+	zeroY = size - zeroY;
 
 	printf("size = %d, inversions = %d, zeroY = %d\n", size, inversions, zeroY);
 	printf("(%d) == (%d)\n", (zeroY % 2 != 0), (inversions % 2 == 0));
@@ -197,8 +198,8 @@ NPuzzleSolver::solve(int func, int algo, int solutionType,
 	if (std::sqrt(mapSize) - (int)(std::sqrt(mapSize)) != 0.0)
 		throw NP_InvalidMapSize();
 
-	if (!isSolvable(map, mapSize, solutionType))
-		throw NP_InvalidMap();
+	// if (!isSolvable(map, mapSize, solutionType))
+	// 	throw NP_InvalidMap();
 
 	switch (func) {
 		case MISPLACED_TILES:
