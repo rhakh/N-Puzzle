@@ -20,7 +20,7 @@ class CSCP {
 
 	void	constructTaskResponse(size_t openNodes, size_t closedNodes,
 									size_t usedMemory, double elapsedTime,
-									std::list<uint8_t> &result,
+									std::list<int> &result,
 									std::string &resultStr);
 	void	constructErrorResponse(std::exception &e, std::string &resultStr);
 	void	taskHandler(boost::property_tree::ptree &json, std::string &resultStr);

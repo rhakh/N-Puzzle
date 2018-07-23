@@ -3,14 +3,14 @@
 #include <iostream>
 #include <functional>
 
-auto findIndexInMap = [](uint8_t value, const uint8_t *map, uint8_t mapSize) {
+auto findIndexInMap = [](int value, const int *map, int mapSize) {
 	for (int i = 0; i < mapSize; i++)
 		if (map[i] == value)
 			return (i);
 	return (-1);
 };
 
-int	misplacedTiles(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize) {
+int	misplacedTiles(const int *map, const int *finishMap, int mapSize) {
 	int inversions = 0;
 
 	for (int i = 0; i < mapSize; i++) {
@@ -20,9 +20,9 @@ int	misplacedTiles(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize
 	return (inversions);
 }
 
-int	manhattanDistance(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize) {
+int	manhattanDistance(const int *map, const int *finishMap, int mapSize) {
 	int	price = 0;
-	uint8_t	x1, x2, y1, y2, xres, yres, j;
+	int	x1, x2, y1, y2, xres, yres, j;
 
 	for (int i = 0; i < mapSize; i++) {
 		if (map[i]) {
@@ -47,8 +47,8 @@ int	manhattanDistance(const uint8_t *map, const uint8_t *finishMap, uint8_t mapS
 	return (price);
 }
 
-static int linearConflicts(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize) {
-	uint8_t	linearConflicts = 0;
+static int linearConflicts(const int *map, const int *finishMap, int mapSize) {
+	int	linearConflicts = 0;
 
 	// conflicts in rows
 	for (int row = 0; row < State::size; row++) {
@@ -75,17 +75,17 @@ static int linearConflicts(const uint8_t *map, const uint8_t *finishMap, uint8_t
 	return (linearConflicts);
 }
 
-int	MDplusLinearConflicts(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize) {
+int	MDplusLinearConflicts(const int *map, const int *finishMap, int mapSize) {
 	return (manhattanDistance(map, finishMap, mapSize) + linearConflicts(map, finishMap, mapSize));
 }
 
-int	MTplusLinearConflicts(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize) {
+int	MTplusLinearConflicts(const int *map, const int *finishMap, int mapSize) {
 	return (misplacedTiles(map, finishMap, mapSize) + linearConflicts(map, finishMap, mapSize));
 }
 
-int	nMaxSwap(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize) {
+int	nMaxSwap(const int *map, const int *finishMap, int mapSize) {
 
-	uint8_t	mapCopy[mapSize];
+	int	mapCopy[mapSize];
 	int retVal = 0;
 	int zeroI = 0;
 

@@ -7,17 +7,16 @@
 int State::size = 4;
 int State::mapSize = State::size * State::size;
 
-auto findIndexInMap = [](uint8_t value, const uint8_t *map, uint8_t mapSize) {
+auto findIndexInMap = [](int value, const int *map, int mapSize) {
 	for (int i = 0; i < mapSize; i++)
 		if (map[i] == value)
 			return (i);
 	return (-1);
 };
 
-State::State(const uint8_t *map, int price, int length) {
-	this->map = new uint8_t[State::mapSize];
-
-	for (int i = 0; i < State::mapSize; i++)
+State::State(const int *map, int price, int length, const int mapSize) {
+	this->map.reserve(mapSize);
+	for (int i = 0; i < mapSize; i++)
 		this->map[i] = map[i];
 
 	this->price = price;
@@ -26,23 +25,24 @@ State::State(const uint8_t *map, int price, int length) {
 	this->prev = nullptr;
 }
 
-void	State::makeSnailState() {
+void	State::makeSnailState(const int mapSize) {
 	int	row = 0;
 	int	col = 0;
 	int	dx = 1;
 	int	dy = 0;
 	int	dirCh = 0;
-	int	vis = State::size;
+	int	vis = (int)std::sqrt(mapSize);
+	int	size = (int)std::sqrt(mapSize);
 
-	uint8_t matr[State::size][State::size];
+	int matr[size][size];
 
-	for (int i = 0; i < State::mapSize; i++) {
+	for (int i = 0; i < mapSize; i++) {
 		matr[row][col] = i + 1;
-		if (i + 1 == State::mapSize)
+		if (i + 1 == mapSize)
 			matr[row][col] = 0;
 		vis--;
 		if (vis == 0) {
-			vis = State::size * (dirCh % 2) + State::size * ((dirCh + 1) % 2) - (dirCh / 2 - 1) - 2;
+			vis = size * (dirCh % 2) + size * ((dirCh + 1) % 2) - (dirCh / 2 - 1) - 2;
 			int tmp = dx;
 			dx = -dy;
 			dy = tmp;
@@ -53,9 +53,9 @@ void	State::makeSnailState() {
 	}
 
 	int m = 0;
-	this->map = new uint8_t[State::mapSize];
-	for (int i = 0; i < State::size; i++)
-		for (int j = 0; j < State::size; j++)
+	this->map.reserve(mapSize);
+	for (int i = 0; i < size; i++)
+		for (int j = 0; j < size; j++)
 			this->map[m++] = matr[i][j];
 
 	this->price = 0;
@@ -64,11 +64,11 @@ void	State::makeSnailState() {
 	this->prev = nullptr;
 }
 
-void	State::makeNormalState() {
-	this->map = new uint8_t[State::mapSize];
-	for (int i = 0; i < State::mapSize; i++)
+void	State::makeNormalState(const int mapSize) {
+	this->map.reserve(mapSize);
+	for (int i = 0; i < mapSize; i++)
 		this->map[i] = i + 1;
-	this->map[State::mapSize - 1] = 0;
+	this->map[mapSize - 1] = 0;
 
 	this->price = 0;
 	this->length = 0;
@@ -76,20 +76,19 @@ void	State::makeNormalState() {
 	this->prev = nullptr;
 }
 
-State::State(int solutionType) {
+State::State(const int solutionType, const int mapSize) {
 	if (solutionType == SNAIL_SOLUTION)
-		makeSnailState();
+		makeSnailState(mapSize);
 	else
-		makeNormalState();
+		makeNormalState(mapSize);
 }
 
-State::State(const State &src, int move) {
-	const uint8_t	*map = src.getMapPtr();
-
-	const int	size = State::size;
+State::State(const State &src, const int move, const int size) {
+	const int	*map = src.getMapPtr();
+	const int	mapSize = this->map.size();
 	int			x, y, newPos, zeroIndex;
 
-	zeroIndex = findIndexInMap(0, map, State::mapSize);
+	zeroIndex = findIndexInMap(0, map, mapSize);
 
 	x = zeroIndex % size;
 	y = zeroIndex / size;
@@ -123,8 +122,8 @@ State::State(const State &src, int move) {
 			break;
 	}
 
-	this->map = new uint8_t[State::mapSize];
-	for (int i = 0; i < State::mapSize; i++)
+	this->map.reserve(mapSize);
+	for (int i = 0; i < mapSize; i++)
 		this->map[i] = map[i];
 	this->swapPieces(zeroIndex, newPos);
 
@@ -134,7 +133,7 @@ State::State(const State &src, int move) {
 	this->prev = &src;
 }
 
-uint8_t	State::getMove() const {
+int	State::getMove() const {
 	return (this->movement);
 }
 
@@ -142,22 +141,18 @@ const State	*State::getPrev() const {
 	return (this->prev);
 }
 
-State::~State() {
-	delete[] this->map;
-}
+State::~State() {}
 
-void	State::printState() const {
+void	State::printState(const int size) const {
+	int mapSize = this->map.size();
+
 	printf("State price = %d, length = %d\n", this->price, this->length);
-	if (this->map != nullptr) {
-		for (int i = 0; i < State::mapSize; i++) {
-			if ((i + 1) % State::size == 0)
-				printf("%2u\n", this->map[i]);
-			else
-				printf("%2u ", this->map[i]);
-		}
+	for (int i = 0; i < mapSize; i++) {
+		if ((i + 1) % size == 0)
+			printf("%2u\n", this->map[i]);
+		else
+			printf("%2u ", this->map[i]);
 	}
-	else
-		printf("map is null\n");
 	printf("\n\n");
 }
 
@@ -166,11 +161,11 @@ void	State::swapPieces(int a, int b) {
 }
 
 size_t HashState::operator()(const State* a) const {
-	size_t	seed = State::mapSize;
+	const int	*map = a->getMapPtr();
+	const int	mapSize = a->getMapSize();
+	size_t		seed = mapSize;
 
-	const uint8_t	*map = a->getMapPtr();
-
-	for(int i = 0; i < State::mapSize; i++) {
+	for(int i = 0; i < mapSize; i++) {
 		seed ^= map[i] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 	}
 
@@ -185,10 +180,11 @@ bool CompareState::operator()(const State *a, const State *b) {
 }
 
 bool EqualState::operator()(const State *lhs, const State *rhs) const {
-	const uint8_t *pa = rhs->getMapPtr();
-	const uint8_t *pb = lhs->getMapPtr();
+	const int *pa = rhs->getMapPtr();
+	const int *pb = lhs->getMapPtr();
+	const int mapSize = lhs->getMapSize();
 
-	for (int i = 0; i < State::mapSize; i++) {
+	for (int i = 0; i < mapSize; i++) {
 		if (pa[i] != pb[i])
 			return (false);
 	}

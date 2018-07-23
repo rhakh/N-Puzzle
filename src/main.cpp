@@ -174,4 +174,5 @@ int		main(int argc, char **argv) {
 		22. Usetwo dimension array in State.cpp
 		23. rewrite default GET method for server
 		24. Delete all debug print
+		25. validate map for numbers (clone numbers, empty numbers)
 */

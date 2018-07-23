@@ -3,14 +3,14 @@
 
 #include <cstdint>
 
-int	misplacedTiles(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize);
+int	misplacedTiles(const int *map, const int *finishMap, int mapSize);
 
-int	manhattanDistance(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize);
+int	manhattanDistance(const int *map, const int *finishMap, int mapSize);
 
-int	MDplusLinearConflicts(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize);
+int	MDplusLinearConflicts(const int *map, const int *finishMap, int mapSize);
 
-int	MTplusLinearConflicts(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize);
+int	MTplusLinearConflicts(const int *map, const int *finishMap, int mapSize);
 
-int	nMaxSwap(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize);
+int	nMaxSwap(const int *map, const int *finishMap, int mapSize);
 
 #endif //N_PUZZLE_HEURISTICFUNCTIONS_HPP

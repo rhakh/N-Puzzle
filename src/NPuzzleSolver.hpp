@@ -23,26 +23,26 @@ class NPuzzleSolver
 {
 	State				*finishState;
 
-	int		(*heuristicFunc)(const uint8_t *map, const uint8_t *finishMap, uint8_t mapSize);
+	int		(*heuristicFunc)(const int *map, const int *finishMap, int mapSize);
 
 	// algo functions
 	std::tuple<size_t, size_t, size_t>
-		aStar(const uint8_t *map, uint8_t mapSize, int solutionType, std::list<uint8_t> &result);
+		aStar(const int *map, const int mapSize, int solutionType, std::list<int> &result);
 	std::tuple<size_t, size_t, size_t>
-		aStarIDA(const uint8_t *map, uint8_t mapSize, int solutionType, std::list<uint8_t> &result);
+		aStarIDA(const int *map, const int mapSize, int solutionType, std::list<int> &result);
 
-	void 	createPath(std::list<uint8_t> &result, const State *curr) const;
-	State	*doMove(const State *curr, uint8_t move);
-	State	*getNewState(const State *curr, int emptyPos, int newPos, uint8_t move);
+	void 	createPath(std::list<int> &result, const State *curr) const;
+	State	*doMove(const State *curr, int move);
+	State	*getNewState(const State *curr, int emptyPos, int newPos, int move);
 
 	// use to check path if it's correct
-	void	checkPath(const State *root, const std::list<uint8_t> &result) const;
-	bool	isSolvable(const uint8_t *map, uint8_t mapSize, int solutionType);
+	void	checkPath(const State *root, const std::list<int> &result, const int size) const;
+	bool	isSolvable(const int *map, int mapSize, int solutionType);
 
 public:
 	std::tuple<size_t, size_t, size_t>
 	solve(int func, int algo, int solutionType,
-			const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &result);
+			const int *map, const int mapSize, std::list<int> &result);
 
 	NPuzzleSolver();
 	~NPuzzleSolver();

@@ -11,7 +11,7 @@
 
 void	CSCP::constructTaskResponse(size_t openNodes, size_t closedNodes,
 								size_t usedMemory, double elapsedTime,
-								std::list<uint8_t> &result,
+								std::list<int> &result,
 								std::string &resultStr) {
 	namespace pt = boost::property_tree;
 
@@ -67,11 +67,11 @@ void	CSCP::taskHandler(boost::property_tree::ptree &json, std::string &resultStr
 	std::tuple<size_t, size_t, size_t>	retVal;
 	pt::ptree		mapNode = json.get_child("data.map");
 	pt::ptree		dataNode = json.get_child("data");
-	unsigned char	map[mapNode.size()];
+	int				map[mapNode.size()];
 	unsigned int	openNodes = 0, closedNodes = 0, usedMemory = 0;
 	int				i;
 	clock_t			start;
-	std::list<uint8_t>	result;
+	std::list<int>	result;
 
 	pt::ptree::iterator		it = mapNode.begin();
 	for (i = 0; it != mapNode.end(); it++, i++)

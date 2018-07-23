@@ -11,7 +11,7 @@
 typedef std::priority_queue<State *, std::vector<State *>, CompareState>	NPqueue;
 typedef std::unordered_set<State *, HashState, EqualState>	NPset;
 
-void	NPuzzleSolver::checkPath(const State *root, const std::list<uint8_t> &result) const {
+void	NPuzzleSolver::checkPath(const State *root, const std::list<int> &result, const int size) const {
 	std::string ss[] = {"ROOT", "UP", "DOWN", "LEFT", "RIGHT"};
 	State *state;
 	State *prev = nullptr;
@@ -20,11 +20,11 @@ void	NPuzzleSolver::checkPath(const State *root, const std::list<uint8_t> &resul
 	for (auto const &move: result) {
 		std::cout << "Move: " << ss[move] << std::endl << std::flush;
 		if (move == 0)
-			state = new State(*root, move);
+			state = new State(*root, move, size);
 		else // if can't create State with this move, then constructor throw exception
-			state = new State(*prev, move);
+			state = new State(*prev, move, size);
 		prev = state;
-		state->printState();
+		state->printState(size);
 	}
 	std::cout << "###### END PRINT PATH ######" << std::endl;
 	// if you see this message, then path is correct
@@ -49,7 +49,7 @@ void    freeMem(NPqueue *open, NPset *closed, State *last) {
 		delete last;
 }
 
-void 	NPuzzleSolver::createPath(std::list<uint8_t> &result, const State *curr) const {
+void 	NPuzzleSolver::createPath(std::list<int> &result, const State *curr) const {
 	while (curr->getMove() != ROOT) {
 		result.push_front(curr->getMove());
 		curr = curr->getPrev();
@@ -62,12 +62,12 @@ constructRetVal(NPqueue *open, NPset *closed, unsigned int maxOpen) {
 	size_t	summ = open->size() + closed->size();
 
 	// used memory
-	summ = summ * (sizeof(State) + sizeof(uint8_t) * State::mapSize);
+	summ = summ * (sizeof(State) + sizeof(int) * State::mapSize);
 	return (std::make_tuple(maxOpen, closed->size(), summ));
 }
 
 std::tuple<size_t, size_t, size_t>
-NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, int solutionType, std::list<uint8_t> &result) {
+NPuzzleSolver::aStar(const int *map, const int mapSize, int solutionType, std::list<int> &result) {
 	std::tuple<size_t, size_t, size_t>	retVal;
 	NPqueue	open;
 	NPset	closed;
@@ -75,12 +75,12 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, int solutionType, std:
 	State	*curr = nullptr;
 	State	*newState;
 	size_t	maxOpen = 0;
-
+	const int size = (int)std::sqrt(mapSize);
 	State::mapSize = mapSize;
 	State::size = (int)std::sqrt(mapSize);
 
-	this->finishState = new State(solutionType);
-	root = new State(map, heuristicFunc(map, this->finishState->getMapPtr(), mapSize), 0);
+	this->finishState = new State(solutionType, mapSize);
+	root = new State(map, heuristicFunc(map, this->finishState->getMapPtr(), mapSize), 0, mapSize);
 	open.push(root);
 
 	while (!open.empty()) {
@@ -96,7 +96,7 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, int solutionType, std:
 
 		if (curr->getPrice() == 0) {
 			std::cout << "******* SOLVED" << std::endl;
-			curr->printState();
+			curr->printState(size);
 			createPath(result, const_cast<const State *>(curr));
 			retVal = constructRetVal(&open, &closed, maxOpen);
 
@@ -110,7 +110,7 @@ NPuzzleSolver::aStar(const uint8_t *map, uint8_t mapSize, int solutionType, std:
 
 		for (int move = UP; move < LAST; move++) {
 			try {
-				newState = new State(*curr, move);
+				newState = new State(*curr, move, size);
 				newState->setPrice(this->heuristicFunc(newState->getMapPtr(),
 									this->finishState->getMapPtr(),
 									State::mapSize));
@@ -150,19 +150,29 @@ NPuzzleSolver::~NPuzzleSolver() {
 
 }
 
-bool	isSolvableForNormal(const uint8_t *map, uint8_t mapSize) {
+#include <functional>
+bool NPuzzleSolver::isSolvable(const int *map, int mapSize, int solutionType) {
 	int	inversions = 0;
 	int size = (int)std::sqrt(mapSize);
 	int zeroY = -1;
 
-	for (int i = 0; i < mapSize; i++)
+	auto getInversions = [&map, &mapSize, &inversions]() {
+		for (int i = 0; i < mapSize; i++)
 		for (int j = i + 1; j < mapSize; j++) {
 			if (map[i] > map[j])
 				inversions++;
-			if (map[i] == 0) {
-				zeroY = i / size + 1;
-			}
 		}
+	};
+
+	auto getZeroPos = [&map, &mapSize, &zeroY, &size]() {
+		for (int i = mapSize - 1; i >= 0; i--)
+			if (map[i] == 0) {
+				zeroY = i / size;
+			}
+	};
+
+	getInversions();
+	getZeroPos();
 
 	if (zeroY == -1)
 		return (false);
@@ -178,16 +188,9 @@ bool	isSolvableForNormal(const uint8_t *map, uint8_t mapSize) {
 		return ((zeroY % 2 != 0) == (inversions % 2 == 0));
 }
 
-bool NPuzzleSolver::isSolvable(const uint8_t *map, uint8_t mapSize, int solutionType) {
-	if (solutionType == NORMAL_SOLUTION)
-		return (isSolvableForNormal(map, mapSize));
-	else
-		return (isSolvableForNormal(map, mapSize));
-}
-
 std::tuple<size_t, size_t, size_t>
 NPuzzleSolver::solve(int func, int algo, int solutionType,
-		const uint8_t *map, uint8_t mapSize, std::list<uint8_t> &result) {
+		const int *map, const int mapSize, std::list<int> &result) {
 
 	if (mapSize < 9)
 		throw NP_InvalidMapSize();

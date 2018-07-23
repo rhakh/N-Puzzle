@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <iostream>
+#include <vector>
 
 enum moves_e {ROOT, UP, DOWN, LEFT, RIGHT, LAST};
 
@@ -15,33 +16,35 @@ public:
 	static int	mapSize;
 
 private:
-	uint8_t	*map = nullptr;
+	// int	*map = nullptr;
+	std::vector<int> map;
 	int		price;
 	int		length;
-	uint8_t	movement;
+	int		movement;
 	const State	*prev;
 
 	//disable copy constructor;
 	State(const State &rhs) {};
 	State	&operator=(const State &rhs) {return (*this);};
 
-	void	makeSnailState();
-	void	makeNormalState();
+	void	makeSnailState(const int mapSize);
+	void	makeNormalState(const int mapSize);
 
 public:
-	State(const uint8_t *map, int price, int length);
-	State(int solutionType); //build finish state
-	State(const State &src, int move);
+	State(const int *map, int price, int length, const int mapSize);
+	State(const int solutionType, const int mapSize); //build finish state
+	State(const State &src, const int move, const int size);
 	~State();
 
 	void			setLength(int length) { this->length = length; }
 	void			setPrice(int price) { this->price = price; }
 	int				getLength() const { return (this->length); }
 	int				getPrice() const { return (this->price); }
-	const uint8_t	*getMapPtr() const { return (this->map); }
-	void			printState() const;
+	const int		*getMapPtr() const { return (this->map.data()); }
+	int				getMapSize() const { return (this->map.size()); }
+	void			printState(const int size) const;
 	void			swapPieces(int a, int b);
-	uint8_t			getMove() const;
+	int				getMove() const;
 	const State		*getPrev() const;
 
 	class	NP_InvalidMove : public std::exception {
