@@ -4,11 +4,8 @@
 #include <algorithm>
 #include <cmath>
 
-int State::size = 4;
-int State::mapSize = State::size * State::size;
-
 auto findIndexInMap = [](int value, const int *map, int mapSize) {
-	for (int i = 0; i < mapSize; i++)
+    for (int i = 0; i < mapSize; i++)
 		if (map[i] == value)
 			return (i);
 	return (-1);
@@ -17,7 +14,7 @@ auto findIndexInMap = [](int value, const int *map, int mapSize) {
 State::State(const int *map, int price, int length, const int mapSize) {
 	this->map.reserve(mapSize);
 	for (int i = 0; i < mapSize; i++)
-		this->map[i] = map[i];
+		this->map.push_back(map[i]);
 
 	this->price = price;
 	this->length = length;
@@ -52,11 +49,10 @@ void	State::makeSnailState(const int mapSize) {
 		row += dy;
 	}
 
-	int m = 0;
 	this->map.reserve(mapSize);
 	for (int i = 0; i < size; i++)
 		for (int j = 0; j < size; j++)
-			this->map[m++] = matr[i][j];
+			this->map.push_back(matr[i][j]);
 
 	this->price = 0;
 	this->length = 0;
@@ -67,7 +63,7 @@ void	State::makeSnailState(const int mapSize) {
 void	State::makeNormalState(const int mapSize) {
 	this->map.reserve(mapSize);
 	for (int i = 0; i < mapSize; i++)
-		this->map[i] = i + 1;
+		this->map.push_back(i + 1);
 	this->map[mapSize - 1] = 0;
 
 	this->price = 0;
@@ -83,12 +79,11 @@ State::State(const int solutionType, const int mapSize) {
 		makeNormalState(mapSize);
 }
 
-State::State(const State &src, const int move, const int size) {
+State::State(const State &src, const int move, const int mapSize, const int size) {
 	const int	*map = src.getMapPtr();
-	const int	mapSize = this->map.size();
 	int			x, y, newPos, zeroIndex;
 
-	zeroIndex = findIndexInMap(0, map, mapSize);
+    zeroIndex = findIndexInMap(0, map, mapSize);
 
 	x = zeroIndex % size;
 	y = zeroIndex / size;
@@ -124,10 +119,10 @@ State::State(const State &src, const int move, const int size) {
 
 	this->map.reserve(mapSize);
 	for (int i = 0; i < mapSize; i++)
-		this->map[i] = map[i];
+		this->map.push_back(map[i]);
 	this->swapPieces(zeroIndex, newPos);
 
-	this->price = 0;
+    this->price = 0;
 	this->length = src.getLength() + 1;
 	this->movement = move;
 	this->prev = &src;

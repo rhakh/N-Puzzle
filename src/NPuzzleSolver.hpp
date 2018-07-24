@@ -23,7 +23,7 @@ class NPuzzleSolver
 {
 	State				*finishState;
 
-	int		(*heuristicFunc)(const int *map, const int *finishMap, int mapSize);
+	int		(*heuristicFunc)(const int *map, const int *finishMap, const int mapSize, const int size);
 
 	// algo functions
 	std::tuple<size_t, size_t, size_t>
@@ -32,11 +32,9 @@ class NPuzzleSolver
 		aStarIDA(const int *map, const int mapSize, int solutionType, std::list<int> &result);
 
 	void 	createPath(std::list<int> &result, const State *curr) const;
-	State	*doMove(const State *curr, int move);
-	State	*getNewState(const State *curr, int emptyPos, int newPos, int move);
 
 	// use to check path if it's correct
-	void	checkPath(const State *root, const std::list<int> &result, const int size) const;
+	void	checkPath(const State *root, const std::list<int> &result, const int mapSize, const int size) const;
 	bool	isSolvable(const int *map, int mapSize, int solutionType);
 
 public:

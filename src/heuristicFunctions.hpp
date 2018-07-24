@@ -3,13 +3,13 @@
 
 #include <cstdint>
 
-int	misplacedTiles(const int *map, const int *finishMap, int mapSize);
+int	misplacedTiles(const int *map, const int *finishMap, const int mapSize, const int size);
 
-int	manhattanDistance(const int *map, const int *finishMap, int mapSize);
+int	manhattanDistance(const int *map, const int *finishMap, const int mapSize, const int size);
 
-int	MDplusLinearConflicts(const int *map, const int *finishMap, int mapSize);
+int	MDplusLinearConflicts(const int *map, const int *finishMap, const int mapSize, const int size);
 
-int	MTplusLinearConflicts(const int *map, const int *finishMap, int mapSize);
+int	MTplusLinearConflicts(const int *map, const int *finishMap, const int mapSize, const int size);
 
 int	nMaxSwap(const int *map, const int *finishMap, int mapSize);
 

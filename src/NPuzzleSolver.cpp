@@ -11,7 +11,7 @@
 typedef std::priority_queue<State *, std::vector<State *>, CompareState>	NPqueue;
 typedef std::unordered_set<State *, HashState, EqualState>	NPset;
 
-void	NPuzzleSolver::checkPath(const State *root, const std::list<int> &result, const int size) const {
+void	NPuzzleSolver::checkPath(const State *root, const std::list<int> &result, const int mapSize, const int size) const {
 	std::string ss[] = {"ROOT", "UP", "DOWN", "LEFT", "RIGHT"};
 	State *state;
 	State *prev = nullptr;
@@ -20,9 +20,9 @@ void	NPuzzleSolver::checkPath(const State *root, const std::list<int> &result, c
 	for (auto const &move: result) {
 		std::cout << "Move: " << ss[move] << std::endl << std::flush;
 		if (move == 0)
-			state = new State(*root, move, size);
+			state = new State(*root, move, mapSize, size);
 		else // if can't create State with this move, then constructor throw exception
-			state = new State(*prev, move, size);
+			state = new State(*prev, move, mapSize, size);
 		prev = state;
 		state->printState(size);
 	}
@@ -30,7 +30,7 @@ void	NPuzzleSolver::checkPath(const State *root, const std::list<int> &result, c
 	// if you see this message, then path is correct
 }
 
-void    freeMem(NPqueue *open, NPset *closed, State *last) {
+void    freeMem(NPqueue *open, NPset *closed) {
 	State	*curr = nullptr;
 
 	while (!open->empty()) {
@@ -45,8 +45,6 @@ void    freeMem(NPqueue *open, NPset *closed, State *last) {
 		element = *i;
 		delete element;
 	}
-	if (last != nullptr)
-		delete last;
 }
 
 void 	NPuzzleSolver::createPath(std::list<int> &result, const State *curr) const {
@@ -58,11 +56,11 @@ void 	NPuzzleSolver::createPath(std::list<int> &result, const State *curr) const
 }
 
 std::tuple<size_t, size_t, size_t>
-constructRetVal(NPqueue *open, NPset *closed, unsigned int maxOpen) {
+constructRetVal(NPqueue *open, NPset *closed, unsigned int maxOpen, const int mapSize) {
 	size_t	summ = open->size() + closed->size();
 
 	// used memory
-	summ = summ * (sizeof(State) + sizeof(int) * State::mapSize);
+	summ = summ * (sizeof(State) + sizeof(int) * mapSize);
 	return (std::make_tuple(maxOpen, closed->size(), summ));
 }
 
@@ -76,11 +74,9 @@ NPuzzleSolver::aStar(const int *map, const int mapSize, int solutionType, std::l
 	State	*newState;
 	size_t	maxOpen = 0;
 	const int size = (int)std::sqrt(mapSize);
-	State::mapSize = mapSize;
-	State::size = (int)std::sqrt(mapSize);
 
 	this->finishState = new State(solutionType, mapSize);
-	root = new State(map, heuristicFunc(map, this->finishState->getMapPtr(), mapSize), 0, mapSize);
+	root = new State(map, heuristicFunc(map, this->finishState->getMapPtr(), mapSize, size), 0, mapSize);
 	open.push(root);
 
 	while (!open.empty()) {
@@ -93,27 +89,26 @@ NPuzzleSolver::aStar(const int *map, const int mapSize, int solutionType, std::l
 			delete curr;
 			continue;
 		}
+        closed.insert(curr);
 
 		if (curr->getPrice() == 0) {
 			std::cout << "******* SOLVED" << std::endl;
 			curr->printState(size);
 			createPath(result, const_cast<const State *>(curr));
-			retVal = constructRetVal(&open, &closed, maxOpen);
+			retVal = constructRetVal(&open, &closed, maxOpen, mapSize);
 
 			// del allocated mem
-			freeMem(&open, &closed, curr);
+			freeMem(&open, &closed);
 			delete this->finishState;
 			return retVal;
 		}
 
-		closed.insert(curr);
-
 		for (int move = UP; move < LAST; move++) {
 			try {
-				newState = new State(*curr, move, size);
+				newState = new State(*curr, move, mapSize, size);
 				newState->setPrice(this->heuristicFunc(newState->getMapPtr(),
 									this->finishState->getMapPtr(),
-									State::mapSize));
+									mapSize, size));
 				open.push(newState);
 			}
 			catch (State::NP_InvalidMove &e) {
@@ -124,7 +119,7 @@ NPuzzleSolver::aStar(const int *map, const int mapSize, int solutionType, std::l
 							<< e.what() << std::endl;
 
 				// del allocated mem
-				freeMem(&open, &closed, nullptr);
+				freeMem(&open, &closed);
 				delete this->finishState;
 				throw e;
 			}
@@ -133,10 +128,11 @@ NPuzzleSolver::aStar(const int *map, const int mapSize, int solutionType, std::l
 		if (open.size() > maxOpen)
 			maxOpen = open.size();
 	}
-	retVal = constructRetVal(&open, &closed, maxOpen);
+	//TODO: throw exception that can't find solution
+	retVal = constructRetVal(&open, &closed, maxOpen, mapSize);
 
 	//del allocated mem
-	freeMem(&open, &closed, curr);
+	freeMem(&open, &closed);
 	delete this->finishState;
 	return (retVal);
 }

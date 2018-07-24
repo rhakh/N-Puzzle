@@ -11,10 +11,6 @@ enum solutionType {SNAIL_SOLUTION, NORMAL_SOLUTION};
 
 class State
 {
-public:
-	static int	size;
-	static int	mapSize;
-
 private:
 	// int	*map = nullptr;
 	std::vector<int> map;
@@ -33,7 +29,7 @@ private:
 public:
 	State(const int *map, int price, int length, const int mapSize);
 	State(const int solutionType, const int mapSize); //build finish state
-	State(const State &src, const int move, const int size);
+	State(const State &src, const int move, const int mapSize, const int size);
 	~State();
 
 	void			setLength(int length) { this->length = length; }
