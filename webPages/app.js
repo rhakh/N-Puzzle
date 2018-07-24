@@ -52,42 +52,42 @@ void function(window, document, undefined) {
 
 
 
+
+
+
     function makeGoal(s) {
-	var ts = s * s;
-	puzzle = [];
-	for (var i = 0; i < ts; i++) {
-  		puzzle[i] = -1;
-	}
-	cur = 1
-	x = 0
-	ix = 1
-	y = 0
-	iy = 0
+        let ts = s * s;
+        puzzle = [];
+        for (let i = 0; i < ts; i++) {
+            puzzle[i] = -1;
+        }
+        cur = 1;
+        x = 0;
+        ix = 1;
+        y = 0;
+        iy = 0;
 
-	while (true) {
-		puzzle[x + y*s] = cur;
-		if (cur == 0)
-			break;
-		cur += 1;
-		if (x + ix == s || x + ix < 0 || (ix != 0 && puzzle[x + ix + y*s] != -1)) {
-			iy = ix;
-			ix = 0;
-		}
-		else if (y + iy == s || y + iy < 0 || (iy != 0 && puzzle[x + (y+iy)*s] != -1)) {
-			ix = -iy;
-			iy = 0;
-		}
-		x += ix
-		y += iy
-		if (cur == s * s) {
-			cur = 0;
-		}
-	}
-	return(puzzle);
-}
-
-
-
-
+        while (true) {
+            puzzle[x + y*s] = cur;
+            if (cur === 0)
+                break;
+            cur += 1;
+            if (x + ix === s || x + ix < 0 || (ix !== 0 && puzzle[x + ix + y*s] !== -1)) {
+                iy = ix;
+                ix = 0;
+            }
+            else if (y + iy === s || y + iy < 0 || (iy !== 0 && puzzle[x + (y+iy)*s] !== -1)) {
+                ix = -iy;
+                iy = 0;
+            }
+            x += ix;
+            y += iy;
+            if (cur === s * s) {
+                cur = 0;
+            }
+        }
+        console.log(puzzle);
+        return(puzzle);
+    }
 
 }(window, document);
