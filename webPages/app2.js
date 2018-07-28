@@ -1,3 +1,42 @@
+var DEFAULT_SIDE = 3
+var CELL_SIZE = 92
+var CELL_GAP = 10
+
+var totalMoves = 0
+
+function Puzzle (container, elements, json) {
+  this.board = container
+  this.side = elements.side.value
+  this.total = this.side * this.side
+  this.hole = this.total - 1
+  this.cells = []
+  this.finger = {}
+
+  // this.init();
+  this.fillCells(json.data['map'])
+}
+
+Puzzle.prototype.placeCell = function (cell, i) {
+  cell.style.left = ((i % this.side) * (CELL_SIZE + CELL_GAP) + CELL_GAP) + 'px'
+  cell.style.top = (Math.floor(i / this.side) * (CELL_SIZE + CELL_GAP) + CELL_GAP) + 'px'
+}
+
+Puzzle.prototype.fillCells = function (map) {
+  var fragment = document.createDocumentFragment()
+  for (var i = 0; i < this.total - 1; i++) {
+    var cell = document.createElement('span')
+    cell.className = 'cell'
+    cell.innerHTML = map[i]
+    this.cells[i] = map[i]
+    this.placeCell(cell, i)
+    fragment.appendChild(cell)
+  }
+  this.cells.push(0)
+  this.goal = this.cells.slice()
+  this.board.appendChild(fragment)
+  this.board.className = 'board'
+  this.board.style.height = this.board.style.width = (this.side * (CELL_SIZE + CELL_GAP) + CELL_GAP) + 'px'
+}
 
 function makeGoal (s) {
   var ts = s * s
@@ -28,40 +67,56 @@ function makeGoal (s) {
       cur = parseInt(0)
     }
   }
-  console.log('puzzle=')
-  console.log(puzzle)
   return (puzzle)
 }
 
-function getKeyByValue (object, value) {
-  return Object.keys(object).find(key => object[key] === value)
+function getKeyByValue (object) {
+  var x = Object.keys(object)
+  var res = x.find(key => object[key] == 0)
+  console.log('res is -')
+  console.log(res)
+
+  return res
 }
 
-function  getkey(c) {
-  for(var key in c) {
-    if(c[key] == 0) {
+function gK (obj) {
+  var i = 0
+  var len = obj.length
+  while (i < len) {
+    if (obj[i] == 0) {
+      return (i)
+    }
+    i++
+  }
+  console.alert('123')
+}
+
+function getkey (c) {
+  for (var key in c) {
+    if (c[key] == 0) {
       return (key)
     }
   }
 }
 
 function makePuzzle (s, iterations) {
-  if (parseInt(iterations) === 0) { iterations = 10000 }
+  if (parseInt(iterations) === 0) { iterations = 100 }
   var p = makeGoal(s)
   function swapEmpty (p) {
-    var idx = parseInt(getKeyByValue(p, 0))
-    console.log('idx')
-    console.log(idx)
+    var idx = parseInt(gK(p))
     var poss = []
     if (idx % s > 0) { poss.push(idx - 1) }
     if (idx % s < s - 1) { poss.push(idx + 1) }
-    if (idx / s > 0) { poss.push(idx - s) }
-    if (idx / s < s - 1) { poss.push(idx + parseInt(s)) }
-    var swi = poss[Math.round(Math.random() * poss.length)]
+    if (Math.floor(idx / s) > 0) { poss.push(idx - s) }
+    if (Math.floor(idx / s) < s - 1) { poss.push(idx + parseInt(s)) }
+    var rand = Math.round(Math.random() * (poss.length - 1))
+    var swi = poss[rand]
     p[idx] = p[swi]
     p[swi] = 0
   }
-  for (var i = 0; i < iterations; i++) { swapEmpty(p) }
+  for (var i = 0; i < iterations; i++) {
+    swapEmpty(p)
+  }
   return (p)
 }
 
@@ -94,23 +149,14 @@ function takeForm (form) {
   })
 
   console.log(JSON.stringify(recive))
-  // recive.replace(/\\null/, 0)
-
-  // recive = '{"messageType":"0","data":{"map":["11","0","9","4","2","15","7","1","13","3","12","5","8","6","10","14"],"algorithm":"0","heuristicFunction":"1","solutionType":"0"}}'
-
-  recive = '{"messageType":0,"data":{"map":[1,2,3,8,0,4,7,6,5],"algorithm":0,"heuristicFunction":0,"solutionType":0}}'
-
-
-
-
-
+  var puzzle = new Puzzle(document.getElementById('puzzle'), elements, recive)
 
   $.ajax({
     type: 'POST',
     url: '/message',
-    data: recive,
+    data: JSON.stringify(recive),
     success: function (msg) {
-      alert('Form Submitted: ' + msg)
+      console.log(msg)
     }
   })
 }
