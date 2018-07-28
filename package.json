@@ -1,9 +1,10 @@
 {
   "name": "n-puzzle2",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "dotjs": "^0.2.0"
+  },
   "devDependencies": {
     "eslint": "^5.2.0",
     "eslint-config-airbnb-base": "^13.0.0",
@@ -17,5 +18,14 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rhakh/N-Puzzle.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rhakh/N-Puzzle/issues"
+  },
+  "homepage": "https://github.com/rhakh/N-Puzzle#readme",
+  "description": ""
 }

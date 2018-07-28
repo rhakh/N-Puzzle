@@ -1,4 +1,3 @@
-var DEFAULT_SIDE = 3
 var CELL_SIZE = 92
 var CELL_GAP = 10
 
@@ -6,14 +5,56 @@ var totalMoves = 0
 
 function Puzzle (container, elements, json) {
   this.board = container
+  $('.board').empty()
   this.side = elements.side.value
-  this.total = this.side * this.side
-  this.hole = this.total - 1
+  this.total = parseInt(this.side * this.side)
+  this.hole = parseInt(this.total - 1)
   this.cells = []
   this.finger = {}
 
   // this.init();
   this.fillCells(json.data['map'])
+}
+
+Puzzle.prototype.swapCells = function (direction) {
+  var target = -1
+  switch (direction) {
+    case 'left':
+      if (this.hole % this.side < this.side - 1) {
+        target = parseInt(this.hole) + 1
+      }
+      break
+    case 'up':
+      if (this.hole < this.total - this.side) {
+        target = parseInt(this.hole) + parseInt(this.side)
+      }
+      break
+    case 'right':
+      if (this.hole % this.side > 0) {
+        target = this.hole - 1
+      }
+      break
+    case 'down':
+      if (this.hole > this.side - 1) {
+        target = this.hole - this.side
+      }
+      break
+  }
+
+  if (target > -1) {
+    this.moveCell(target)
+  }
+}
+
+Puzzle.prototype.moveCell = function (target) {
+  var cell = document.getElementsByTagName('span')[this.cells[target] - 1]
+  this.placeCell(cell, this.hole)
+
+  this.cells[this.hole] = this.cells[target]
+  this.cells[target] = 0
+  this.hole = target
+
+  totalMoves++
 }
 
 Puzzle.prototype.placeCell = function (cell, i) {
@@ -23,7 +64,12 @@ Puzzle.prototype.placeCell = function (cell, i) {
 
 Puzzle.prototype.fillCells = function (map) {
   var fragment = document.createDocumentFragment()
-  for (var i = 0; i < this.total - 1; i++) {
+  for (var i = 0; i < this.total; i++) {
+    if (parseInt(map[i]) === 0) {
+      this.hole = i
+      this.cells.push(0)
+      continue
+    }
     var cell = document.createElement('span')
     cell.className = 'cell'
     cell.innerHTML = map[i]
@@ -31,7 +77,6 @@ Puzzle.prototype.fillCells = function (map) {
     this.placeCell(cell, i)
     fragment.appendChild(cell)
   }
-  this.cells.push(0)
   this.goal = this.cells.slice()
   this.board.appendChild(fragment)
   this.board.className = 'board'
@@ -49,7 +94,6 @@ function makeGoal (s) {
   var ix = 1
   var y = 0
   var iy = 0
-
   while (true) {
     puzzle[x + y * s] = parseInt(cur)
     if (cur === 0) { console.log(puzzle); break }
@@ -91,16 +135,9 @@ function gK (obj) {
   console.alert('123')
 }
 
-function getkey (c) {
-  for (var key in c) {
-    if (c[key] == 0) {
-      return (key)
-    }
-  }
-}
-
 function makePuzzle (s, iterations) {
   if (parseInt(iterations) === 0) { iterations = 100 }
+  if (parseInt(iterations) === -1) { iterations = 0 }
   var p = makeGoal(s)
   function swapEmpty (p) {
     var idx = parseInt(gK(p))
@@ -120,7 +157,8 @@ function makePuzzle (s, iterations) {
   return (p)
 }
 
-function takeForm (form) {
+var puzzle
+function takeForm (form, puzzle) {
   var recive = {
     messageType: 0,
     data:
@@ -149,7 +187,7 @@ function takeForm (form) {
   })
 
   console.log(JSON.stringify(recive))
-  var puzzle = new Puzzle(document.getElementById('puzzle'), elements, recive)
+  puzzle = new Puzzle(document.getElementById('puzzle'), elements, recive)
 
   $.ajax({
     type: 'POST',
@@ -159,4 +197,5 @@ function takeForm (form) {
       console.log(msg)
     }
   })
+  puzzle.swapCells('down')
 }

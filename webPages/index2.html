@@ -12,7 +12,7 @@
 <body>
     <form id="inputForm">
 
-        <input type="text" name="side" value="3"><br>
+        <input type="text" name="side" value="4"><br>
         <input type="text" name="iterations" value="0"><br>
         <h3>Chose heuristic</h3>
         <p>
@@ -57,12 +57,12 @@
                 <span>IDA*</span>
             </label>
         </p>
-        <input type="button" onclick="takeForm(this.form)" value="Submit">
+        <input type="button" onclick="takeForm(this.form, puzzle)" value="Submit">
     </form>
 
     <div id="puzzle">
 
     </div>
-
+    <input type="button" onclick="puzzle.swapCells('down')" value="Down">
 </body>
 </html>
