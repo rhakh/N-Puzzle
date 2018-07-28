@@ -89,7 +89,7 @@ NPuzzleSolver::aStar(const int *map, const int mapSize, int solutionType, std::l
 			delete curr;
 			continue;
 		}
-        closed.insert(curr);
+		closed.insert(curr);
 
 		if (curr->getPrice() == 0) {
 			std::cout << "******* SOLVED" << std::endl;
@@ -146,43 +146,102 @@ NPuzzleSolver::~NPuzzleSolver() {
 
 }
 
-#include <functional>
-bool NPuzzleSolver::isSolvable(const int *map, int mapSize, int solutionType) {
-	int	inversions = 0;
-	int size = (int)std::sqrt(mapSize);
-	int zeroY = -1;
-
-	auto getInversions = [&map, &mapSize, &inversions]() {
-		for (int i = 0; i < mapSize; i++)
-		for (int j = i + 1; j < mapSize; j++) {
-			if (map[i] > map[j])
-				inversions++;
-		}
-	};
-
-	auto getZeroPos = [&map, &mapSize, &zeroY, &size]() {
-		for (int i = mapSize - 1; i >= 0; i--)
-			if (map[i] == 0) {
-				zeroY = i / size;
-			}
-	};
-
-	getInversions();
-	getZeroPos();
-
-	if (zeroY == -1)
-		return (false);
-
-	zeroY = size - zeroY;
-
-	printf("size = %d, inversions = %d, zeroY = %d\n", size, inversions, zeroY);
-	printf("(%d) == (%d)\n", (zeroY % 2 != 0), (inversions % 2 == 0));
-
-	if (size % 2 != 0)
-		return (inversions % 2 == 0);
-	else
-		return ((zeroY % 2 != 0) == (inversions % 2 == 0));
-}
+// static bool getInversions(const int *map, int mapSize, int solutionType) {
+// 	int inversions = 0;
+// 	int size = (int)std::sqrt(mapSize);
+//
+// 	if (solutionType == SNAIL_SOLUTION) {
+// 		int	row = 0;
+// 		int	col = 0;
+// 		int	dx = 1;
+// 		int	dy = 0;
+// 		int	size = (int)std::sqrt(mapSize);
+//
+// 		for (int i = 0; i < mapSize; i++) {
+//
+// 			{
+// 				int	irow = 0;
+// 				int	icol = 0;
+// 				int	idx = 1;
+// 				int	idy = 0;
+//
+// 				for (int j = i; j < mapSize; j++) {
+//
+// 					if (map1 > map2)
+//
+// 					if ((icol + idx == size || icol + idx < 0 ||
+// 						(idx != 0 && matr[irow][icol + idx] != -1)) ||
+// 						(irow + idy == size || irow + idy < 0 ||
+// 						(idy != 0 && matr[irow + idy][icol] != -1)))
+// 					{
+// 						std::swap(idx, idy);
+// 						idx *= -1;
+// 					}
+//
+// 					icol += idx;
+// 					irow += idy;
+// 				}
+// 			}
+//
+// 			if ((col + dx == size || col + dx < 0 ||
+// 				(dx != 0 && matr[row][col + dx] != -1)) ||
+// 				(row + dy == size || row + dy < 0 ||
+// 				(dy != 0 && matr[row + dy][col] != -1)))
+// 			{
+// 				std::swap(dx, dy);
+// 				dx *= -1;
+// 			}
+//
+// 			col += dx;
+// 			row += dy;
+// 		}
+// 	}
+// 	else {
+// 		for (int i = 0; i < mapSize; i++)
+// 			for (int j = i + 1; j < mapSize; j++)
+// 				if (map[i] > map[j])
+// 					inversions++;
+// 	}
+//
+// 	return (inversions);
+// }
+//
+// bool NPuzzleSolver::isSolvable(const int *map, int mapSize, int solutionType) {
+// 	int	inversions = 0;
+// 	int size = (int)std::sqrt(mapSize);
+// 	int zeroY = -1;
+//
+// 	auto getInversions = [&map, &mapSize, &inversions]() {
+// 		for (int i = 0; i < mapSize; i++)
+// 			for (int j = i + 1; j < mapSize; j++) {
+// 				if (map[i] > map[j])
+// 					inversions++;
+// 			}
+// 	};
+//
+// 	auto getZeroPos = [&map, &mapSize, &zeroY, &size]() {
+// 		for (int i = mapSize - 1; i >= 0; i--)
+// 			if (map[i] == 0) {
+// 				zeroY = i / size;
+// 			}
+// 	};
+//
+// 	getInversions();
+// 	getZeroPos();
+//
+// 	if (zeroY == -1)
+// 		return (false);
+//
+// 	zeroY = size - zeroY;
+//
+// 	printf("size = %d, inversions = %d, zeroY = %d\n", size, inversions, zeroY);
+// 	printf("(%d) == (%d)\n", (zeroY % 2 != 0), (inversions % 2 == 0));
+//
+// 	if (size % 2 != 0)
+// 		return (inversions % 2 == 0);
+// 	else
+// 		return ((zeroY % 2 != 0) == (inversions % 2 == 0));
+// }
 
 std::tuple<size_t, size_t, size_t>
 NPuzzleSolver::solve(int func, int algo, int solutionType,

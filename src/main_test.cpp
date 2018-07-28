@@ -40,10 +40,33 @@ int		main(void) {
 
 	NPuzzleSolver	solver;
 	std::list<uint8_t> res;
+	int size;
 
-	solver.solve(MISPLACED_TILES, ASTAR, map3, 9, res);
+	// solver.solve(MISPLACED_TILES, ASTAR, map3, 9, res);
 
-	while (1);
+	std::cin >> size;
+	State	map(SNAIL_SOLUTION, size * size);
+
+	map.printState(size);
+
+	std::vector<int> arr;
+
+	arr.resize(10);
+	std::cout << "size = " << arr.size() << std::endl;
+	for (int i = 0; i < 10; i ++)
+		arr[i] = 10;
+
+	for (int i = 0; i < 10; i ++)
+		std::cout << arr[i] << ", ";
+
+	arr.resize(10);
+	std::cout << "size = " << arr.size() << std::endl;
+	for (int i = 0; i < 10; i ++)
+		arr[i] = 10;
+
+	for (int i = 0; i < 10; i ++)
+		std::cout << arr[i] << ", ";
+
 	return (0);
 }
 
