@@ -3,18 +3,19 @@
 #include <cstdio>
 #include <algorithm>
 #include <cmath>
+#include <iomanip>
 
 auto findIndexInMap = [](int value, const int *map, int mapSize) {
-    for (int i = 0; i < mapSize; i++)
+	for (int i = 0; i < mapSize; i++)
 		if (map[i] == value)
 			return (i);
 	return (-1);
 };
 
 State::State(const int *map, int price, int length, const int mapSize) {
-	this->map.reserve(mapSize);
+	this->map.resize(mapSize);
 	for (int i = 0; i < mapSize; i++)
-		this->map.push_back(map[i]);
+		this->map[i] = map[i];
 
 	this->price = price;
 	this->length = length;
@@ -27,32 +28,33 @@ void	State::makeSnailState(const int mapSize) {
 	int	col = 0;
 	int	dx = 1;
 	int	dy = 0;
-	int	dirCh = 0;
-	int	vis = (int)std::sqrt(mapSize);
 	int	size = (int)std::sqrt(mapSize);
-
 	int matr[size][size];
 
+	std::fill(&matr[0][0], &matr[0][0] + (sizeof(matr) / sizeof(matr[0][0])), -1);
 	for (int i = 0; i < mapSize; i++) {
 		matr[row][col] = i + 1;
 		if (i + 1 == mapSize)
 			matr[row][col] = 0;
-		vis--;
-		if (vis == 0) {
-			vis = size * (dirCh % 2) + size * ((dirCh + 1) % 2) - (dirCh / 2 - 1) - 2;
-			int tmp = dx;
-			dx = -dy;
-			dy = tmp;
-			dirCh++;
+
+		if ((col + dx == size || col + dx < 0 ||
+			(dx != 0 && matr[row][col + dx] != -1)) ||
+			(row + dy == size || row + dy < 0 ||
+			(dy != 0 && matr[row + dy][col] != -1)))
+		{
+			std::swap(dx, dy);
+			dx *= -1;
 		}
+
 		col += dx;
 		row += dy;
 	}
 
-	this->map.reserve(mapSize);
+	this->map.resize(mapSize);
+	int m = 0;
 	for (int i = 0; i < size; i++)
 		for (int j = 0; j < size; j++)
-			this->map.push_back(matr[i][j]);
+			this->map[m++] = matr[i][j];
 
 	this->price = 0;
 	this->length = 0;
@@ -61,9 +63,9 @@ void	State::makeSnailState(const int mapSize) {
 }
 
 void	State::makeNormalState(const int mapSize) {
-	this->map.reserve(mapSize);
+	this->map.resize(mapSize);
 	for (int i = 0; i < mapSize; i++)
-		this->map.push_back(i + 1);
+		this->map[i] = i + 1;
 	this->map[mapSize - 1] = 0;
 
 	this->price = 0;
@@ -83,7 +85,7 @@ State::State(const State &src, const int move, const int mapSize, const int size
 	const int	*map = src.getMapPtr();
 	int			x, y, newPos, zeroIndex;
 
-    zeroIndex = findIndexInMap(0, map, mapSize);
+	zeroIndex = findIndexInMap(0, map, mapSize);
 
 	x = zeroIndex % size;
 	y = zeroIndex / size;
@@ -117,12 +119,12 @@ State::State(const State &src, const int move, const int mapSize, const int size
 			break;
 	}
 
-	this->map.reserve(mapSize);
+	this->map.resize(mapSize);
 	for (int i = 0; i < mapSize; i++)
-		this->map.push_back(map[i]);
+		this->map[i] = map[i];
 	this->swapPieces(zeroIndex, newPos);
 
-    this->price = 0;
+	this->price = 0;
 	this->length = src.getLength() + 1;
 	this->movement = move;
 	this->prev = &src;
@@ -141,14 +143,14 @@ State::~State() {}
 void	State::printState(const int size) const {
 	int mapSize = this->map.size();
 
-	printf("State price = %d, length = %d\n", this->price, this->length);
+	printf("State price = %d, length = %d, mapSize = %d\n", this->price, this->length, mapSize);
 	for (int i = 0; i < mapSize; i++) {
 		if ((i + 1) % size == 0)
-			printf("%2u\n", this->map[i]);
+			std::cout << std::setw(2) << this->map[i] << std::endl;
 		else
-			printf("%2u ", this->map[i]);
+			std::cout << std::setw(2) << this->map[i] << " ";
 	}
-	printf("\n\n");
+	std::cout << std::endl << std::endl;
 }
 
 void	State::swapPieces(int a, int b) {
