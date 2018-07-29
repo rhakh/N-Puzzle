@@ -1,6 +1,7 @@
 #include "NPuzzleSolver.hpp"
 #include "State.hpp"
 #include "heuristicFunctions.hpp"
+#include "main.hpp"
 
 #include <queue>
 #include <unordered_set>
@@ -92,8 +93,10 @@ NPuzzleSolver::aStar(const int *map, const int mapSize, int solutionType, std::l
 		closed.insert(curr);
 
 		if (curr->getPrice() == 0) {
-			std::cout << "******* SOLVED" << std::endl;
-			curr->printState(size);
+			if (verboseLevel) {
+				std::cout << "******* SOLVED" << std::endl;
+				curr->printState(size);
+			}
 			createPath(result, const_cast<const State *>(curr));
 			retVal = constructRetVal(&open, &closed, maxOpen, mapSize);
 

@@ -1,4 +1,5 @@
 #include "CSCP.hpp"
+#include "main.hpp"
 
 #define BOOST_SPIRIT_THREADSAFE
 
@@ -60,7 +61,7 @@ void	CSCP::constructErrorResponse(std::exception &e, std::string &resultStr) {
 	boost::property_tree::json_parser::write_json(ss, taskJsonRes, false);
 	resultStr = ss.str();
 }
-
+#include <chrono>
 void	CSCP::taskHandler(boost::property_tree::ptree &json, std::string &resultStr) {
 	namespace pt = boost::property_tree;
 
@@ -73,17 +74,25 @@ void	CSCP::taskHandler(boost::property_tree::ptree &json, std::string &resultStr
 	clock_t			start;
 	std::list<int>	result;
 
+	using namespace std::chrono;
+	__int64_t ms_s, ms_f;
+
 	pt::ptree::iterator		it = mapNode.begin();
 	for (i = 0; it != mapNode.end(); it++, i++)
 		map[i] = it->second.get<int>("");
 
 	try {
 		start = clock();
+		ms_s = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		retVal = this->solver.solve(dataNode.get<int>("heuristicFunction"),
 							dataNode.get<int>("solutionType"),
 							map, mapNode.size(),
 							result);
 		start = clock() - start;
+		ms_f = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+		std::cout << "In milisec :" << (ms_f - ms_s) << std::endl;
+
 		constructTaskResponse(std::get<0>(retVal), std::get<1>(retVal), std::get<2>(retVal),
 								(double)start / CLOCKS_PER_SEC, result, resultStr);
 	}
@@ -91,8 +100,9 @@ void	CSCP::taskHandler(boost::property_tree::ptree &json, std::string &resultStr
 		constructErrorResponse(e, resultStr);
 	}
 
-	std::cout << "Server resp json:" << resultStr << std::endl;
-	std::cout << std::flush;
+	if (verboseLevel)
+		std::cout << "Server send response: " << resultStr
+					<< std::endl << std::flush;
 }
 
 void	CSCP::processMessage(boost::property_tree::ptree &json, std::string &resultStr) {
@@ -100,9 +110,11 @@ void	CSCP::processMessage(boost::property_tree::ptree &json, std::string &result
 
 	int		messageType = json.get<int>("messageType");
 
-	std::stringstream	ss;
-	boost::property_tree::json_parser::write_json(ss, json, false);
-	std::cout << "Server recv json: " << ss.str() << std::endl;
+	if (verboseLevel) {
+		std::stringstream	ss;
+		boost::property_tree::json_parser::write_json(ss, json, false);
+		std::cout << "Server receive request: " << ss.str() << std::endl;
+	}
 
 	switch (messageType) {
 		case NP_TASK:
@@ -211,7 +223,12 @@ boost::thread	*CSCP::serverStart() {
 }
 
 CSCP::CSCP() {
-	serverInit();
+	try {
+		serverInit();
+	}
+	catch (std::exception &e) {
+		std::cerr << "Unhandled exception: " << e.what() << std::endl;
+	}
 }
 
 CSCP::~CSCP() {
