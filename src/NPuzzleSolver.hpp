@@ -4,6 +4,7 @@
 #include "State.hpp"
 
 #include <list>
+#include <exception>
 
 typedef enum {
 	MISPLACED_TILES,
@@ -11,13 +12,7 @@ typedef enum {
 	MISPLACED_TILES_PLUS_LINEAR_CONFLICTS,
 	MANHATTAN_DISTANCE_PLUS_LINEAR_CONFLICTS,
 	N_MAXSWAP
-
 }		heuristicFunc_e;
-
-typedef enum {
-	ASTAR,
-	ASTAR_IDA,
-}		solver_e;
 
 class NPuzzleSolver
 {
@@ -28,8 +23,6 @@ class NPuzzleSolver
 	// algo functions
 	std::tuple<size_t, size_t, size_t>
 		aStar(const int *map, const int mapSize, int solutionType, std::list<int> &result);
-	std::tuple<size_t, size_t, size_t>
-		aStarIDA(const int *map, const int mapSize, int solutionType, std::list<int> &result);
 
 	void 	createPath(std::list<int> &result, const State *curr) const;
 
@@ -39,7 +32,7 @@ class NPuzzleSolver
 
 public:
 	std::tuple<size_t, size_t, size_t>
-	solve(int func, int algo, int solutionType,
+	solve(int heuristic, int solutionType,
 			const int *map, const int mapSize, std::list<int> &result);
 
 	NPuzzleSolver();
@@ -58,6 +51,11 @@ public:
 	class	NP_InvalidMap : public std::exception {
 	public:
 		virtual const char	*what() const throw() {return ("Map is unsolvable or not squared");};
+	};
+
+	class	NP_InvalidHeuristic : public std::exception {
+	public:
+		virtual const char	*what() const throw() {return ("Invalid heuristic");};
 	};
 };
 

@@ -20,6 +20,9 @@
 #include <execinfo.h>
 #include <signal.h>
 #include <stdio.h>
+#include <streambuf>
+#include <fstream>
+#include <string>
 
 #include "CSCP.hpp"
 
@@ -96,9 +99,7 @@ void	constructTaskRequest(std::string &requestStr) {
 	}
 	dataNode.add_child("map", mapNode);
 
-	dataNode.put("algorithm", ASTAR);
-
-	dataNode.put("heuristicFunction", MANHATTAN_DISTANCE);
+	dataNode.put("heuristicFunction", N_MAXSWAP);
 
 	dataNode.put("solutionType", SNAIL_SOLUTION);
 
@@ -149,8 +150,6 @@ int		main(int argc, char **argv) {
 
 	server_thread = mp.serverStart();
 
-	// TODO: process arguments here
-
 	// *** this code for tests
 	this_thread::sleep_for(chrono::seconds(1));
 	thread	client_thread([]() {
@@ -173,9 +172,9 @@ int		main(int argc, char **argv) {
 
 	TODO:
 		+1. Makefile for macos
-		2. -std=c++11 in Makefile ?
-		3. Start new thread to solve puzzle, and send signal if client
-			was send a stop message
+		+2. -std=c++11 in Makefile ?
+		-3. Start new thread to solve puzzle, and send signal if client
+			was send a stop message : server is not asynchronus
 		4. Use unsigned int in everywhere in NPuzzleSolver
 		5. Make an API of NPuzzleSolver, means in header files must be
 			everything what needs for NPuzzleSolver
@@ -199,4 +198,5 @@ int		main(int argc, char **argv) {
 		23. rewrite default GET method for server
 		24. Delete all debug print
 		25. validate map for numbers (clone numbers, empty numbers)
+		26. bug in N_MAXSWAP
 */

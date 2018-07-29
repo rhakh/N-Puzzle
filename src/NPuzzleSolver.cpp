@@ -249,7 +249,7 @@ bool NPuzzleSolver::isSolvable(const int *map, int mapSize, int solutionType) {
 }
 
 std::tuple<size_t, size_t, size_t>
-NPuzzleSolver::solve(int func, int algo, int solutionType,
+NPuzzleSolver::solve(int heuristic, int solutionType,
 		const int *map, const int mapSize, std::list<int> &result) {
 
 	if (mapSize < 9)
@@ -264,7 +264,7 @@ NPuzzleSolver::solve(int func, int algo, int solutionType,
 	if (!isSolvable(map, mapSize, solutionType))
 		throw NP_InvalidMap();
 
-	switch (func) {
+	switch (heuristic) {
 		case MISPLACED_TILES:
 			this->heuristicFunc = misplacedTiles;
 			break;
@@ -277,17 +277,13 @@ NPuzzleSolver::solve(int func, int algo, int solutionType,
 		case MISPLACED_TILES_PLUS_LINEAR_CONFLICTS:
 			this->heuristicFunc = MTplusLinearConflicts;
 			break;
+		case N_MAXSWAP:
+			this->heuristicFunc = nMaxSwap;
+			break;
 		default:
-			this->heuristicFunc = misplacedTiles;
+			throw NP_InvalidHeuristic();
 			break;
 	}
 
-	switch (algo) {
-		case ASTAR:
-			return (aStar(map, mapSize, solutionType, result));
-			break;
-		default:
-			return (aStar(map, mapSize, solutionType, result));
-			break;
-	}
+	return (aStar(map, mapSize, solutionType, result));
 }

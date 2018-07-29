@@ -80,7 +80,6 @@ void	CSCP::taskHandler(boost::property_tree::ptree &json, std::string &resultStr
 	try {
 		start = clock();
 		retVal = this->solver.solve(dataNode.get<int>("heuristicFunction"),
-							dataNode.get<int>("algorithm"),
 							dataNode.get<int>("solutionType"),
 							map, mapNode.size(),
 							result);
@@ -110,12 +109,9 @@ void	CSCP::processMessage(boost::property_tree::ptree &json, std::string &result
 			taskHandler(json, resultStr);
 			break;
 		default:
-			try {
-				throw CSCP_InvalidMessageType();
-			}
-			catch (CSCP::CSCP_InvalidMessageType &e) {
-				constructErrorResponse(e, resultStr);
-			}
+			CSCP_InvalidMessageType	e;
+
+			constructErrorResponse(e, resultStr);
 			break;
 	}
 }
