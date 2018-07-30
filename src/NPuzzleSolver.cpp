@@ -80,6 +80,11 @@ NPuzzleSolver::aStar(const int *map, const int mapSize, int solutionType, std::l
 	root = new State(map, heuristicFunc(map, this->finishState->getMapPtr(), mapSize, size), 0, mapSize);
 	open.push(root);
 
+	if (verboseLevel) {
+		std::cout << "******* ROOT" << std::endl;
+		root->printState(size);
+	}
+
 	while (!open.empty()) {
 		curr = open.top();
 		open.pop();
@@ -149,7 +154,7 @@ NPuzzleSolver::~NPuzzleSolver() {
 
 }
 
-static int	getInversionsForSnail(const int *map, int size, int mapSize, int value) {
+static int	getInversionsForSnail(const int *map, int size, int mapSize, int tail) {
 	int inversions = 0;
 	int	row = 0;
 	int	col = 0;
@@ -158,14 +163,21 @@ static int	getInversionsForSnail(const int *map, int size, int mapSize, int valu
 	int matr[size][size];
 	bool	find = false;
 
+	// skip zero tail
+	if (!tail)
+		return (0);
+
 	std::fill(&matr[0][0], &matr[0][0] + (sizeof(matr) / sizeof(matr[0][0])), -1);
 	for (int i = 0; i < mapSize; i++) {
-		if (map[i] == 0)
-			continue;
-		if (map[i] == value)
+		matr[row][col] = i;
+
+		if (map[col + row * size] == tail)
 			find = true;
-		if (find && map[i] < value)
+
+		// skip tiles, before tail appear
+		if (map[col + row * size] && find && map[col + row * size] < tail)
 			inversions++;
+
 		if ((col + dx == size || col + dx < 0 ||
 			(dx != 0 && matr[row][col + dx] != -1)) ||
 			(row + dy == size || row + dy < 0 ||
@@ -195,9 +207,9 @@ static int getInversions(const int *map, int mapSize, int solutionType) {
 
 		std::fill(&matr[0][0], &matr[0][0] + (sizeof(matr) / sizeof(matr[0][0])), -1);
 		for (int i = 0; i < mapSize; i++) {
-			if (map[i] == 0)
-				continue;
-			inversions += getInversionsForSnail(map, size, mapSize, map[col + row * size]);
+			matr[row][col] = i;
+
+			inversions = getInversionsForSnail(map, size, mapSize, map[col + row * size]);
 			if ((col + dx == size || col + dx < 0 ||
 				(dx != 0 && matr[row][col + dx] != -1)) ||
 				(row + dy == size || row + dy < 0 ||
@@ -232,7 +244,7 @@ bool NPuzzleSolver::isSolvable(const int *map, int mapSize, int solutionType) {
 	auto	isEven = [](const int number) { return ((number & 0x1) == 0); };
 	auto	isOdd = [](const int number) { return (number & 0x1); };
 	auto	getZeroPosition = [&map, &size, &mapSize]() {
-				for (int i = mapSize; i >= 0; i--)
+				for (int i = mapSize - 1; i >= 0; i--)
 						if (map[i] == 0)
 							return (size - (i / size));
 				return (-1);

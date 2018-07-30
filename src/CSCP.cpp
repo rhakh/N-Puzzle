@@ -61,7 +61,7 @@ void	CSCP::constructErrorResponse(std::exception &e, std::string &resultStr) {
 	boost::property_tree::json_parser::write_json(ss, taskJsonRes, false);
 	resultStr = ss.str();
 }
-#include <chrono>
+
 void	CSCP::taskHandler(boost::property_tree::ptree &json, std::string &resultStr) {
 	namespace pt = boost::property_tree;
 
@@ -74,25 +74,17 @@ void	CSCP::taskHandler(boost::property_tree::ptree &json, std::string &resultStr
 	clock_t			start;
 	std::list<int>	result;
 
-	using namespace std::chrono;
-	__int64_t ms_s, ms_f;
-
 	pt::ptree::iterator		it = mapNode.begin();
 	for (i = 0; it != mapNode.end(); it++, i++)
 		map[i] = it->second.get<int>("");
 
 	try {
 		start = clock();
-		ms_s = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		retVal = this->solver.solve(dataNode.get<int>("heuristicFunction"),
 							dataNode.get<int>("solutionType"),
 							map, mapNode.size(),
 							result);
 		start = clock() - start;
-		ms_f = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-
-		std::cout << "In milisec :" << (ms_f - ms_s) << std::endl;
-
 		constructTaskResponse(std::get<0>(retVal), std::get<1>(retVal), std::get<2>(retVal),
 								(double)start / CLOCKS_PER_SEC, result, resultStr);
 	}
