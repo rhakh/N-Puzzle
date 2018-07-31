@@ -24,7 +24,7 @@ Puzzle.prototype.swapCells = function (direction) {
         target = parseInt(this.hole) + 1
       }
       break
-    case 'up':
+    case 'down':
       if (this.hole < this.total - this.side) {
         target = parseInt(this.hole) + parseInt(this.side)
       }
@@ -34,7 +34,7 @@ Puzzle.prototype.swapCells = function (direction) {
         target = this.hole - 1
       }
       break
-    case 'down':
+    case 'up':
       if (this.hole > this.side - 1) {
         target = this.hole - this.side
       }
@@ -47,14 +47,22 @@ Puzzle.prototype.swapCells = function (direction) {
 }
 
 Puzzle.prototype.moveCell = function (target) {
-  var cell = document.getElementsByTagName('span')[this.cells[target] - 1]
-  this.placeCell(cell, this.hole)
+  for (i = 0; i < this.total; i++) {
+    var cell = document.getElementsByClassName('cell')[i]
 
-  this.cells[this.hole] = this.cells[target]
-  this.cells[target] = 0
-  this.hole = target
+    console.log('cell = ' + cell.innerHTML + ', target = ' + target)
 
-  totalMoves++
+    if (parseInt(cell.innerHTML) === target) {
+      this.placeCell(cell, this.hole)
+      console.log(cell)
+      this.cells[this.hole] = this.cells[target]
+      this.cells[target] = 0
+      this.hole = target
+      totalMoves++
+      break;
+    }
+  }
+  // var cell = document.getElementsByClassName('cell')[this.cells[target] - 1]
 }
 
 Puzzle.prototype.placeCell = function (cell, i) {
@@ -96,7 +104,7 @@ function makeGoal (s) {
   var iy = 0
   while (true) {
     puzzle[x + y * s] = parseInt(cur)
-    if (cur === 0) { console.log(puzzle); break }
+    if (cur === 0) { break }
     cur += 1
     if (x + ix === parseInt(s) || x + ix < 0 || (ix !== 0 && puzzle[x + ix + y * s] != -1)) {
       iy = ix
