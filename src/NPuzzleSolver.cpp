@@ -237,6 +237,8 @@ static int getInversions(const int *map, int mapSize, int solutionType) {
 }
 
 bool NPuzzleSolver::isSolvable(const int *map, int mapSize, int solutionType) {
+#define FIRST_VER
+#ifdef FIRST_VER
 	int	inversionsMap = getInversions(map, mapSize, solutionType);
 	int	zeroRow = 0;
 	int	size = (int)std::sqrt(mapSize);
@@ -261,6 +263,33 @@ bool NPuzzleSolver::isSolvable(const int *map, int mapSize, int solutionType) {
 			return (true);
 	}
 	return (false);
+#endif // FIRST_VER
+#ifdef SECOND_VER
+	State	finalState(solutionType, mapSize);
+	int	inversionsMap = getInversions(map, mapSize, NORMAL_SOLUTION);
+	int inversionsFin = getInversions(finalState.getMapPtr(), mapSize, NORMAL_SOLUTION);
+	int size = (int)std::sqrt(mapSize);
+
+	auto	isEven = [](const int number) { return ((number & 0x1) == 0); };
+	auto findIndexInMap = [](const int *map, const int mapSize, const int value) {
+		for (int i = 0; i < mapSize; i++)
+			if (value == map[i])
+				return (i);
+		return (-1);
+	};
+
+	if (isEven(size)) {
+		int zeroIdx;
+
+		zeroIdx = findIndexInMap(map, mapSize, 0);
+		assert(zeroIdx != -1);
+		inversionsMap += zeroIdx;
+		zeroIdx = findIndexInMap(finalState.getMapPtr(), mapSize, 0);
+		assert(zeroIdx != -1);
+		inversionsFin += zeroIdx;
+	}
+	return !(isEven(inversionsMap) ^ isEven(inversionsFin));
+#endif // SECOND_VER
 }
 
 std::tuple<size_t, size_t, size_t>
