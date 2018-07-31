@@ -21,7 +21,7 @@ Puzzle.prototype.swapCells = function (direction) {
   switch (direction) {
     case 'left':
       if (this.hole % this.side < this.side - 1) {
-        target = parseInt(this.hole) + 1
+        target = parseInt(this.hole) - 1
       }
       break
     case 'down':
@@ -31,7 +31,7 @@ Puzzle.prototype.swapCells = function (direction) {
       break
     case 'right':
       if (this.hole % this.side > 0) {
-        target = this.hole - 1
+        target = this.hole + 1
       }
       break
     case 'up':
@@ -47,12 +47,14 @@ Puzzle.prototype.swapCells = function (direction) {
 }
 
 Puzzle.prototype.moveCell = function (target) {
+  var z = 0;
   for (i = 0; i < this.total; i++) {
     var cell = document.getElementsByClassName('cell')[i]
 
-    console.log('cell = ' + cell.innerHTML + ', target = ' + target)
-
-    if (parseInt(cell.innerHTML) === target) {
+    console.log('cell = ' + cell.innerHTML + ', target = ' + target + ', i =' + i)
+    if (i === this.hole)
+      z = 1
+    if (i === target - z) {
       this.placeCell(cell, this.hole)
       console.log(cell)
       this.cells[this.hole] = this.cells[target]
@@ -205,5 +207,5 @@ function takeForm (form, puzzle) {
       console.log(msg)
     }
   })
-  puzzle.swapCells('down')
+  puzzle.swapCells('right')
 }
