@@ -1,66 +1,68 @@
-<html>
-    <head>
-        <title>Simple-Web-Server html-file</title>
-		 <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
-		 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
-		 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
 
-		<link rel="stylesheet" href="style.css">
-		<script src="app.js"></script>
-	</head>
-    <body>
-        <p>This is the content of index.html</p>
-        <div class="row">
-	        <div class="input-field col s6">
-	        	<form id="form" >
-					<input placeholder="JSON" id="json_in" type="text" class="validate" name="json">
-					<label for="json_in">Input task in json format</label>
-					<button class="waves-effect waves-light btn" id="json_btn" type="submit">send task</button>
-				</form>
-			</div>
-		</div>
-		<div id="puzzle">
+    <script src = "app2.js"></script>
+    <link rel="stylesheet" href="style.css">
 
-		</div>
-    </body>
-	<script src = "app.js"></script>
-    <script>
+</head>
+<body>
+    <form id="inputForm">
 
-		// function sendJson(json){
-  //  			var x = new XMLHttpRequest();
-  //  			var json = document.getElementById("json_in").value;
+        <input type="text" name="side" value="4"><br>
+        <input type="text" name="iterations" value="0"><br>
+        <h3>Chose heuristic</h3>
+        <p>
+            <label>
+                <input class="with-gap" name="group1" type="radio" checked />
+                <span>Mislpaced tiles</span>
+            </label>
+        </p>
+        <p>
+            <label>
+                <input class="with-gap" name="group1" type="radio" />
+                <span>Manhattan distance</span>
+            </label>
+        </p>
+        <p>
+            <label>
+                <input class="with-gap" name="group1" type="radio"  />
+                <span>Misplaced tiles + lineear conflits</span>
+            </label>
+        </p>
+        <p>
+            <label>
+                <input class="with-gap" name="group1" type="radio"  />
+                <span>Manhatten + linear conflicts</span>
+            </label>
+        </p>
+        <p>
+            <label>
+                <input class="with-gap" name="group1" type="radio"  />
+                <span>N-maxswap</span>
+            </label>
+        <h3>Chose algo</h3>
+        <p>
+            <label>
+                <input class="with-gap" name="group2" type="radio" checked />
+                <span>A*</span>
+            </label>
+        </p>
+        <p>
+            <label>
+                <input class="with-gap" name="group2" type="radio"  />
+                <span>IDA*</span>
+            </label>
+        </p>
+        <input type="button" onclick="takeForm(this.form, puzzle)" value="Submit">
+    </form>
 
-  //  			x.open("POST", '/message', true);
-  //  			x.send(json);
-  //  			console.log(json);
-  //  		}
+    <div id="puzzle">
 
-
-
-
-		$("#form").submit(function(e){
-			e.preventDefault()
-			side = JSON.parse(document.getElementById("json_in").value);
-			// var side = Object.keys(out.data["map"])
- 			var puzzle = new Puzzle(document.getElementById("puzzle"), 5);
-
-	          $.ajax({
-	             type: "POST",
-	             url: "/message",
-	             data: document.getElementById("json_in").value,
-	             success: function(msg) {
-	                //alert("Form Submitted: " + msg);
-	             }
-	          });
-			  console.log($('#json_in').val());
-	       });
-
-		var eventSource = new EventSource("/message");
-
-		eventSource.onmessage = function(e) {
-			console.log("Message received: " + e.data);
-		};
-		console.log("****** END OF SCRIPT");
-
-    </script>
+    </div>
+    <input type="button" onclick="puzzle.swapCells('down')" value="Down">
+</body>
 </html>
