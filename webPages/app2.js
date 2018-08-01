@@ -19,25 +19,25 @@ function Puzzle (container, elements, json) {
 Puzzle.prototype.swapCells = function (direction) {
   var target = -1
   switch (direction) {
-    case 'left':
-      if (this.hole % this.side < this.side - 1) {
-        target = parseInt(this.hole) - 1
-      }
+    case '3':
+      // if (this.hole % this.side < this.side - 1) {
+      target = parseInt(this.hole) - 1
+      // }
       break
-    case 'down':
-      if (this.hole < this.total - this.side) {
-        target = parseInt(this.hole) + parseInt(this.side)
-      }
+    case '2':
+      // if (this.hole < this.total - this.side) {
+      target = parseInt(this.hole) + parseInt(this.side)
+      // }
       break
-    case 'right':
-      if (this.hole % this.side > 0) {
-        target = this.hole + 1
-      }
+    case '4':
+      // if (this.hole % this.side > 0) {
+      target = this.hole + 1
+      // }
       break
-    case 'up':
-      if (this.hole > this.side - 1) {
-        target = this.hole - this.side
-      }
+    case '1':
+      // if (this.hole > this.side - 1) {
+      target = this.hole - this.side
+      // }
       break
   }
 
@@ -47,21 +47,17 @@ Puzzle.prototype.swapCells = function (direction) {
 }
 
 Puzzle.prototype.moveCell = function (target) {
-  var z = 0;
-  for (i = 0; i < this.total; i++) {
+  var z = 0
+  for (var i = 0; i < this.total; i++) {
     var cell = document.getElementsByClassName('cell')[i]
-
-    console.log('cell = ' + cell.innerHTML + ', target = ' + target + ', i =' + i)
-    if (i === this.hole)
-      z = 1
+    if (i === this.hole) { z = 1 }
     if (i === target - z) {
       this.placeCell(cell, this.hole)
-      console.log(cell)
       this.cells[this.hole] = this.cells[target]
       this.cells[target] = 0
       this.hole = target
       totalMoves++
-      break;
+      break
     }
   }
   // var cell = document.getElementsByClassName('cell')[this.cells[target] - 1]
@@ -167,6 +163,13 @@ function makePuzzle (s, iterations) {
   return (p)
 }
 
+function handleResponse (moves, puzzle) {
+  console.log('moves is + ' + moves)
+  for (var i = 1; i < moves.length; i++) {
+    puzzle.swapCells(moves[i])
+  }
+}
+
 var puzzle
 function takeForm (form, puzzle) {
   var recive = {
@@ -204,8 +207,10 @@ function takeForm (form, puzzle) {
     url: '/message',
     data: JSON.stringify(recive),
     success: function (msg) {
-      console.log(msg)
+      msg = JSON.parse(msg)
+      var moves = msg.data['movements']
+      console.log(moves)
+      if (moves !== undefined) { handleResponse(msg.data['movements'], puzzle) }
     }
   })
-  puzzle.swapCells('right')
 }

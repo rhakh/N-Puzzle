@@ -1,0 +1,66 @@
+<html>
+    <head>
+        <title>Simple-Web-Server html-file</title>
+		 <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+		 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+		 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+
+		<link rel="stylesheet" href="style.css">
+		<script src="app.js"></script>
+	</head>
+    <body>
+        <p>This is the content of index.html</p>
+        <div class="row">
+	        <div class="input-field col s6">
+	        	<form id="form" >
+					<input placeholder="JSON" id="json_in" type="text" class="validate" name="json">
+					<label for="json_in">Input task in json format</label>
+					<button class="waves-effect waves-light btn" id="json_btn" type="submit">send task</button>
+				</form>
+			</div>
+		</div>
+		<div id="puzzle">
+
+		</div>
+    </body>
+	<script src = "app.js"></script>
+    <script>
+       
+		// function sendJson(json){
+  //  			var x = new XMLHttpRequest();
+  //  			var json = document.getElementById("json_in").value;
+
+  //  			x.open("POST", '/message', true);
+  //  			x.send(json);
+  //  			console.log(json);
+  //  		}
+
+
+
+
+		$("#form").submit(function(e){
+			e.preventDefault()
+			side = JSON.parse(document.getElementById("json_in").value);
+			// var side = Object.keys(out.data["map"])  
+ 			var puzzle = new Puzzle(document.getElementById("puzzle"), 5);
+
+	          $.ajax({
+	             type: "POST",
+	             url: "/message",
+	             data: document.getElementById("json_in").value,
+	             success: function(msg) {
+	                //alert("Form Submitted: " + msg);
+	             }
+	          });
+			  console.log($('#json_in').val());
+	       });
+
+		var eventSource = new EventSource("/message");
+
+		eventSource.onmessage = function(e) {
+			console.log("Message received: " + e.data);
+		};
+		console.log("****** END OF SCRIPT");
+
+    </script>
+</html>
