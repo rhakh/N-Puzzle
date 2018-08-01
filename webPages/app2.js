@@ -19,22 +19,22 @@ function Puzzle (container, elements, json) {
 Puzzle.prototype.swapCells = function (direction) {
   var target = -1
   switch (direction) {
-    case '3':
+    case '3': // left
       // if (this.hole % this.side < this.side - 1) {
       target = parseInt(this.hole) - 1
       // }
       break
-    case '2':
+    case '2': // down
       // if (this.hole < this.total - this.side) {
       target = parseInt(this.hole) + parseInt(this.side)
       // }
       break
-    case '4':
+    case '4': // right
       // if (this.hole % this.side > 0) {
       target = this.hole + 1
       // }
       break
-    case '1':
+    case '1': // up
       // if (this.hole > this.side - 1) {
       target = this.hole - this.side
       // }
@@ -50,6 +50,7 @@ Puzzle.prototype.moveCell = function (target) {
   var z = 0
   for (var i = 0; i < this.total; i++) {
     var cell = document.getElementsByClassName('cell')[i]
+    console.log('inner is - ' + cell.innerHTML)
     if (i === this.hole) { z = 1 }
     if (i === target - z) {
       this.placeCell(cell, this.hole)
@@ -64,11 +65,19 @@ Puzzle.prototype.moveCell = function (target) {
 }
 
 Puzzle.prototype.placeCell = function (cell, i) {
-  cell.style.left = ((i % this.side) * (CELL_SIZE + CELL_GAP) + CELL_GAP) + 'px'
-  cell.style.top = (Math.floor(i / this.side) * (CELL_SIZE + CELL_GAP) + CELL_GAP) + 'px'
+  // cell.style.left = ((i % this.side) * (CELL_SIZE + CELL_GAP) + CELL_GAP) + 'px'
+  // cell.style.top = (Math.floor(i / this.side) * (CELL_SIZE + CELL_GAP) + CELL_GAP) + 'px'
+  var left = ((i % this.side) * (CELL_SIZE + CELL_GAP) + CELL_GAP) + 'px'
+  var top = (Math.floor(i / this.side) * (CELL_SIZE + CELL_GAP) + CELL_GAP) + 'px'
+  cell.style.left = left
+  cell.style.top = top
+  // console.log(cell.innerHTML + ' Left ' + i % this.side)
+  // console.log(cell.innerHTML + ' Top ' + Math.floor(i / this.side))
 }
 
 Puzzle.prototype.fillCells = function (map) {
+  console.log(map)
+
   var fragment = document.createDocumentFragment()
   for (var i = 0; i < this.total; i++) {
     if (parseInt(map[i]) === 0) {
@@ -160,6 +169,7 @@ function makePuzzle (s, iterations) {
   for (var i = 0; i < iterations; i++) {
     swapEmpty(p)
   }
+  console.log(p)
   return (p)
 }
 
@@ -186,6 +196,7 @@ function takeForm (form, puzzle) {
   var elements = form.elements
 
   recive.data['map'] = makePuzzle(elements.side.value, elements.iterations.value)
+  // recive.data['map'] = [1, 2, 3, 4, 12, 13, 0, 5, 11, 15, 14, 6, 10, 9, 8, 7]
 
   elements.group1.forEach(function (item, i, arr) {
     if (item.checked === true) {
@@ -199,7 +210,7 @@ function takeForm (form, puzzle) {
     }
   })
 
-  console.log(JSON.stringify(recive))
+  JSON.stringify(recive)
   puzzle = new Puzzle(document.getElementById('puzzle'), elements, recive)
 
   $.ajax({
