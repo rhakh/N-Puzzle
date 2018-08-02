@@ -32,19 +32,17 @@ public:
 	State(const State &src, const int move, const int mapSize,
 			const int size, const int *finishMap,
 			int (*heuristicFunc)(const int *, const int *, const int, const int));
-	~State();
+	~State() {};
 
-	void			setLength(int length) { this->length = length; }
-	void			setPrice(int price) { this->price = price; }
 	int				getLength() const { return (this->length); }
 	int				getPrice() const { return (this->price); }
 	int				getCost() const { return (this->cost); }
 	const int		*getMapPtr() const { return (this->map.data()); }
 	int				getMapSize() const { return (this->map.size()); }
+	void			swapPieces(int a, int b) { std::swap(map[a], map[b]); };
+	int				getMove() const { return (this->movement); };
+	const State		*getPrev() const { return (this->prev); };
 	void			printState(const int size) const;
-	void			swapPieces(int a, int b);
-	int				getMove() const;
-	const State		*getPrev() const;
 
 	class	NP_InvalidMove : public std::exception {
 	public:

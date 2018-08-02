@@ -31,7 +31,7 @@ class NPuzzleSolver
 
 public:
 	NPuzzleSolver();
-	~NPuzzleSolver();
+	~NPuzzleSolver() {};
 	std::tuple<size_t, size_t, size_t>	solve(int heuristic,
 												int solutionType,
 												const int *map,

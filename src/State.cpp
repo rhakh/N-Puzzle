@@ -131,31 +131,20 @@ State::State(const State &src, const int move, const int mapSize,
 	this->prev = &src;
 }
 
-int	State::getMove() const {
-	return (this->movement);
-}
-
-const State	*State::getPrev() const {
-	return (this->prev);
-}
-
-State::~State() {}
-
 void	State::printState(const int size) const {
 	int mapSize = this->map.size();
 
 	printf("State price = %d, length = %d, mapSize = %d\n", this->price, this->length, mapSize);
 	for (int i = 0; i < mapSize; i++) {
-		if ((i + 1) % size == 0)
-			std::cout << std::setw(2) << this->map[i] << std::endl;
-		else
+		if (i % size == 0)
+			std::cout << std::endl;
+
+		if (this->map[i])
 			std::cout << std::setw(2) << this->map[i] << " ";
+		else
+			std::cout << std::setw(2) << "__ ";
 	}
 	std::cout << std::endl << std::endl;
-}
-
-void	State::swapPieces(int a, int b) {
-	std::swap(map[a], map[b]);
 }
 
 size_t HashState::operator()(const State* a) const {
@@ -173,9 +162,16 @@ size_t HashState::operator()(const State* a) const {
 }
 
 bool CompareState::operator()(const State *a, const State *b) {
-	if (a->getCost() == b->getCost())
+
+	// fast version
+	if (a->getPrice() == b->getPrice())
 		return a->getLength() > b->getLength();
-	return a->getCost() > b->getCost();
+	return a->getPrice() > b->getPrice();
+
+	// true version ?
+	// if (a->getCost() == b->getCost())
+	// 	return a->getLength() > b->getLength();
+	// return a->getCost() > b->getCost();
 }
 
 bool EqualState::operator()(const State *lhs, const State *rhs) const {

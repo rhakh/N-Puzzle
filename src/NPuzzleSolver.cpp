@@ -148,10 +148,6 @@ NPuzzleSolver::NPuzzleSolver() {
 	this->finishState = nullptr;
 }
 
-NPuzzleSolver::~NPuzzleSolver() {
-
-}
-
 static int getInversions(const int *map, int mapSize) {
 	int inversions = 0;
 	int size = (int)std::sqrt(mapSize);
