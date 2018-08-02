@@ -265,7 +265,7 @@ bool	isSolvableNormal(const int *map, int mapSize) {
 }
 
 bool NPuzzleSolver::isSolvable(const int *map, int mapSize, int solutionType) {
-#define THIRD_VER
+#define SECOND_VER
 #ifdef FIRST_VER
 	int	inversionsMap = getInversions(map, mapSize, solutionType);
 	int	zeroRow = 0;
