@@ -8,6 +8,7 @@
 #include <cassert>
 #include <cmath>
 #include <functional>
+#include <map>
 
 typedef std::priority_queue<State *, std::vector<State *>, CompareState>	NPqueue;
 typedef std::unordered_set<State *, HashState, EqualState>	NPset;
@@ -236,8 +237,35 @@ static int getInversions(const int *map, int mapSize, int solutionType) {
 	return (inversions);
 }
 
+bool	isSolvableNormal(const int *map, int mapSize) {
+	int	inversionsMap = getInversions(map, mapSize, NORMAL_SOLUTION);
+	int	zeroRow = 0;
+	int	size = (int)std::sqrt(mapSize);
+
+	auto	isEven = [](const int number) { return ((number & 0x1) == 0); };
+	auto	isOdd = [](const int number) { return (number & 0x1); };
+	auto	getZeroPosition = [&map, &size, &mapSize]() {
+				for (int i = mapSize - 1; i >= 0; i--)
+						if (map[i] == 0)
+							return (size - (i / size));
+				return (-1);
+	};
+
+	if (isOdd(size)) {
+		return (isEven(inversionsMap) ? true : false );
+	}
+	else {
+		zeroRow = getZeroPosition();
+		if (isEven(zeroRow) && isOdd(inversionsMap))
+			return (true);
+		if (isOdd(zeroRow) && isEven(inversionsMap))
+			return (true);
+	}
+	return (false);
+}
+
 bool NPuzzleSolver::isSolvable(const int *map, int mapSize, int solutionType) {
-#define FIRST_VER
+#define THIRD_VER
 #ifdef FIRST_VER
 	int	inversionsMap = getInversions(map, mapSize, solutionType);
 	int	zeroRow = 0;
@@ -290,6 +318,48 @@ bool NPuzzleSolver::isSolvable(const int *map, int mapSize, int solutionType) {
 	}
 	return !(isEven(inversionsMap) ^ isEven(inversionsFin));
 #endif // SECOND_VER
+#ifdef THIRD_VER
+	State	normalState(NORMAL_SOLUTION, mapSize);
+	State	snailState(SNAIL_SOLUTION, mapSize);
+	std::vector<int>	converted;
+	std::map<int, int>	convertMap;
+	auto printMap = [](const int *map, const int mapSize) {
+		int size = (int)std::sqrt(mapSize);
+		for (int i = 0; i < mapSize; i++) {
+			if (i % size == 0)
+				std::cout << std::endl << map[i] << " ";
+			else
+				std::cout << map[i] << " ";
+		}
+		std::cout << std::endl;
+	};
+
+	const int	*normalMap = normalState.getMapPtr();
+	const int	*snailMap = snailState.getMapPtr();
+
+	for (int i = 0; i < mapSize; i++) {
+		std::cout << "snail[i] = " << snailMap[i] << " === norm[i] = " << normalMap[i] << std::endl;
+		convertMap.insert(std::make_pair(snailMap[i], normalMap[i]));
+	}
+	for (int i = 0; i < mapSize; i++)
+		converted.push_back(map[i]);
+
+	std::cout << "@@@@ BEFORE" << std::endl;
+	printMap(converted.data(), mapSize);
+	for (int i = 0; i < mapSize; i++) {
+		auto pair = convertMap.find(map[i]);
+		if (pair != convertMap.end()) {
+			converted[i] = pair->second;
+		}
+	}
+	std::cout << "@@@@ AFTER" << std::endl;
+	printMap(converted.data(), mapSize);
+
+	bool is_solvable = isSolvableNormal(converted.data(), mapSize);
+	std::cout << "is solvale = " << is_solvable << std::endl;
+
+	return (is_solvable);
+#endif // THIRD_VER
 }
 
 std::tuple<size_t, size_t, size_t>
