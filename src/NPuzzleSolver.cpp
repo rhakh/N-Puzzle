@@ -22,9 +22,9 @@ void	NPuzzleSolver::checkPath(const State *root, const std::list<int> &result, c
 	for (auto const &move: result) {
 		std::cout << "Move: " << ss[move] << std::endl << std::flush;
 		if (move == 0)
-			state = new State(*root, move, mapSize, size);
+			state = new State(*root, move, mapSize, size, this->finishState->getMapPtr() , this->heuristicFunc);
 		else // if can't create State with this move, then constructor throw exception
-			state = new State(*prev, move, mapSize, size);
+			state = new State(*prev, move, mapSize, size,  this->finishState->getMapPtr() , this->heuristicFunc);
 		prev = state;
 		state->printState(size);
 	}
@@ -114,10 +114,8 @@ NPuzzleSolver::aStar(const int *map, const int mapSize, int solutionType, std::l
 
 		for (int move = UP; move < LAST; move++) {
 			try {
-				newState = new State(*curr, move, mapSize, size);
-				newState->setPrice(this->heuristicFunc(newState->getMapPtr(),
-									this->finishState->getMapPtr(),
-									mapSize, size));
+				newState = new State(*curr, move, mapSize, size,
+							this->finishState->getMapPtr(), this->heuristicFunc);
 				open.push(newState);
 			}
 			catch (State::NP_InvalidMove &e) {
@@ -137,13 +135,12 @@ NPuzzleSolver::aStar(const int *map, const int mapSize, int solutionType, std::l
 		if (open.size() > maxOpen)
 			maxOpen = open.size();
 	}
-	//TODO: throw exception that can't find solution
-	retVal = constructRetVal(&open, &closed, maxOpen, mapSize);
-
 	//del allocated mem
 	freeMem(&open, &closed);
 	delete this->finishState;
-	return (retVal);
+	// can't find solution, throw an exception
+	throw NP_InvalidMap();
+	return (constructRetVal(&open, &closed, 0, 0));
 }
 
 NPuzzleSolver::NPuzzleSolver() {
@@ -155,148 +152,26 @@ NPuzzleSolver::~NPuzzleSolver() {
 
 }
 
-static int	getInversionsForSnail(const int *map, int size, int mapSize, int tail) {
-	int inversions = 0;
-	int	row = 0;
-	int	col = 0;
-	int	dx = 1;
-	int	dy = 0;
-	int matr[size][size];
-	bool	find = false;
-
-	// skip zero tail
-	if (!tail)
-		return (0);
-
-	std::fill(&matr[0][0], &matr[0][0] + (sizeof(matr) / sizeof(matr[0][0])), -1);
-	for (int i = 0; i < mapSize; i++) {
-		matr[row][col] = i;
-
-		if (map[col + row * size] == tail)
-			find = true;
-
-		// skip tiles, before tail appear
-		if (map[col + row * size] && find && map[col + row * size] < tail)
-			inversions++;
-
-		if ((col + dx == size || col + dx < 0 ||
-			(dx != 0 && matr[row][col + dx] != -1)) ||
-			(row + dy == size || row + dy < 0 ||
-			(dy != 0 && matr[row + dy][col] != -1)))
-		{
-			std::swap(dx, dy);
-			dx *= -1;
-		}
-
-		col += dx;
-		row += dy;
-	}
-	return (inversions);
-}
-
-static int getInversions(const int *map, int mapSize, int solutionType) {
+static int getInversions(const int *map, int mapSize) {
 	int inversions = 0;
 	int size = (int)std::sqrt(mapSize);
 
-	if (solutionType == SNAIL_SOLUTION) {
-		int	row = 0;
-		int	col = 0;
-		int	dx = 1;
-		int	dy = 0;
-		int matr[size][size];
-		bool	find = false;
-
-		std::fill(&matr[0][0], &matr[0][0] + (sizeof(matr) / sizeof(matr[0][0])), -1);
-		for (int i = 0; i < mapSize; i++) {
-			matr[row][col] = i;
-
-			inversions = getInversionsForSnail(map, size, mapSize, map[col + row * size]);
-			if ((col + dx == size || col + dx < 0 ||
-				(dx != 0 && matr[row][col + dx] != -1)) ||
-				(row + dy == size || row + dy < 0 ||
-				(dy != 0 && matr[row + dy][col] != -1)))
-			{
-				std::swap(dx, dy);
-				dx *= -1;
-			}
-
-			col += dx;
-			row += dy;
+	for (int i = 0; i < mapSize; i++)
+		for (int j = i + 1; j < mapSize; j++) {
+			if (map[i] == 0 || map[j] == 0)
+				continue;
+			if (map[i] > map[j])
+				inversions++;
 		}
-	}
-	else {
-		for (int i = 0; i < mapSize; i++)
-			for (int j = i + 1; j < mapSize; j++) {
-				if (map[i] == 0 || map[j] == 0)
-					continue;
-				if (map[i] > map[j])
-					inversions++;
-			}
-	}
 
 	return (inversions);
-}
-
-bool	isSolvableNormal(const int *map, int mapSize) {
-	int	inversionsMap = getInversions(map, mapSize, NORMAL_SOLUTION);
-	int	zeroRow = 0;
-	int	size = (int)std::sqrt(mapSize);
-
-	auto	isEven = [](const int number) { return ((number & 0x1) == 0); };
-	auto	isOdd = [](const int number) { return (number & 0x1); };
-	auto	getZeroPosition = [&map, &size, &mapSize]() {
-				for (int i = mapSize - 1; i >= 0; i--)
-						if (map[i] == 0)
-							return (size - (i / size));
-				return (-1);
-	};
-
-	if (isOdd(size)) {
-		return (isEven(inversionsMap) ? true : false );
-	}
-	else {
-		zeroRow = getZeroPosition();
-		if (isEven(zeroRow) && isOdd(inversionsMap))
-			return (true);
-		if (isOdd(zeroRow) && isEven(inversionsMap))
-			return (true);
-	}
-	return (false);
 }
 
 bool NPuzzleSolver::isSolvable(const int *map, int mapSize, int solutionType) {
-#define SECOND_VER
-#ifdef FIRST_VER
-	int	inversionsMap = getInversions(map, mapSize, solutionType);
-	int	zeroRow = 0;
-	int	size = (int)std::sqrt(mapSize);
-
-	auto	isEven = [](const int number) { return ((number & 0x1) == 0); };
-	auto	isOdd = [](const int number) { return (number & 0x1); };
-	auto	getZeroPosition = [&map, &size, &mapSize]() {
-				for (int i = mapSize - 1; i >= 0; i--)
-						if (map[i] == 0)
-							return (size - (i / size));
-				return (-1);
-	};
-
-	if (isOdd(size)) {
-		return (isEven(inversionsMap) ? true : false );
-	}
-	else {
-		zeroRow = getZeroPosition();
-		if (isEven(zeroRow) && isOdd(inversionsMap))
-			return (true);
-		if (isOdd(zeroRow) && isEven(inversionsMap))
-			return (true);
-	}
-	return (false);
-#endif // FIRST_VER
-#ifdef SECOND_VER
-	State	finalState(solutionType, mapSize);
-	int	inversionsMap = getInversions(map, mapSize, NORMAL_SOLUTION);
-	int inversionsFin = getInversions(finalState.getMapPtr(), mapSize, NORMAL_SOLUTION);
-	int size = (int)std::sqrt(mapSize);
+	State	finishState(solutionType, mapSize);
+	int		inversionsFin = getInversions(finishState.getMapPtr(), mapSize);
+	int		inversionsMap = getInversions(map, mapSize);
+	int		size = (int)std::sqrt(mapSize);
 
 	auto	isEven = [](const int number) { return ((number & 0x1) == 0); };
 	auto findIndexInMap = [](const int *map, const int mapSize, const int value) {
@@ -312,54 +187,11 @@ bool NPuzzleSolver::isSolvable(const int *map, int mapSize, int solutionType) {
 		zeroIdx = findIndexInMap(map, mapSize, 0);
 		assert(zeroIdx != -1);
 		inversionsMap += zeroIdx;
-		zeroIdx = findIndexInMap(finalState.getMapPtr(), mapSize, 0);
+		zeroIdx = findIndexInMap(finishState.getMapPtr(), mapSize, 0);
 		assert(zeroIdx != -1);
 		inversionsFin += zeroIdx;
 	}
 	return !(isEven(inversionsMap) ^ isEven(inversionsFin));
-#endif // SECOND_VER
-#ifdef THIRD_VER
-	State	normalState(NORMAL_SOLUTION, mapSize);
-	State	snailState(SNAIL_SOLUTION, mapSize);
-	std::vector<int>	converted;
-	std::map<int, int>	convertMap;
-	auto printMap = [](const int *map, const int mapSize) {
-		int size = (int)std::sqrt(mapSize);
-		for (int i = 0; i < mapSize; i++) {
-			if (i % size == 0)
-				std::cout << std::endl << map[i] << " ";
-			else
-				std::cout << map[i] << " ";
-		}
-		std::cout << std::endl;
-	};
-
-	const int	*normalMap = normalState.getMapPtr();
-	const int	*snailMap = snailState.getMapPtr();
-
-	for (int i = 0; i < mapSize; i++) {
-		std::cout << "snail[i] = " << snailMap[i] << " === norm[i] = " << normalMap[i] << std::endl;
-		convertMap.insert(std::make_pair(snailMap[i], normalMap[i]));
-	}
-	for (int i = 0; i < mapSize; i++)
-		converted.push_back(map[i]);
-
-	std::cout << "@@@@ BEFORE" << std::endl;
-	printMap(converted.data(), mapSize);
-	for (int i = 0; i < mapSize; i++) {
-		auto pair = convertMap.find(map[i]);
-		if (pair != convertMap.end()) {
-			converted[i] = pair->second;
-		}
-	}
-	std::cout << "@@@@ AFTER" << std::endl;
-	printMap(converted.data(), mapSize);
-
-	bool is_solvable = isSolvableNormal(converted.data(), mapSize);
-	std::cout << "is solvale = " << is_solvable << std::endl;
-
-	return (is_solvable);
-#endif // THIRD_VER
 }
 
 std::tuple<size_t, size_t, size_t>

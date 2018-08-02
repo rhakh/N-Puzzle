@@ -12,12 +12,12 @@ enum solutionType {SNAIL_SOLUTION, NORMAL_SOLUTION};
 class State
 {
 private:
-	// int	*map = nullptr;
-	std::vector<int> map;
+	int		cost;
 	int		price;
 	int		length;
 	int		movement;
-	const State	*prev;
+	std::vector<int>	map;
+	const State			*prev;
 
 	//disable copy constructor;
 	State(const State &rhs) {};
@@ -29,13 +29,16 @@ private:
 public:
 	State(const int *map, int price, int length, const int mapSize);
 	State(const int solutionType, const int mapSize); //build finish state
-	State(const State &src, const int move, const int mapSize, const int size);
+	State(const State &src, const int move, const int mapSize,
+			const int size, const int *finishMap,
+			int (*heuristicFunc)(const int *, const int *, const int, const int));
 	~State();
 
 	void			setLength(int length) { this->length = length; }
 	void			setPrice(int price) { this->price = price; }
 	int				getLength() const { return (this->length); }
 	int				getPrice() const { return (this->price); }
+	int				getCost() const { return (this->cost); }
 	const int		*getMapPtr() const { return (this->map.data()); }
 	int				getMapSize() const { return (this->map.size()); }
 	void			printState(const int size) const;

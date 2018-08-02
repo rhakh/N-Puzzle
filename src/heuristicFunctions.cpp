@@ -11,7 +11,7 @@ auto findIndexInMap = [](int value, const int *map, const int mapSize) {
 };
 
 int	misplacedTiles(const int *map, const int *finishMap, const int mapSize, const int size) {
-	int inversions = 0;
+	int	inversions = 0;
 
 	for (int i = 0; i < mapSize; i++) {
 		if (map[i] != finishMap[i])
@@ -86,8 +86,8 @@ int	MTplusLinearConflicts(const int *map, const int *finishMap, const int mapSiz
 int	nMaxSwap(const int *map, const int *finishMap, const int mapSize, const int size) {
 
 	int	mapCopy[mapSize];
-	int retVal = 0;
-	int zeroI = 0;
+	int	retVal = 0;
+	int	zeroI = 0;
 
 	for (int i = 0; i < mapSize; i++)
 		mapCopy[i] = map[i];

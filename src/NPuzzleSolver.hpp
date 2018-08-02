@@ -16,27 +16,27 @@ typedef enum {
 
 class NPuzzleSolver
 {
-	State				*finishState;
-
+	State	*finishState;
 	int		(*heuristicFunc)(const int *map, const int *finishMap, const int mapSize, const int size);
 
 	// algo functions
-	std::tuple<size_t, size_t, size_t>
-		aStar(const int *map, const int mapSize, int solutionType, std::list<int> &result);
+	std::tuple<size_t, size_t, size_t>	aStar(const int *map,
+												const int mapSize,
+												int solutionType,
+												std::list<int> &result);
 
-	void 	createPath(std::list<int> &result, const State *curr) const;
-
-	// use to check path if it's correct
 	void	checkPath(const State *root, const std::list<int> &result, const int mapSize, const int size) const;
+	void 	createPath(std::list<int> &result, const State *curr) const;
 	bool	isSolvable(const int *map, int mapSize, int solutionType);
 
 public:
-	std::tuple<size_t, size_t, size_t>
-	solve(int heuristic, int solutionType,
-			const int *map, const int mapSize, std::list<int> &result);
-
 	NPuzzleSolver();
 	~NPuzzleSolver();
+	std::tuple<size_t, size_t, size_t>	solve(int heuristic,
+												int solutionType,
+												const int *map,
+												const int mapSize,
+												std::list<int> &result);
 
 	class	NP_MapisNullException : public std::exception {
 	public:

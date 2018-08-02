@@ -13,7 +13,8 @@
 void	CSCP::constructTaskResponse(size_t openNodes, size_t closedNodes,
 								size_t usedMemory, double elapsedTime,
 								std::list<int> &result,
-								std::string &resultStr) {
+								std::string &resultStr)
+{
 	namespace pt = boost::property_tree;
 
 	pt::ptree		taskJsonRes;

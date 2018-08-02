@@ -19,6 +19,7 @@ State::State(const int *map, int price, int length, const int mapSize) {
 
 	this->price = price;
 	this->length = length;
+	this->cost = price + length;
 	this->movement = ROOT;
 	this->prev = nullptr;
 }
@@ -55,11 +56,6 @@ void	State::makeSnailState(const int mapSize) {
 	for (int i = 0; i < size; i++)
 		for (int j = 0; j < size; j++)
 			this->map[m++] = matr[i][j];
-
-	this->price = 0;
-	this->length = 0;
-	this->movement = 0;
-	this->prev = nullptr;
 }
 
 void	State::makeNormalState(const int mapSize) {
@@ -67,11 +63,6 @@ void	State::makeNormalState(const int mapSize) {
 	for (int i = 0; i < mapSize; i++)
 		this->map[i] = i + 1;
 	this->map[mapSize - 1] = 0;
-
-	this->price = 0;
-	this->length = 0;
-	this->movement = 0;
-	this->prev = nullptr;
 }
 
 State::State(const int solutionType, const int mapSize) {
@@ -79,9 +70,18 @@ State::State(const int solutionType, const int mapSize) {
 		makeSnailState(mapSize);
 	else
 		makeNormalState(mapSize);
+	this->price = 0;
+	this->cost = 0;
+	this->length = 0;
+	this->movement = 0;
+	this->prev = nullptr;
+	this->movement = ROOT;
 }
 
-State::State(const State &src, const int move, const int mapSize, const int size) {
+State::State(const State &src, const int move, const int mapSize,
+	const int size, const int *finishMap,
+	int (*heuristicFunc)(const int *, const int *, const int, const int))
+{
 	const int	*map = src.getMapPtr();
 	int			x, y, newPos, zeroIndex;
 
@@ -124,8 +124,9 @@ State::State(const State &src, const int move, const int mapSize, const int size
 		this->map[i] = map[i];
 	this->swapPieces(zeroIndex, newPos);
 
-	this->price = 0;
+	this->price = heuristicFunc(this->getMapPtr(), finishMap, mapSize, size);;
 	this->length = src.getLength() + 1;
+	this->cost = this->price + this->length;
 	this->movement = move;
 	this->prev = &src;
 }
@@ -166,17 +167,15 @@ size_t HashState::operator()(const State* a) const {
 		seed ^= map[i] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 	}
 
+	// return boost::hash_range(map, map + mapSize);
+
 	return (seed);
 }
 
 bool CompareState::operator()(const State *a, const State *b) {
-	if (a->getPrice() != b->getPrice())
-		return a->getPrice() > b->getPrice();
-	else
+	if (a->getCost() == b->getCost())
 		return a->getLength() > b->getLength();
-
-	// TODO: think about that
-	// return (a->getPrice() + a->getLength() > b->getPrice() + b->getLength());
+	return a->getCost() > b->getCost();
 }
 
 bool EqualState::operator()(const State *lhs, const State *rhs) const {
