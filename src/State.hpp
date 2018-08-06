@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <iostream>
 #include <vector>
+#include "NPuzzleSolver.hpp"
 
 enum moves_e {ROOT, UP, DOWN, LEFT, RIGHT, LAST};
 
@@ -12,6 +13,10 @@ enum solutionType {SNAIL_SOLUTION, NORMAL_SOLUTION};
 class State
 {
 private:
+	static State	*finishState;
+	static int		(*heuristicFunc)(const State *state);
+	static int		mapSize, mapLength;
+
 	int		cost;
 	int		price;
 	int		length;
@@ -23,31 +28,30 @@ private:
 	State(const State &rhs) {};
 	State	&operator=(const State &rhs) {return (*this);};
 
-	void	makeSnailState(const int mapSize);
-	void	makeNormalState(const int mapSize);
+	void	makeSnailState();
+	void	makeNormalState();
 
 public:
-	State(const int *map, int price, int length, const int mapSize);
-	State(const int solutionType, const int mapSize); //build finish state
-	State(const State &src, const int move, const int mapSize,
-			const int size, const int *finishMap,
-			int (*heuristicFunc)(const int *, const int *, const int, const int));
+	State(const int *map, int price, int length);
+	State(const int solutionType); //build finish state
+	State(const State &src, const int move);
 	~State() {};
 
 	int				getLength() const { return (this->length); }
 	int				getPrice() const { return (this->price); }
 	int				getCost() const { return (this->cost); }
 	const int		*getMapPtr() const { return (this->map.data()); }
-	int				getMapSize() const { return (this->map.size()); }
+	int				getMapSize() const { return (this->mapLength; }
 	void			swapPieces(int a, int b) { std::swap(map[a], map[b]); };
 	int				getMove() const { return (this->movement); };
 	const State		*getPrev() const { return (this->prev); };
-	void			printState(const int size) const;
+	void			printState() const;
 
 	class	NP_InvalidMove : public std::exception {
 	public:
 		virtual const char	*what() const throw() {return ("Invalid move, can't create state");};
 	};
+	friend	NPuzzleSolver;
 };
 
 struct HashState {
