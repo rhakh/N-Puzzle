@@ -5,9 +5,9 @@
 #include <cmath>
 #include <iomanip>
 
-static State	*finishState = nullptr;
-static int		(*heuristicFunc)(const State *state) = nullptr;
-static int		mapSize = 4, mapLength = 16;
+State	*finishState = nullptr;
+int		(*heuristicFunc)(const State *state) = nullptr;
+int		mapSize = 0, mapLength = 0;
 
 auto findIndexInMap = [](int value, const int *map, const int mapLength) {
 	for (int i = 0; i < mapLength; i++)
@@ -16,14 +16,18 @@ auto findIndexInMap = [](int value, const int *map, const int mapLength) {
 	return (-1);
 };
 
-State::State(const int *map, int price, int length) {
+State::State(const int *map) {
+	if (finishState == nullptr || heuristicFunc == nullptr ||
+		mapSize == 0 || mapLength == 0)
+		throw (NP_StaticVarsUnset());
+
 	this->map.resize(this->mapSize);
 	for (int i = 0; i < this->mapSize; i++)
 		this->map[i] = map[i];
 
-	this->price = price;
-	this->length = length;
-	this->cost = price + length;
+	this->price = heuristicFunc(this);
+	this->length = 0;
+	this->cost = price;
 	this->movement = ROOT;
 	this->prev = nullptr;
 }
@@ -69,6 +73,10 @@ void	State::makeNormalState() {
 }
 
 State::State(const int solutionType) {
+	if (finishState == nullptr || heuristicFunc == nullptr ||
+		mapSize == 0 || mapLength == 0)
+		throw (NP_StaticVarsUnset());
+
 	if (solutionType == SNAIL_SOLUTION)
 		makeSnailState();
 	else
@@ -85,6 +93,10 @@ State::State(const State &src, const int move)
 {
 	const int	*map = src.getMapPtr();
 	int			x, y, newPos, zeroIndex;
+
+	if (finishState == nullptr || heuristicFunc == nullptr ||
+		mapSize == 0 || mapLength == 0)
+		throw (NP_StaticVarsUnset());
 
 	zeroIndex = findIndexInMap(0, this->map, this->mapLength);
 
@@ -132,11 +144,9 @@ State::State(const State &src, const int move)
 	this->prev = &src;
 }
 
-void	State::printState(const int size) const {
-	int mapSize = this->map.size();
-
-	printf("State price = %d, length = %d, mapSize = %d\n", this->price, this->length, mapSize);
-	for (int i = 0; i < mapSize; i++) {
+void	State::printState() const {
+	printf("State price = %d, length = %d, mapSize = %d\n", this->price, this->length, this->mapSize);
+	for (int i = 0; i < this->mapSize; i++) {
 		if (i % size == 0)
 			std::cout << std::endl;
 
@@ -150,10 +160,10 @@ void	State::printState(const int size) const {
 
 size_t HashState::operator()(const State* a) const {
 	const int	*map = a->getMapPtr();
-	const int	mapSize = a->getMapSize();
-	size_t		seed = mapSize;
+	const int	mapLength = a->getMapLength();
+	size_t		seed = mapLength;
 
-	for(int i = 0; i < mapSize; i++) {
+	for(int i = 0; i < mapLength; i++) {
 		seed ^= map[i] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 	}
 
@@ -178,9 +188,9 @@ bool CompareState::operator()(const State *a, const State *b) {
 bool EqualState::operator()(const State *lhs, const State *rhs) const {
 	const int *pa = rhs->getMapPtr();
 	const int *pb = lhs->getMapPtr();
-	const int mapSize = lhs->getMapSize();
+	const int mapLength = lhs->getMapLength();
 
-	for (int i = 0; i < mapSize; i++) {
+	for (int i = 0; i < mapLength; i++) {
 		if (pa[i] != pb[i])
 			return (false);
 	}

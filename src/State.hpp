@@ -5,10 +5,19 @@
 #include <iostream>
 #include <vector>
 #include "NPuzzleSolver.hpp"
+#include "heuristicFunctions.hpp"
 
-enum moves_e {ROOT, UP, DOWN, LEFT, RIGHT, LAST};
+enum moves {ROOT, UP, DOWN, LEFT, RIGHT, LAST};
 
-enum solutionType {SNAIL_SOLUTION, NORMAL_SOLUTION};
+enum solutionTypes {SNAIL_SOLUTION, NORMAL_SOLUTION};
+
+enum heuristicFuncs {
+	MISPLACED_TILES,
+	MANHATTAN_DISTANCE,
+	MISPLACED_TILES_PLUS_LINEAR_CONFLICTS,
+	MANHATTAN_DISTANCE_PLUS_LINEAR_CONFLICTS,
+	N_MAXSWAP
+};
 
 class State
 {
@@ -31,8 +40,15 @@ private:
 	void	makeSnailState();
 	void	makeNormalState();
 
+	friend class NPuzzleSolver;
+	friend int misplacedTiles(const State *state);
+	friend int manhattanDistance(const State *state);
+	friend int MDplusLinearConflicts(const State *state);
+	friend int MTplusLinearConflicts(const State *state);
+	friend int nMaxSwap(const State *state);
+
 public:
-	State(const int *map, int price, int length);
+	State(const int *map);
 	State(const int solutionType); //build finish state
 	State(const State &src, const int move);
 	~State() {};
@@ -41,7 +57,8 @@ public:
 	int				getPrice() const { return (this->price); }
 	int				getCost() const { return (this->cost); }
 	const int		*getMapPtr() const { return (this->map.data()); }
-	int				getMapSize() const { return (this->mapLength; }
+	int				getMapSize() const { return (this->mapSize); }
+	int				getMapLength() const { return (this->mapLength); }
 	void			swapPieces(int a, int b) { std::swap(map[a], map[b]); };
 	int				getMove() const { return (this->movement); };
 	const State		*getPrev() const { return (this->prev); };
@@ -51,7 +68,11 @@ public:
 	public:
 		virtual const char	*what() const throw() {return ("Invalid move, can't create state");};
 	};
-	friend	NPuzzleSolver;
+
+	class	NP_StaticVarsUnset : public std::exception {
+	public:
+		virtual const char	*what() const throw() {return ("Static variables for class State wasn't setted");};
+	};
 };
 
 struct HashState {

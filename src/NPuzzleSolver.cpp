@@ -13,7 +13,7 @@
 typedef std::priority_queue<State *, std::vector<State *>, CompareState>	NPqueue;
 typedef std::unordered_set<State *, HashState, EqualState>	NPset;
 
-void	NPuzzleSolver::checkPath(const State *root, const std::list<int> &result, const int mapSize, const int size) const {
+void	NPuzzleSolver::checkPath(const State *root, const std::list<int> &result) const {
 	std::string ss[] = {"ROOT", "UP", "DOWN", "LEFT", "RIGHT"};
 	State *state;
 	State *prev = nullptr;
@@ -22,11 +22,11 @@ void	NPuzzleSolver::checkPath(const State *root, const std::list<int> &result, c
 	for (auto const &move: result) {
 		std::cout << "Move: " << ss[move] << std::endl << std::flush;
 		if (move == 0)
-			state = new State(*root, move, mapSize, size, this->finishState->getMapPtr() , this->heuristicFunc);
+			state = new State(*root, move);
 		else // if can't create State with this move, then constructor throw exception
-			state = new State(*prev, move, mapSize, size,  this->finishState->getMapPtr() , this->heuristicFunc);
+			state = new State(*prev, move);
 		prev = state;
-		state->printState(size);
+		state->printState();
 	}
 	std::cout << "###### END PRINT PATH ######" << std::endl;
 	// if you see this message, then path is correct
@@ -67,23 +67,21 @@ constructRetVal(NPqueue *open, NPset *closed, unsigned int maxOpen, const int ma
 }
 
 std::tuple<size_t, size_t, size_t>
-NPuzzleSolver::aStar(const int *map, const int mapSize, int solutionType, std::list<int> &result) {
+NPuzzleSolver::aStar(const int *map, int solutionType, std::list<int> &result) {
 	std::tuple<size_t, size_t, size_t>	retVal;
 	NPqueue	open;
 	NPset	closed;
-	State	*root;
 	State	*curr = nullptr;
+	State	*root;
 	State	*newState;
 	size_t	maxOpen = 0;
-	const int size = (int)std::sqrt(mapSize);
 
-	this->finishState = new State(solutionType, mapSize);
-	root = new State(map, heuristicFunc(map, this->finishState->getMapPtr(), mapSize, size), 0, mapSize);
+	root = new State(map);
 	open.push(root);
 
 	if (verboseLevel) {
 		std::cout << "******* ROOT" << std::endl;
-		root->printState(size);
+		root->printState();
 	}
 
 	while (!open.empty()) {
@@ -101,21 +99,19 @@ NPuzzleSolver::aStar(const int *map, const int mapSize, int solutionType, std::l
 		if (curr->getPrice() == 0) {
 			if (verboseLevel) {
 				std::cout << "******* SOLVED" << std::endl;
-				curr->printState(size);
+				curr->printState();
 			}
 			createPath(result, const_cast<const State *>(curr));
-			retVal = constructRetVal(&open, &closed, maxOpen, mapSize);
+			retVal = constructRetVal(&open, &closed, maxOpen, mapLength);
 
 			// del allocated mem
 			freeMem(&open, &closed);
-			delete this->finishState;
 			return retVal;
 		}
 
 		for (int move = UP; move < LAST; move++) {
 			try {
-				newState = new State(*curr, move, mapSize, size,
-							this->finishState->getMapPtr(), this->heuristicFunc);
+				newState = new State(*curr, move);
 				open.push(newState);
 			}
 			catch (State::NP_InvalidMove &e) {
@@ -127,7 +123,6 @@ NPuzzleSolver::aStar(const int *map, const int mapSize, int solutionType, std::l
 
 				// del allocated mem
 				freeMem(&open, &closed);
-				delete this->finishState;
 				throw e;
 			}
 		}
@@ -137,15 +132,12 @@ NPuzzleSolver::aStar(const int *map, const int mapSize, int solutionType, std::l
 	}
 	//del allocated mem
 	freeMem(&open, &closed);
-	delete this->finishState;
 	// can't find solution, throw an exception
 	throw NP_InvalidMap();
 	return (constructRetVal(&open, &closed, 0, 0));
 }
 
 NPuzzleSolver::NPuzzleSolver() {
-	this->heuristicFunc = nullptr;
-	this->finishState = nullptr;
 }
 
 static int getInversions(const int *map, int mapSize) {
@@ -192,40 +184,43 @@ bool NPuzzleSolver::isSolvable(const int *map, int mapSize, int solutionType) {
 
 std::tuple<size_t, size_t, size_t>
 NPuzzleSolver::solve(int heuristic, int solutionType,
-		const int *map, const int mapSize, std::list<int> &result) {
+		const int *map, const int mapLength, std::list<int> &result) {
 
-	if (mapSize < 9)
+	if (mapLength < 9)
 		throw NP_InvalidMapSize();
 
 	if (map == nullptr)
 		throw NP_MapisNullException();
 
-	if (std::sqrt(mapSize) - (int)(std::sqrt(mapSize)) != 0.0)
+	if (std::sqrt(mapLength) - (int)(std::sqrt(mapLength)) != 0.0)
 		throw NP_InvalidMapSize();
 
-	if (!isSolvable(map, mapSize, solutionType))
+	if (!isSolvable(map, mapLength, solutionType))
 		throw NP_InvalidMap();
 
+	State::mapLength = mapLength;
+	State::mapSize = (int)std::sqrt(mapLength);
+	State::finishState = new State(solutionType);
 	switch (heuristic) {
 		case MISPLACED_TILES:
-			this->heuristicFunc = misplacedTiles;
+			State::heuristicFunc = misplacedTiles;
 			break;
 		case MANHATTAN_DISTANCE:
-			this->heuristicFunc = manhattanDistance;
+			State::heuristicFunc = manhattanDistance;
 			break;
 		case MANHATTAN_DISTANCE_PLUS_LINEAR_CONFLICTS:
-			this->heuristicFunc = MDplusLinearConflicts;
+			State::heuristicFunc = MDplusLinearConflicts;
 			break;
 		case MISPLACED_TILES_PLUS_LINEAR_CONFLICTS:
-			this->heuristicFunc = MTplusLinearConflicts;
+			State::heuristicFunc = MTplusLinearConflicts;
 			break;
 		case N_MAXSWAP:
-			this->heuristicFunc = nMaxSwap;
+			State::heuristicFunc = nMaxSwap;
 			break;
 		default:
 			throw NP_InvalidHeuristic();
 			break;
 	}
 
-	return (aStar(map, mapSize, solutionType, result));
+	return (aStar(map, solutionType, result));
 }
