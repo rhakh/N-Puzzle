@@ -6,6 +6,8 @@
 #include <list>
 #include <exception>
 
+class State;
+
 class NPuzzleSolver
 {
 	std::tuple<size_t, size_t, size_t>	aStar(const int *map,

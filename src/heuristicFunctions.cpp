@@ -1,3 +1,4 @@
+#include "State.hpp"
 #include "heuristicFunctions.hpp"
 #include <iostream>
 #include <functional>
@@ -81,22 +82,16 @@ static int linearConflicts(const State *state) {
 }
 
 int	MDplusLinearConflicts(const State *state) {
-	const int	*finishMap = state->finishState->getMapPtr();
-	const int	*map = state->getMapPtr();
-
-	return (manhattanDistance(map, finishMap, State::mapLength, State::mapSize) +
-			linearConflicts(map, finishMap, State::mapLength, State::mapSize));
+	return (manhattanDistance(state) + linearConflicts(state));
 }
 
 int	MTplusLinearConflicts(const State *state) {
-	const int	*finishMap = state->finishState->getMapPtr();
-	const int	*map = state->getMapPtr();
-
-	return (misplacedTiles(map, finishMap, State::mapLength, State::mapSize) +
-			linearConflicts(map, finishMap, State::mapLength, State::mapSize));
+	return (misplacedTiles(state) + linearConflicts(state));
 }
 
 int	nMaxSwap(const State *state) {
+	const int	*finishMap = state->finishState->getMapPtr();
+	const int	*map = state->getMapPtr();
 	int	mapCopy[State::mapLength];
 	int	retVal = 0;
 	int	zeroI = 0;

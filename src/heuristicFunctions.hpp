@@ -1,7 +1,7 @@
 #ifndef N_PUZZLE_HEURISTICFUNCTIONS_HPP
 #define N_PUZZLE_HEURISTICFUNCTIONS_HPP
 
-#include "State.hpp"
+class State;
 
 int	misplacedTiles(const State *state);
 int	manhattanDistance(const State *state);

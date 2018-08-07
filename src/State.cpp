@@ -5,9 +5,9 @@
 #include <cmath>
 #include <iomanip>
 
-State	*finishState = nullptr;
-int		(*heuristicFunc)(const State *state) = nullptr;
-int		mapSize = 0, mapLength = 0;
+State	*State::finishState = nullptr;
+int		State::(*heuristicFunc)(const State *state) = nullptr;
+int		State::mapSize = 0, State::mapLength = 0;
 
 auto findIndexInMap = [](int value, const int *map, const int mapLength) {
 	for (int i = 0; i < mapLength; i++)
