@@ -1,5 +1,5 @@
-#include "State.hpp"
 #include "heuristicFunctions.hpp"
+#include "State.hpp"
 #include <iostream>
 #include <functional>
 
@@ -10,7 +10,7 @@ auto findIndexInMap = [](int value, const int *map, const int mapLength) {
 	return (-1);
 };
 
-int	misplacedTiles(const State *state) {
+int	Heuristics::misplacedTiles(const State *state) {
 	const int	*finishMap = state->finishState->getMapPtr();
 	const int	*map = state->getMapPtr();
 	int			inversions = 0;
@@ -22,7 +22,7 @@ int	misplacedTiles(const State *state) {
 	return (inversions);
 }
 
-int	manhattanDistance(const State *state) {
+int	Heuristics::manhattanDistance(const State *state) {
 	const int	*finishMap = state->finishState->getMapPtr();
 	const int	*map = state->getMapPtr();
 	int			price = 0;
@@ -51,7 +51,7 @@ int	manhattanDistance(const State *state) {
 	return (price);
 }
 
-static int linearConflicts(const State *state) {
+int Heuristics::linearConflicts(const State *state) {
 	const int	*finishMap = state->finishState->getMapPtr();
 	const int	*map = state->getMapPtr();
 	int			linearConflicts = 0;
@@ -81,15 +81,15 @@ static int linearConflicts(const State *state) {
 	return (linearConflicts);
 }
 
-int	MDplusLinearConflicts(const State *state) {
+int	Heuristics::MDplusLinearConflicts(const State *state) {
 	return (manhattanDistance(state) + linearConflicts(state));
 }
 
-int	MTplusLinearConflicts(const State *state) {
+int	Heuristics::MTplusLinearConflicts(const State *state) {
 	return (misplacedTiles(state) + linearConflicts(state));
 }
 
-int	nMaxSwap(const State *state) {
+int	Heuristics::nMaxSwap(const State *state) {
 	const int	*finishMap = state->finishState->getMapPtr();
 	const int	*map = state->getMapPtr();
 	int	mapCopy[State::mapLength];

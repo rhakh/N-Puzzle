@@ -70,7 +70,6 @@ void	CSCP::taskHandler(boost::property_tree::ptree &json, std::string &resultStr
 	pt::ptree		mapNode = json.get_child("data.map");
 	pt::ptree		dataNode = json.get_child("data");
 	int				map[mapNode.size()];
-	unsigned int	openNodes = 0, closedNodes = 0, usedMemory = 0;
 	int				i;
 	clock_t			start;
 	std::list<int>	result;

@@ -6,7 +6,7 @@
 #include <iomanip>
 
 State	*State::finishState = nullptr;
-int		State::(*heuristicFunc)(const State *state) = nullptr;
+int		(State::*heuristicFunc)(const State *state) = nullptr;
 int		State::mapSize = 0, State::mapLength = 0;
 
 auto findIndexInMap = [](int value, const int *map, const int mapLength) {
@@ -17,7 +17,7 @@ auto findIndexInMap = [](int value, const int *map, const int mapLength) {
 };
 
 State::State(const int *map) {
-	if (finishState == nullptr || heuristicFunc == nullptr ||
+	if (finishState == nullptr || State::heuristicFunc == nullptr ||
 		mapSize == 0 || mapLength == 0)
 		throw (NP_StaticVarsUnset());
 
@@ -25,7 +25,7 @@ State::State(const int *map) {
 	for (int i = 0; i < this->mapSize; i++)
 		this->map[i] = map[i];
 
-	this->price = heuristicFunc(this);
+	this->price = State::heuristicFunc(this);
 	this->length = 0;
 	this->cost = price;
 	this->movement = ROOT;
@@ -45,9 +45,9 @@ void	State::makeSnailState() {
 		if (i + 1 == this->mapSize)
 			matr[row][col] = 0;
 
-		if ((col + dx == size || col + dx < 0 ||
+		if ((col + dx == this->mapSize || col + dx < 0 ||
 			(dx != 0 && matr[row][col + dx] != -1)) ||
-			(row + dy == size || row + dy < 0 ||
+			(row + dy == this->mapSize || row + dy < 0 ||
 			(dy != 0 && matr[row + dy][col] != -1)))
 		{
 			std::swap(dx, dy);
@@ -73,7 +73,7 @@ void	State::makeNormalState() {
 }
 
 State::State(const int solutionType) {
-	if (finishState == nullptr || heuristicFunc == nullptr ||
+	if (finishState == nullptr || State::heuristicFunc == nullptr ||
 		mapSize == 0 || mapLength == 0)
 		throw (NP_StaticVarsUnset());
 
@@ -94,11 +94,11 @@ State::State(const State &src, const int move)
 	const int	*map = src.getMapPtr();
 	int			x, y, newPos, zeroIndex;
 
-	if (finishState == nullptr || heuristicFunc == nullptr ||
+	if (finishState == nullptr || State::heuristicFunc == nullptr ||
 		mapSize == 0 || mapLength == 0)
 		throw (NP_StaticVarsUnset());
 
-	zeroIndex = findIndexInMap(0, this->map, this->mapLength);
+	zeroIndex = findIndexInMap(0, this->getMapPtr(), this->mapLength);
 
 	x = zeroIndex % this->mapSize;
 	y = zeroIndex / this->mapSize;
@@ -137,7 +137,7 @@ State::State(const State &src, const int move)
 		this->map[i] = map[i];
 	this->swapPieces(zeroIndex, newPos);
 
-	this->price = heuristicFunc(this);
+	this->price = State::heuristicFunc(this);
 	this->length = src.getLength() + 1;
 	this->cost = this->price + this->length;
 	this->movement = move;
@@ -147,7 +147,7 @@ State::State(const State &src, const int move)
 void	State::printState() const {
 	printf("State price = %d, length = %d, mapSize = %d\n", this->price, this->length, this->mapSize);
 	for (int i = 0; i < this->mapSize; i++) {
-		if (i % size == 0)
+		if (i % this->mapSize == 0)
 			std::cout << std::endl;
 
 		if (this->map[i])

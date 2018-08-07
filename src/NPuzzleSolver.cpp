@@ -1,6 +1,6 @@
 #include "NPuzzleSolver.hpp"
-#include "State.hpp"
 #include "heuristicFunctions.hpp"
+#include "State.hpp"
 #include "main.hpp"
 
 #include <queue>
@@ -58,16 +58,16 @@ void 	NPuzzleSolver::createPath(std::list<int> &result, const State *curr) const
 }
 
 std::tuple<size_t, size_t, size_t>
-constructRetVal(NPqueue *open, NPset *closed, unsigned int maxOpen, const int mapSize) {
+constructRetVal(NPqueue *open, NPset *closed, unsigned int maxOpen, const int mapLength) {
 	size_t	summ = open->size() + closed->size();
 
 	// used memory
-	summ = summ * (sizeof(State) + sizeof(int) * mapSize);
+	summ = summ * (sizeof(State) + sizeof(int) * mapLength);
 	return (std::make_tuple(maxOpen, closed->size(), summ));
 }
 
 std::tuple<size_t, size_t, size_t>
-NPuzzleSolver::aStar(const int *map, int solutionType, std::list<int> &result) {
+NPuzzleSolver::aStar(const int *map, std::list<int> &result) {
 	std::tuple<size_t, size_t, size_t>	retVal;
 	NPqueue	open;
 	NPset	closed;
@@ -102,7 +102,7 @@ NPuzzleSolver::aStar(const int *map, int solutionType, std::list<int> &result) {
 				curr->printState();
 			}
 			createPath(result, const_cast<const State *>(curr));
-			retVal = constructRetVal(&open, &closed, maxOpen, mapLength);
+			retVal = constructRetVal(&open, &closed, maxOpen, State::mapLength);
 
 			// del allocated mem
 			freeMem(&open, &closed);
@@ -142,7 +142,6 @@ NPuzzleSolver::NPuzzleSolver() {
 
 static int getInversions(const int *map, int mapSize) {
 	int inversions = 0;
-	int size = (int)std::sqrt(mapSize);
 
 	for (int i = 0; i < mapSize; i++)
 		for (int j = i + 1; j < mapSize; j++) {
@@ -203,24 +202,24 @@ NPuzzleSolver::solve(int heuristic, int solutionType,
 	State::finishState = new State(solutionType);
 	switch (heuristic) {
 		case MISPLACED_TILES:
-			State::heuristicFunc = misplacedTiles;
+			State::heuristicFunc = Heuristics::misplacedTiles;
 			break;
 		case MANHATTAN_DISTANCE:
-			State::heuristicFunc = manhattanDistance;
+			State::heuristicFunc = Heuristics::manhattanDistance;
 			break;
 		case MANHATTAN_DISTANCE_PLUS_LINEAR_CONFLICTS:
-			State::heuristicFunc = MDplusLinearConflicts;
+			State::heuristicFunc = Heuristics::MDplusLinearConflicts;
 			break;
 		case MISPLACED_TILES_PLUS_LINEAR_CONFLICTS:
-			State::heuristicFunc = MTplusLinearConflicts;
+			State::heuristicFunc = Heuristics::MTplusLinearConflicts;
 			break;
 		case N_MAXSWAP:
-			State::heuristicFunc = nMaxSwap;
+			State::heuristicFunc = Heuristics::nMaxSwap;
 			break;
 		default:
 			throw NP_InvalidHeuristic();
 			break;
 	}
 
-	return (aStar(map, solutionType, result));
+	return (aStar(map, result));
 }

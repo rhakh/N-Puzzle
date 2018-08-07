@@ -6,12 +6,9 @@
 #include <list>
 #include <exception>
 
-class State;
-
 class NPuzzleSolver
 {
 	std::tuple<size_t, size_t, size_t>	aStar(const int *map,
-												int solutionType,
 												std::list<int> &result);
 
 	void	checkPath(const State *root, const std::list<int> &result) const;
