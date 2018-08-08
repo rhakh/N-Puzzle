@@ -18,10 +18,7 @@ class CSCP {
 	SimpleWeb::Server<SimpleWeb::HTTP>	server;
 	NPuzzleSolver						solver;
 
-	void	constructTaskResponse(size_t openNodes, size_t closedNodes,
-									size_t usedMemory, double elapsedTime,
-									std::list<int> &result,
-									std::string &resultStr);
+	void	constructTaskResponse(double elapsedTime, NP_retVal &result, std::string &resultStr);
 	void	constructErrorResponse(std::exception &e, std::string &resultStr);
 	void	taskHandler(boost::property_tree::ptree &json, std::string &resultStr);
 	void	serverInit();

@@ -19,9 +19,6 @@ auto findIndexInMap = [](int value, const int *map, const int mapLength) {
 State::State(const int *map) {
 	if (finishState == nullptr || State::heuristicFunc == nullptr ||
 		mapSize == 0 || mapLength == 0) {
-		printf("%s:%d %d %d %d %d\n", __func__, __LINE__,
-			finishState == nullptr, State::heuristicFunc == nullptr,
-			mapSize == 0, mapLength == 0);
 		throw (NP_StaticVarsUnset());
 	}
 
@@ -78,9 +75,6 @@ void	State::makeNormalState() {
 
 State::State(const int solutionType) {
 	if (mapSize == 0 || mapLength == 0) {
-		printf("%s:%d %d %d %d %d\n", __func__, __LINE__,
-			finishState == nullptr, State::heuristicFunc == nullptr,
-			mapSize == 0, mapLength == 0);
 		throw (NP_StaticVarsUnset());
 	}
 
@@ -103,9 +97,6 @@ State::State(const State &src, const int move)
 
 	if (finishState == nullptr || State::heuristicFunc == nullptr ||
 		mapSize == 0 || mapLength == 0) {
-		printf("%s:%d %d %d %d %d\n", __func__, __LINE__,
-			finishState == nullptr, State::heuristicFunc == nullptr,
-			mapSize == 0, mapLength == 0);
 		throw (NP_StaticVarsUnset());
 	}
 

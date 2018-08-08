@@ -67,6 +67,7 @@ public:
 	};
 	friend class	NPuzzleSolver;
 	friend class	Heuristic;
+	friend class	NP_retVal;
 };
 
 struct HashState {

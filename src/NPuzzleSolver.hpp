@@ -3,25 +3,33 @@
 
 #include <exception>
 #include <list>
+#include <queue>
+#include <unordered_set>
 #include "State.hpp"
 
-class NPuzzleSolver
-{
-	std::tuple<size_t, size_t, size_t>	aStar(const int *map,
-												std::list<int> &result);
+class NP_retVal {
+public:
+	std::list<int>	path;
+	size_t			maxOpen;
+	size_t			closedNodes;
+	size_t			usedMemory;
+};
 
-	void	checkPath(const State &root, const std::list<int> &result) const;
-	void 	createPath(std::list<int> &result, const State *curr) const;
+class NPuzzleSolver {
+typedef std::priority_queue<State *, std::vector<State *>, CompareState>	NPqueue;
+typedef std::unordered_set<State *, HashState, EqualState>					NPset;
+private:
+	void	aStar(const int *map, NP_retVal &result);
+	void	checkPath(const State &root, const NP_retVal &result) const;
+	void 	createPath(const State *curr, NP_retVal &result) const;
+	void 	createRetVal(NPqueue *open, NPset *closed, const State *curr,
+							unsigned int maxOpen, NP_retVal &result) const;
 	bool	isSolvable(const int *map, int mapSize, int solutionType);
 
 public:
 	NPuzzleSolver();
 	~NPuzzleSolver() {};
-	std::tuple<size_t, size_t, size_t>	solve(int heuristic,
-												int solutionType,
-												const int *map,
-												const int mapSize,
-												std::list<int> &result);
+	void	solve(int heuristic, int solutionType, const int *map, const int mapSize, NP_retVal &result);
 
 	class	NP_MapisNullException : public std::exception {
 	public:
