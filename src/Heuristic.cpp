@@ -1,4 +1,4 @@
-#include "heuristicFunctions.hpp"
+#include "Heuristic.hpp"
 #include "State.hpp"
 #include <iostream>
 #include <functional>

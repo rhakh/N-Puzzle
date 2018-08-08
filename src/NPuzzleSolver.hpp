@@ -1,17 +1,16 @@
 #ifndef NPUZZLE_SOLVER_HPP
 #define NPUZZLE_SOLVER_HPP
 
-#include "State.hpp"
-
-#include <list>
 #include <exception>
+#include <list>
+#include "State.hpp"
 
 class NPuzzleSolver
 {
 	std::tuple<size_t, size_t, size_t>	aStar(const int *map,
 												std::list<int> &result);
 
-	void	checkPath(const State *root, const std::list<int> &result) const;
+	void	checkPath(const State &root, const std::list<int> &result) const;
 	void 	createPath(std::list<int> &result, const State *curr) const;
 	bool	isSolvable(const int *map, int mapSize, int solutionType);
 

@@ -110,7 +110,8 @@ void	CSCP::processMessage(boost::property_tree::ptree &json, std::string &result
 
 	switch (messageType) {
 		case NP_TASK:
-			taskHandler(json, resultStr);
+			try {taskHandler(json, resultStr);}
+            catch (std::exception &e) {}
 			break;
 		default:
 			CSCP_InvalidMessageType	e;

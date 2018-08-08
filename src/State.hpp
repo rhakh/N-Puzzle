@@ -4,12 +4,11 @@
 #include <cstdint>
 #include <iostream>
 #include <vector>
-// #include "NPuzzleSolver.hpp"
-#include "heuristicFunctions.hpp"
+#include "Heuristic.hpp"
 
-enum moves {ROOT, UP, DOWN, LEFT, RIGHT, LAST};
+enum moves { ROOT, UP, DOWN, LEFT, RIGHT, LAST };
 
-enum solutionTypes {SNAIL_SOLUTION, NORMAL_SOLUTION};
+enum solutionTypes { SNAIL_SOLUTION, NORMAL_SOLUTION };
 
 enum heuristicFuncs {
 	MISPLACED_TILES,
@@ -22,15 +21,6 @@ enum heuristicFuncs {
 class State
 {
 private:
-	friend class NPuzzleSolver;
-	friend class Heuristic;
-	// static int	linearConflicts(const State *state);
-	// static int	misplacedTiles(const State *state);
-	// static int	manhattanDistance(const State *state);
-	// static int	MDplusLinearConflicts(const State *state);
-	// static int	MTplusLinearConflicts(const State *state);
-	// static int	nMaxSwap(const State *state);
-
 	static State	*finishState;
 	static int		(*heuristicFunc)(const State *state);
 	static int		mapSize, mapLength;
@@ -75,6 +65,8 @@ public:
 	public:
 		virtual const char	*what() const throw() {return ("Static variables for class State wasn't setted");};
 	};
+	friend class	NPuzzleSolver;
+	friend class	Heuristic;
 };
 
 struct HashState {

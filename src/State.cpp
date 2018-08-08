@@ -25,8 +25,8 @@ State::State(const int *map) {
 		throw (NP_StaticVarsUnset());
 	}
 
-	this->map.resize(this->mapSize);
-	for (int i = 0; i < this->mapSize; i++)
+	this->map.resize(State::mapLength);
+	for (int i = 0; i < State::mapLength; i++)
 		this->map[i] = map[i];
 
 	this->price = State::heuristicFunc(this);
@@ -41,17 +41,17 @@ void	State::makeSnailState() {
 	int	col = 0;
 	int	dx = 1;
 	int	dy = 0;
-	int matr[this->mapSize][this->mapSize];
+	int matr[State::mapSize][State::mapSize];
 
 	std::fill(&matr[0][0], &matr[0][0] + (sizeof(matr) / sizeof(matr[0][0])), -1);
-	for (int i = 0; i < this->mapSize; i++) {
+	for (int i = 0; i < State::mapLength; i++) {
 		matr[row][col] = i + 1;
-		if (i + 1 == this->mapSize)
+		if (i + 1 == State::mapLength)
 			matr[row][col] = 0;
 
-		if ((col + dx == this->mapSize || col + dx < 0 ||
+		if ((col + dx == State::mapSize || col + dx < 0 ||
 			(dx != 0 && matr[row][col + dx] != -1)) ||
-			(row + dy == this->mapSize || row + dy < 0 ||
+			(row + dy == State::mapSize || row + dy < 0 ||
 			(dy != 0 && matr[row + dy][col] != -1)))
 		{
 			std::swap(dx, dy);
@@ -62,18 +62,18 @@ void	State::makeSnailState() {
 		row += dy;
 	}
 
-	this->map.resize(this->mapSize);
+	this->map.resize(State::mapLength);
 	int m = 0;
-	for (int i = 0; i < this->mapSize; i++)
-		for (int j = 0; j < this->mapSize; j++)
+	for (int i = 0; i < State::mapSize; i++)
+		for (int j = 0; j < State::mapSize; j++)
 			this->map[m++] = matr[i][j];
 }
 
 void	State::makeNormalState() {
-	this->map.resize(this->mapSize);
-	for (int i = 0; i < this->mapSize; i++)
+	this->map.resize(State::mapLength);
+	for (int i = 0; i < State::mapLength; i++)
 		this->map[i] = i + 1;
-	this->map[this->mapSize - 1] = 0;
+	this->map[State::mapLength - 1] = 0;
 }
 
 State::State(const int solutionType) {
@@ -109,31 +109,31 @@ State::State(const State &src, const int move)
 		throw (NP_StaticVarsUnset());
 	}
 
-	zeroIndex = findIndexInMap(0, this->getMapPtr(), this->mapLength);
+	zeroIndex = findIndexInMap(0, map, State::mapLength);
 
-	x = zeroIndex % this->mapSize;
-	y = zeroIndex / this->mapSize;
+	x = zeroIndex % State::mapSize;
+	y = zeroIndex / State::mapSize;
 
 	switch (move) {
 		case UP:
 			if (y - 1 < 0)
 				throw NP_InvalidMove();
-			newPos = x + ((y - 1) * this->mapSize);
+			newPos = x + ((y - 1) * State::mapSize);
 			break;
 		case DOWN:
-			if (y + 1 == this->mapSize)
+			if (y + 1 == State::mapSize)
 				throw NP_InvalidMove();
-			newPos = x + ((y + 1) * this->mapSize);
+			newPos = x + ((y + 1) * State::mapSize);
 			break;
 		case LEFT:
 			if (x - 1 < 0)
 				throw NP_InvalidMove();
-			newPos = (x - 1) + (y * this->mapSize);
+			newPos = (x - 1) + (y * State::mapSize);
 			break;
 		case RIGHT:
-			if (x + 1 == this->mapSize)
+			if (x + 1 == State::mapSize)
 				throw NP_InvalidMove();
-			newPos = (x + 1) + (y * this->mapSize);
+			newPos = (x + 1) + (y * State::mapSize);
 			break;
 		case ROOT: // just make a copy
 			newPos = zeroIndex;
@@ -143,8 +143,8 @@ State::State(const State &src, const int move)
 			break;
 	}
 
-	this->map.resize(this->mapSize);
-	for (int i = 0; i < this->mapSize; i++)
+	this->map.resize(State::mapLength);
+	for (int i = 0; i < State::mapLength; i++)
 		this->map[i] = map[i];
 	this->swapPieces(zeroIndex, newPos);
 
@@ -156,9 +156,9 @@ State::State(const State &src, const int move)
 }
 
 void	State::printState() const {
-	printf("State price = %d, length = %d, mapSize = %d\n", this->price, this->length, this->mapSize);
-	for (int i = 0; i < this->mapSize; i++) {
-		if (i % this->mapSize == 0)
+	printf("State price = %d, length = %d, mapSize = %d\n", this->price, this->length, State::mapSize);
+	for (int i = 0; i < State::mapLength; i++) {
+		if (i % State::mapSize == 0)
 			std::cout << std::endl;
 
 		if (this->map[i])
