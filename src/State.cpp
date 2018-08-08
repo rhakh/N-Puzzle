@@ -6,7 +6,7 @@
 #include <iomanip>
 
 State	*State::finishState = nullptr;
-int		(State::*heuristicFunc)(const State *state) = nullptr;
+int		(*State::heuristicFunc)(const State *state) = nullptr;
 int		State::mapSize = 0, State::mapLength = 0;
 
 auto findIndexInMap = [](int value, const int *map, const int mapLength) {
@@ -18,8 +18,12 @@ auto findIndexInMap = [](int value, const int *map, const int mapLength) {
 
 State::State(const int *map) {
 	if (finishState == nullptr || State::heuristicFunc == nullptr ||
-		mapSize == 0 || mapLength == 0)
+		mapSize == 0 || mapLength == 0) {
+		printf("%s:%d %d %d %d %d\n", __func__, __LINE__,
+			finishState == nullptr, State::heuristicFunc == nullptr,
+			mapSize == 0, mapLength == 0);
 		throw (NP_StaticVarsUnset());
+	}
 
 	this->map.resize(this->mapSize);
 	for (int i = 0; i < this->mapSize; i++)
@@ -73,9 +77,12 @@ void	State::makeNormalState() {
 }
 
 State::State(const int solutionType) {
-	if (finishState == nullptr || State::heuristicFunc == nullptr ||
-		mapSize == 0 || mapLength == 0)
+	if (mapSize == 0 || mapLength == 0) {
+		printf("%s:%d %d %d %d %d\n", __func__, __LINE__,
+			finishState == nullptr, State::heuristicFunc == nullptr,
+			mapSize == 0, mapLength == 0);
 		throw (NP_StaticVarsUnset());
+	}
 
 	if (solutionType == SNAIL_SOLUTION)
 		makeSnailState();
@@ -95,8 +102,12 @@ State::State(const State &src, const int move)
 	int			x, y, newPos, zeroIndex;
 
 	if (finishState == nullptr || State::heuristicFunc == nullptr ||
-		mapSize == 0 || mapLength == 0)
+		mapSize == 0 || mapLength == 0) {
+		printf("%s:%d %d %d %d %d\n", __func__, __LINE__,
+			finishState == nullptr, State::heuristicFunc == nullptr,
+			mapSize == 0, mapLength == 0);
 		throw (NP_StaticVarsUnset());
+	}
 
 	zeroIndex = findIndexInMap(0, this->getMapPtr(), this->mapLength);
 

@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <iostream>
 #include <vector>
-#include "NPuzzleSolver.hpp"
+// #include "NPuzzleSolver.hpp"
 #include "heuristicFunctions.hpp"
 
 enum moves {ROOT, UP, DOWN, LEFT, RIGHT, LAST};
@@ -23,7 +23,13 @@ class State
 {
 private:
 	friend class NPuzzleSolver;
-	friend class Heuristics;
+	friend class Heuristic;
+	// static int	linearConflicts(const State *state);
+	// static int	misplacedTiles(const State *state);
+	// static int	manhattanDistance(const State *state);
+	// static int	MDplusLinearConflicts(const State *state);
+	// static int	MTplusLinearConflicts(const State *state);
+	// static int	nMaxSwap(const State *state);
 
 	static State	*finishState;
 	static int		(*heuristicFunc)(const State *state);

@@ -188,6 +188,10 @@ NPuzzleSolver::solve(int heuristic, int solutionType,
 	if (mapLength < 9)
 		throw NP_InvalidMapSize();
 
+	State::mapLength = mapLength;
+	State::mapSize = (int)std::sqrt(mapLength);
+	State::finishState = new State(solutionType);
+
 	if (map == nullptr)
 		throw NP_MapisNullException();
 
@@ -197,24 +201,21 @@ NPuzzleSolver::solve(int heuristic, int solutionType,
 	if (!isSolvable(map, mapLength, solutionType))
 		throw NP_InvalidMap();
 
-	State::mapLength = mapLength;
-	State::mapSize = (int)std::sqrt(mapLength);
-	State::finishState = new State(solutionType);
 	switch (heuristic) {
 		case MISPLACED_TILES:
-			State::heuristicFunc = Heuristics::misplacedTiles;
+			State::heuristicFunc = &Heuristic::misplacedTiles;
 			break;
 		case MANHATTAN_DISTANCE:
-			State::heuristicFunc = Heuristics::manhattanDistance;
+			State::heuristicFunc = &Heuristic::manhattanDistance;
 			break;
 		case MANHATTAN_DISTANCE_PLUS_LINEAR_CONFLICTS:
-			State::heuristicFunc = Heuristics::MDplusLinearConflicts;
+			State::heuristicFunc = &Heuristic::MDplusLinearConflicts;
 			break;
 		case MISPLACED_TILES_PLUS_LINEAR_CONFLICTS:
-			State::heuristicFunc = Heuristics::MTplusLinearConflicts;
+			State::heuristicFunc = &Heuristic::MTplusLinearConflicts;
 			break;
 		case N_MAXSWAP:
-			State::heuristicFunc = Heuristics::nMaxSwap;
+			State::heuristicFunc = &Heuristic::nMaxSwap;
 			break;
 		default:
 			throw NP_InvalidHeuristic();

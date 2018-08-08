@@ -1,10 +1,9 @@
 #ifndef N_PUZZLE_HEURISTICFUNCTIONS_HPP
 #define N_PUZZLE_HEURISTICFUNCTIONS_HPP
 
-#include "State.hpp"
 class State;
 
-class Heuristics {
+class Heuristic {
 	static int	linearConflicts(const State *state);
 public:
 	static int	misplacedTiles(const State *state);

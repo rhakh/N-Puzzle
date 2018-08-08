@@ -10,7 +10,7 @@ auto findIndexInMap = [](int value, const int *map, const int mapLength) {
 	return (-1);
 };
 
-int	Heuristics::misplacedTiles(const State *state) {
+int	Heuristic::misplacedTiles(const State *state) {
 	const int	*finishMap = state->finishState->getMapPtr();
 	const int	*map = state->getMapPtr();
 	int			inversions = 0;
@@ -22,7 +22,7 @@ int	Heuristics::misplacedTiles(const State *state) {
 	return (inversions);
 }
 
-int	Heuristics::manhattanDistance(const State *state) {
+int	Heuristic::manhattanDistance(const State *state) {
 	const int	*finishMap = state->finishState->getMapPtr();
 	const int	*map = state->getMapPtr();
 	int			price = 0;
@@ -51,7 +51,7 @@ int	Heuristics::manhattanDistance(const State *state) {
 	return (price);
 }
 
-int Heuristics::linearConflicts(const State *state) {
+int	Heuristic::linearConflicts(const State *state) {
 	const int	*finishMap = state->finishState->getMapPtr();
 	const int	*map = state->getMapPtr();
 	int			linearConflicts = 0;
@@ -81,15 +81,15 @@ int Heuristics::linearConflicts(const State *state) {
 	return (linearConflicts);
 }
 
-int	Heuristics::MDplusLinearConflicts(const State *state) {
+int	Heuristic::MDplusLinearConflicts(const State *state) {
 	return (manhattanDistance(state) + linearConflicts(state));
 }
 
-int	Heuristics::MTplusLinearConflicts(const State *state) {
+int	Heuristic::MTplusLinearConflicts(const State *state) {
 	return (misplacedTiles(state) + linearConflicts(state));
 }
 
-int	Heuristics::nMaxSwap(const State *state) {
+int	Heuristic::nMaxSwap(const State *state) {
 	const int	*finishMap = state->finishState->getMapPtr();
 	const int	*map = state->getMapPtr();
 	int	mapCopy[State::mapLength];
