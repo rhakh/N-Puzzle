@@ -126,11 +126,11 @@ void	clientCode() {
 		std::string	requestStr;
 
 		constructTaskRequest(requestStr);
-		if (verboseLevel)
+		if (verboseLevel == SERVER)
 			std::cout << "Client send request: " << requestStr << std::endl;
 
 		auto r2 = client.request("POST", "/message", requestStr);
-		if (verboseLevel)
+		if (verboseLevel == SERVER)
 			std::cout << "Client receive response: " << r2->content.rdbuf() << endl;
 	}
 	catch(const SimpleWeb::system_error &e) {
@@ -155,31 +155,29 @@ void sigFaultHandler(int sig) {
 bool	processArgs(int argc, char **argv) {
 	namespace po = boost::program_options;
 
+	po::options_description	desc("Options");
+	desc.add_options()
+			("help,h", "Print help")
+			(",v", po::value<int>(), "Verbose level\n"
+								"\t0 -- no prints\n"
+								"\t1 -- server prints\n"
+								"\t2 -- algorithm prints");
 	try {
-		po::options_description	desc("Options");
-		po::variables_map		vm;
+		po::variables_map	vm;
+		po::store(po::parse_command_line(argc, argv, desc), vm);
+		po:notify(vm);
 
-		desc.add_options()
-			("help,h", "print help")
-			("verbose,v", "enable server prints");
-		try {
-			po::store(po::parse_command_line(argc, argv, desc), vm);
-
-			if (vm.count("verbose") || vm.count("v"))
-				verboseLevel = 1;
-			if (vm.count("help") || vm.count("h")) {
-				std::cout << desc << std::endl;
-				return (false);
-			}
+		if (vm.count("-v")) {
+			verboseLevel = vm["-v"].as<int>();
 		}
-		catch (po::error &e) {
-			std::cerr << "Error: " << e.what() << std::endl;
-			std::cerr << desc << std::endl;
+		if (vm.count("help") || vm.count("-h")) {
+			std::cout << desc << std::endl;
 			return (false);
 		}
 	}
-	catch (std::exception &e) {
-		std::cerr << "Unhandled exception: " << e.what() << std::endl;
+	catch (po::error &e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+		std::cerr << desc << std::endl;
 		return (false);
 	}
 	return (true);
@@ -189,7 +187,7 @@ int		main(int argc, char **argv) {
 	boost::thread			*server_thread;
 	CSCP					mp;
 
-	if (!processArgs(argc, argv))
+	if (!	processArgs(argc, argv))
 		return (-1);
 
 	signal(SIGSEGV, sigFaultHandler);

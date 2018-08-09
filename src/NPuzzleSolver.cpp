@@ -89,7 +89,6 @@ void	NPuzzleSolver::aStar(const int *map, NP_retVal &result) {
 		closed.insert(curr);
 
 		if (curr->getPrice() == 0) {
-			createPath(const_cast<const State *>(curr), result);
 			createRetVal(&open, &closed, curr, maxOpen, result);
 			freeMem(&open, &closed);
 			return ;
@@ -203,7 +202,7 @@ void	NPuzzleSolver::solve(int heuristic, int solutionType,
 		throw NP_InvalidMap();
 
 	aStar(map, result);
-	if (verboseLevel) {
+	if (verboseLevel == ALGO) {
 		try {
 			checkPath(State(map), result);
 		}

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
+#include <boost/functional/hash.hpp>
 
 State	*State::finishState = nullptr;
 int		(*State::heuristicFunc)(const State *state) = nullptr;
@@ -163,15 +164,8 @@ void	State::printState() const {
 size_t HashState::operator()(const State* a) const {
 	const int	*map = a->getMapPtr();
 	const int	mapLength = a->getMapLength();
-	size_t		seed = mapLength;
 
-	for(int i = 0; i < mapLength; i++) {
-		seed ^= map[i] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-	}
-
-	// return boost::hash_range(map, map + mapSize);
-
-	return (seed);
+	return boost::hash_range(map, map + mapLength);
 }
 
 bool CompareState::operator()(const State *a, const State *b) {

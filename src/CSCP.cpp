@@ -88,7 +88,7 @@ void	CSCP::taskHandler(boost::property_tree::ptree &json, std::string &resultStr
 		constructErrorResponse(e, resultStr);
 	}
 
-	if (verboseLevel)
+	if (verboseLevel == SERVER)
 		std::cout << "Server send response: " << resultStr
 					<< std::endl << std::flush;
 }
@@ -98,7 +98,7 @@ void	CSCP::processMessage(boost::property_tree::ptree &json, std::string &result
 
 	int		messageType = json.get<int>("messageType");
 
-	if (verboseLevel) {
+	if (verboseLevel == SERVER) {
 		std::stringstream	ss;
 		boost::property_tree::json_parser::write_json(ss, json, false);
 		std::cout << "Server receive request: " << ss.str() << std::endl;
