@@ -43,10 +43,10 @@ void	constructTaskRequest(std::string &requestStr) {
 	// std::array<int, 9>		map = {{0, 3, 5, 6, 7, 1, 4, 2, 8}};
 
 	// solvable for snail
-	std::array<int, 16>		map = {{11, 0, 9, 4, 2, 15, 7, 1, 13, 3, 12, 5, 8, 6, 10, 14}};
+//	std::array<int, 16>		map = {{11, 0, 9, 4, 2, 15, 7, 1, 13, 3, 12, 5, 8, 6, 10, 14}};
 
 	// solvable for snail
-	// std::array<int, 16>		map = {{5, 6, 11, 14, 1, 15, 3, 4, 8, 2, 10, 12, 0, 9, 7, 13}};
+	 std::array<int, 16>		map = {{5, 6, 11, 14, 1, 15, 3, 4, 8, 2, 10, 12, 0, 9, 7, 13}};
 
 	// unsolvable snail, solvable for norm
 	// std::array<int, 36>		map = {{1, 14, 2, 4, 6, 18,
@@ -126,11 +126,11 @@ void	clientCode() {
 		std::string	requestStr;
 
 		constructTaskRequest(requestStr);
-		if (verboseLevel)
+		if (verboseLevel == SERVER)
 			std::cout << "Client send request: " << requestStr << std::endl;
 
 		auto r2 = client.request("POST", "/message", requestStr);
-		if (verboseLevel)
+		if (verboseLevel == SERVER)
 			std::cout << "Client receive response: " << r2->content.rdbuf() << endl;
 	}
 	catch(const SimpleWeb::system_error &e) {
@@ -139,7 +139,7 @@ void	clientCode() {
 }
 // *** delete this
 
-void sigFaultHanfler(int sig) {
+void sigFaultHandler(int sig) {
 	void *array[10];
 	size_t size;
 
@@ -155,31 +155,29 @@ void sigFaultHanfler(int sig) {
 bool	processArgs(int argc, char **argv) {
 	namespace po = boost::program_options;
 
+	po::options_description	desc("Options");
+	desc.add_options()
+			("help,h", "Print help")
+			(",v", po::value<int>(), "Verbose level\n"
+								"\t0 -- no prints\n"
+								"\t1 -- server prints\n"
+								"\t2 -- algorithm prints");
 	try {
-		po::options_description	desc("Options");
-		po::variables_map		vm;
+		po::variables_map	vm;
+		po::store(po::parse_command_line(argc, argv, desc), vm);
+		po:notify(vm);
 
-		desc.add_options()
-			("help,h", "print help")
-			("verbose,v", "enable server prints");
-		try {
-			po::store(po::parse_command_line(argc, argv, desc), vm);
-
-			if (vm.count("verbose") || vm.count("v"))
-				verboseLevel = 1;
-			if (vm.count("help") || vm.count("h")) {
-				std::cout << desc << std::endl;
-				return (false);
-			}
+		if (vm.count("-v")) {
+			verboseLevel = vm["-v"].as<int>();
 		}
-		catch (po::error &e) {
-			std::cerr << "Error: " << e.what() << std::endl;
-			std::cerr << desc << std::endl;
+		if (vm.count("help") || vm.count("-h")) {
+			std::cout << desc << std::endl;
 			return (false);
 		}
 	}
-	catch (std::exception &e) {
-		std::cerr << "Unhandled exception: " << e.what() << std::endl;
+	catch (po::error &e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+		std::cerr << desc << std::endl;
 		return (false);
 	}
 	return (true);
@@ -189,10 +187,10 @@ int		main(int argc, char **argv) {
 	boost::thread			*server_thread;
 	CSCP					mp;
 
-	if (!processArgs(argc, argv))
+	if (!	processArgs(argc, argv))
 		return (-1);
 
-	signal(SIGSEGV, sigFaultHanfler);
+	signal(SIGSEGV, sigFaultHandler);
 	server_thread = mp.serverStart();
 	std::cout << "Open browser page at address http://localhost:8080" << std::endl;
 

@@ -4,42 +4,52 @@
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
+#include <boost/functional/hash.hpp>
 
-auto findIndexInMap = [](int value, const int *map, int mapSize) {
-	for (int i = 0; i < mapSize; i++)
+State	*State::finishState = nullptr;
+int		(*State::heuristicFunc)(const State *state) = nullptr;
+int		State::mapSize = 0, State::mapLength = 0;
+
+auto findIndexInMap = [](int value, const int *map, const int mapLength) {
+	for (int i = 0; i < mapLength; i++)
 		if (map[i] == value)
 			return (i);
 	return (-1);
 };
 
-State::State(const int *map, int price, int length, const int mapSize) {
-	this->map.resize(mapSize);
-	for (int i = 0; i < mapSize; i++)
+State::State(const int *map) {
+	if (finishState == nullptr || State::heuristicFunc == nullptr ||
+		mapSize == 0 || mapLength == 0) {
+		throw (NP_StaticVarsUnset());
+	}
+
+	this->map.resize(State::mapLength);
+	for (int i = 0; i < State::mapLength; i++)
 		this->map[i] = map[i];
 
-	this->price = price;
-	this->length = length;
+	this->price = State::heuristicFunc(this);
+	this->length = 0;
+	this->cost = price;
 	this->movement = ROOT;
 	this->prev = nullptr;
 }
 
-void	State::makeSnailState(const int mapSize) {
+void	State::makeSnailState() {
 	int	row = 0;
 	int	col = 0;
 	int	dx = 1;
 	int	dy = 0;
-	int	size = (int)std::sqrt(mapSize);
-	int matr[size][size];
+	int matr[State::mapSize][State::mapSize];
 
 	std::fill(&matr[0][0], &matr[0][0] + (sizeof(matr) / sizeof(matr[0][0])), -1);
-	for (int i = 0; i < mapSize; i++) {
+	for (int i = 0; i < State::mapLength; i++) {
 		matr[row][col] = i + 1;
-		if (i + 1 == mapSize)
+		if (i + 1 == State::mapLength)
 			matr[row][col] = 0;
 
-		if ((col + dx == size || col + dx < 0 ||
+		if ((col + dx == State::mapSize || col + dx < 0 ||
 			(dx != 0 && matr[row][col + dx] != -1)) ||
-			(row + dy == size || row + dy < 0 ||
+			(row + dy == State::mapSize || row + dy < 0 ||
 			(dy != 0 && matr[row + dy][col] != -1)))
 		{
 			std::swap(dx, dy);
@@ -50,66 +60,72 @@ void	State::makeSnailState(const int mapSize) {
 		row += dy;
 	}
 
-	this->map.resize(mapSize);
+	this->map.resize(State::mapLength);
 	int m = 0;
-	for (int i = 0; i < size; i++)
-		for (int j = 0; j < size; j++)
+	for (int i = 0; i < State::mapSize; i++)
+		for (int j = 0; j < State::mapSize; j++)
 			this->map[m++] = matr[i][j];
-
-	this->price = 0;
-	this->length = 0;
-	this->movement = 0;
-	this->prev = nullptr;
 }
 
-void	State::makeNormalState(const int mapSize) {
-	this->map.resize(mapSize);
-	for (int i = 0; i < mapSize; i++)
+void	State::makeNormalState() {
+	this->map.resize(State::mapLength);
+	for (int i = 0; i < State::mapLength; i++)
 		this->map[i] = i + 1;
-	this->map[mapSize - 1] = 0;
+	this->map[State::mapLength - 1] = 0;
+}
 
+State::State(const int solutionType) {
+	if (mapSize == 0 || mapLength == 0) {
+		throw (NP_StaticVarsUnset());
+	}
+
+	if (solutionType == SNAIL_SOLUTION)
+		makeSnailState();
+	else
+		makeNormalState();
 	this->price = 0;
+	this->cost = 0;
 	this->length = 0;
 	this->movement = 0;
 	this->prev = nullptr;
+	this->movement = ROOT;
 }
 
-State::State(const int solutionType, const int mapSize) {
-	if (solutionType == SNAIL_SOLUTION)
-		makeSnailState(mapSize);
-	else
-		makeNormalState(mapSize);
-}
-
-State::State(const State &src, const int move, const int mapSize, const int size) {
+State::State(const State &src, const int move)
+{
 	const int	*map = src.getMapPtr();
 	int			x, y, newPos, zeroIndex;
 
-	zeroIndex = findIndexInMap(0, map, mapSize);
+	if (finishState == nullptr || State::heuristicFunc == nullptr ||
+		mapSize == 0 || mapLength == 0) {
+		throw (NP_StaticVarsUnset());
+	}
 
-	x = zeroIndex % size;
-	y = zeroIndex / size;
+	zeroIndex = findIndexInMap(0, map, State::mapLength);
+
+	x = zeroIndex % State::mapSize;
+	y = zeroIndex / State::mapSize;
 
 	switch (move) {
 		case UP:
 			if (y - 1 < 0)
 				throw NP_InvalidMove();
-			newPos = x + ((y - 1) * size);
+			newPos = x + ((y - 1) * State::mapSize);
 			break;
 		case DOWN:
-			if (y + 1 == size)
+			if (y + 1 == State::mapSize)
 				throw NP_InvalidMove();
-			newPos = x + ((y + 1) * size);
+			newPos = x + ((y + 1) * State::mapSize);
 			break;
 		case LEFT:
 			if (x - 1 < 0)
 				throw NP_InvalidMove();
-			newPos = (x - 1) + (y * size);
+			newPos = (x - 1) + (y * State::mapSize);
 			break;
 		case RIGHT:
-			if (x + 1 == size)
+			if (x + 1 == State::mapSize)
 				throw NP_InvalidMove();
-			newPos = (x + 1) + (y * size);
+			newPos = (x + 1) + (y * State::mapSize);
 			break;
 		case ROOT: // just make a copy
 			newPos = zeroIndex;
@@ -119,72 +135,58 @@ State::State(const State &src, const int move, const int mapSize, const int size
 			break;
 	}
 
-	this->map.resize(mapSize);
-	for (int i = 0; i < mapSize; i++)
+	this->map.resize(State::mapLength);
+	for (int i = 0; i < State::mapLength; i++)
 		this->map[i] = map[i];
 	this->swapPieces(zeroIndex, newPos);
 
-	this->price = 0;
+	this->price = State::heuristicFunc(this);
 	this->length = src.getLength() + 1;
+	this->cost = this->price + this->length;
 	this->movement = move;
 	this->prev = &src;
 }
 
-int	State::getMove() const {
-	return (this->movement);
-}
+void	State::printState() const {
+	printf("State price = %d, length = %d, mapSize = %d\n", this->price, this->length, State::mapSize);
+	for (int i = 0; i < State::mapLength; i++) {
+		if (i % State::mapSize == 0)
+			std::cout << std::endl;
 
-const State	*State::getPrev() const {
-	return (this->prev);
-}
-
-State::~State() {}
-
-void	State::printState(const int size) const {
-	int mapSize = this->map.size();
-
-	printf("State price = %d, length = %d, mapSize = %d\n", this->price, this->length, mapSize);
-	for (int i = 0; i < mapSize; i++) {
-		if ((i + 1) % size == 0)
-			std::cout << std::setw(2) << this->map[i] << std::endl;
-		else
+		if (this->map[i])
 			std::cout << std::setw(2) << this->map[i] << " ";
+		else
+			std::cout << std::setw(2) << "__ ";
 	}
 	std::cout << std::endl << std::endl;
 }
 
-void	State::swapPieces(int a, int b) {
-	std::swap(map[a], map[b]);
-}
-
 size_t HashState::operator()(const State* a) const {
 	const int	*map = a->getMapPtr();
-	const int	mapSize = a->getMapSize();
-	size_t		seed = mapSize;
+	const int	mapLength = a->getMapLength();
 
-	for(int i = 0; i < mapSize; i++) {
-		seed ^= map[i] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-	}
-
-	return (seed);
+	return boost::hash_range(map, map + mapLength);
 }
 
 bool CompareState::operator()(const State *a, const State *b) {
-	if (a->getPrice() != b->getPrice())
-		return a->getPrice() > b->getPrice();
-	else
-		return a->getLength() > b->getLength();
 
-	// TODO: think about that
-	// return (a->getPrice() + a->getLength() > b->getPrice() + b->getLength());
+	// fast version
+	if (a->getPrice() == b->getPrice())
+		return a->getLength() > b->getLength();
+	return a->getPrice() > b->getPrice();
+
+	// true version ?
+	// if (a->getCost() == b->getCost())
+	// 	return a->getLength() > b->getLength();
+	// return a->getCost() > b->getCost();
 }
 
 bool EqualState::operator()(const State *lhs, const State *rhs) const {
 	const int *pa = rhs->getMapPtr();
 	const int *pb = lhs->getMapPtr();
-	const int mapSize = lhs->getMapSize();
+	const int mapLength = lhs->getMapLength();
 
-	for (int i = 0; i < mapSize; i++) {
+	for (int i = 0; i < mapLength; i++) {
 		if (pa[i] != pb[i])
 			return (false);
 	}

@@ -24,11 +24,12 @@ OBJDIR = obj/
 
 SRCDIR = src/
 
-_SRC = heuristicFunctions.cpp \
-		NPuzzleSolver.cpp \
+_SRC = 							\
 		State.cpp \
+		NPuzzleSolver.cpp \
 		main.cpp \
 		CSCP.cpp \
+		Heuristic.cpp \
 
 SRC = $(addprefix $(SRCDIR), $(_SRC))
 
