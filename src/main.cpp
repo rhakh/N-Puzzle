@@ -244,3 +244,13 @@ int		main(int argc, char **argv) {
 		25. validate map for numbers (clone numbers, empty numbers)
 		26. bug in N_MAXSWAP
 */
+
+
+/*
+
+Open issue ("#23" for example)
+Locally create branch from desired branch, as usual I name branch i{issue_number} (i23)
+Once, i've done fixes for issue I create pull request and in the pull request body write "fixes #23"
+This automatically closes "issue #23"
+
+*/
