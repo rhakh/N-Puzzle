@@ -73,6 +73,9 @@ int main(int argc, char **argv)
 	std::ifstream		file(argv[1]);
 	std::string			line;
 
+	if (!file.good())
+		;//throw exception invalid file
+
 	while(std::getline(file, line)) {
 		// split line by whitespaces
 		std::istringstream iss(line);
@@ -87,11 +90,12 @@ int main(int argc, char **argv)
 					resultVector.push_back(boost::lexical_cast<int>(it));
 				}
 			}
-        }
-        catch(boost::bad_lexical_cast &) {
+		}
+		catch(boost::bad_lexical_cast &) {
 			// throw exception badValue
-        }
-    }
+		}
+	}
+	file.close();
 
 	std::cout << "resultVector " << std::endl;
 	for (auto it : resultVector)

@@ -26,8 +26,10 @@
 #include <string>
 
 #include "CSCP.hpp"
+#include "CLI.hpp"
 
-int verboseLevel = 0;
+std::string	fileName;
+int	verboseLevel = 0;
 
 using namespace std;
 // Added for the json-example:
@@ -152,58 +154,36 @@ void sigFaultHandler(int sig) {
 	exit(1);
 }
 
-bool	processArgs(int argc, char **argv) {
-	namespace po = boost::program_options;
-
-	po::options_description	desc("Options");
-	desc.add_options()
-			("help,h", "Print help")
-			(",v", po::value<int>(), "Verbose level\n"
-								"\t0 -- no prints\n"
-								"\t1 -- server prints\n"
-								"\t2 -- algorithm prints");
-	try {
-		po::variables_map	vm;
-		po::store(po::parse_command_line(argc, argv, desc), vm);
-		po:notify(vm);
-
-		if (vm.count("-v")) {
-			verboseLevel = vm["-v"].as<int>();
-		}
-		if (vm.count("help") || vm.count("-h")) {
-			std::cout << desc << std::endl;
-			return (false);
-		}
-	}
-	catch (po::error &e) {
-		std::cerr << "Error: " << e.what() << std::endl;
-		std::cerr << desc << std::endl;
-		return (false);
-	}
-	return (true);
-}
-
 int		main(int argc, char **argv) {
-	boost::thread			*server_thread;
-	CSCP					mp;
+	try {
+		boost::thread	*server_thread;
+		CLI				cli(argc, argv);
+		CSCP			mp;
 
-	if (!	processArgs(argc, argv))
-		return (-1);
+		signal(SIGSEGV, sigFaultHandler);
 
-	signal(SIGSEGV, sigFaultHandler);
-	server_thread = mp.serverStart();
-	std::cout << "Open browser page at address http://localhost:8080" << std::endl;
+		if (cli.isFlagSet("file"))
+			cli.startLogic();
+		if (cli.isFlagSet("exit") || cli.isFlagSet("help"))
+			return (0);
 
-	// *** this code for tests
-	this_thread::sleep_for(chrono::seconds(1));
-	thread	client_thread([]() {
-		clientCode();
-	});
-	client_thread.join();
-	// *** delete this
+		server_thread = mp.serverStart();
+		std::cout << "Open browser page at address http://localhost:8080" << std::endl;
 
-	server_thread->join();
-	delete server_thread;
+		// *** this code for tests
+		this_thread::sleep_for(chrono::seconds(1));
+		thread	client_thread([]() {
+			clientCode();
+		});
+		client_thread.join();
+		// *** delete this
+
+		server_thread->join();
+		delete server_thread;
+	}
+	catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
+	}
 	return (0);
 }
 

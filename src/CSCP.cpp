@@ -63,7 +63,6 @@ void	CSCP::constructErrorResponse(std::exception &e, std::string &resultStr) {
 void	CSCP::taskHandler(boost::property_tree::ptree &json, std::string &resultStr) {
 	namespace pt = boost::property_tree;
 
-	std::tuple<size_t, size_t, size_t>	retVal;
 	pt::ptree		mapNode = json.get_child("data.map");
 	pt::ptree		dataNode = json.get_child("data");
 	int				map[mapNode.size()];

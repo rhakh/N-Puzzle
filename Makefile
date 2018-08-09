@@ -30,6 +30,7 @@ _SRC = 							\
 		main.cpp \
 		CSCP.cpp \
 		Heuristic.cpp \
+		CLI.cpp \
 
 SRC = $(addprefix $(SRCDIR), $(_SRC))
 

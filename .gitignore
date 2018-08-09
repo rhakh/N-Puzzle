@@ -5,3 +5,4 @@ npuzzle
 cmake-build-debug/
 .idea/
 .DS_Store
+a.out
