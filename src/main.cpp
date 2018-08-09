@@ -3,6 +3,7 @@
 #include <server_http.hpp>
 #include "NPuzzleSolver.hpp"
 #include <array>
+#include <boost/program_options.hpp>
 
 // Added for the json-example
 #define BOOST_SPIRIT_THREADSAFE
@@ -16,12 +17,17 @@
 #include <fstream>
 #include <vector>
 
-//for SIGFAULT
+// for SIGFAULT
 #include <execinfo.h>
 #include <signal.h>
 #include <stdio.h>
+#include <streambuf>
+#include <fstream>
+#include <string>
 
 #include "CSCP.hpp"
+
+int verboseLevel = 0;
 
 using namespace std;
 // Added for the json-example:
@@ -35,8 +41,12 @@ void	constructTaskRequest(std::string &requestStr) {
 	namespace pt = boost::property_tree;
 	//unsolvable for snail
 	// std::array<int, 9>		map = {{0, 3, 5, 6, 7, 1, 4, 2, 8}};
-	 std::array<int, 16>		map = {{11, 0, 9, 4, 2, 15, 7, 1, 13, 3, 12, 5, 8, 6, 10, 14}};
-	// std::array<int, 16>		map = {{5, 6, 11, 14, 1, 15, 3, 4, 8, 2, 10, 12, 0, 9, 7, 13}};
+
+	// solvable for snail
+//	std::array<int, 16>		map = {{11, 0, 9, 4, 2, 15, 7, 1, 13, 3, 12, 5, 8, 6, 10, 14}};
+
+	// solvable for snail
+	 std::array<int, 16>		map = {{5, 6, 11, 14, 1, 15, 3, 4, 8, 2, 10, 12, 0, 9, 7, 13}};
 
 	// unsolvable snail, solvable for norm
 	// std::array<int, 36>		map = {{1, 14, 2, 4, 6, 18,
@@ -47,13 +57,7 @@ void	constructTaskRequest(std::string &requestStr) {
 	// 								25, 0, 32, 28, 34, 35}};
 	// /* 1,14,2,4,6,18,9,13,3,17,11,33,19,7,16,10,5,12,8,26,20,15,22,24,21,31,27,29,23,30,25,0,32,28,34,35 */
 
-	// snail solution
-	// std::array<int, 16>		map = {{0,	10,	5,	7,
-	// 								11,	14,	4,	8,
-	// 								1,	2,	6,	13,
-	// 								12,	3,	15,	9}};
-
-	// regular solution
+	// snail ok and regular solution
 	// std::array<int, 16>		map = {{12, 1, 11, 0,
 	// 								3, 2, 14, 10,
 	// 								15, 6, 4, 5,
@@ -82,6 +86,13 @@ void	constructTaskRequest(std::string &requestStr) {
 
 	// /* 3,2,6,1,4,0,8,7,5 */
 
+	// solvable for snail, but prog tells unsolvable
+	// std::array<int, 9>		map = {{0, 4, 1,
+	// 								5, 2, 8,
+	// 								6, 3, 7}};
+
+	// /* 0,4,1,5,2,8,6,3,7 */
+
 	pt::ptree		taskJson;
 	pt::ptree		dataNode;
 	pt::ptree		mapNode;
@@ -95,8 +106,6 @@ void	constructTaskRequest(std::string &requestStr) {
 		mapNode.push_back(std::make_pair("", mapElem));
 	}
 	dataNode.add_child("map", mapNode);
-
-	dataNode.put("algorithm", ASTAR);
 
 	dataNode.put("heuristicFunction", MANHATTAN_DISTANCE);
 
@@ -117,10 +126,12 @@ void	clientCode() {
 		std::string	requestStr;
 
 		constructTaskRequest(requestStr);
-		std::cout << "Client send to server json: " << requestStr << std::endl;
+		if (verboseLevel == SERVER)
+			std::cout << "Client send request: " << requestStr << std::endl;
 
 		auto r2 = client.request("POST", "/message", requestStr);
-		cout << "Client recv json: " << r2->content.rdbuf() << endl;
+		if (verboseLevel == SERVER)
+			std::cout << "Client receive response: " << r2->content.rdbuf() << endl;
 	}
 	catch(const SimpleWeb::system_error &e) {
 		cerr << "Client request error: " << e.what() << endl;
@@ -128,7 +139,7 @@ void	clientCode() {
 }
 // *** delete this
 
-void sigFaultHanfler(int sig) {
+void sigFaultHandler(int sig) {
 	void *array[10];
 	size_t size;
 
@@ -141,15 +152,47 @@ void sigFaultHanfler(int sig) {
 	exit(1);
 }
 
+bool	processArgs(int argc, char **argv) {
+	namespace po = boost::program_options;
+
+	po::options_description	desc("Options");
+	desc.add_options()
+			("help,h", "Print help")
+			(",v", po::value<int>(), "Verbose level\n"
+								"\t0 -- no prints\n"
+								"\t1 -- server prints\n"
+								"\t2 -- algorithm prints");
+	try {
+		po::variables_map	vm;
+		po::store(po::parse_command_line(argc, argv, desc), vm);
+		po:notify(vm);
+
+		if (vm.count("-v")) {
+			verboseLevel = vm["-v"].as<int>();
+		}
+		if (vm.count("help") || vm.count("-h")) {
+			std::cout << desc << std::endl;
+			return (false);
+		}
+	}
+	catch (po::error &e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+		std::cerr << desc << std::endl;
+		return (false);
+	}
+	return (true);
+}
+
 int		main(int argc, char **argv) {
-	CSCP			mp;
-	boost::thread	*server_thread;
+	boost::thread			*server_thread;
+	CSCP					mp;
 
-	signal(SIGSEGV, sigFaultHanfler);
+	if (!	processArgs(argc, argv))
+		return (-1);
 
+	signal(SIGSEGV, sigFaultHandler);
 	server_thread = mp.serverStart();
-
-	// TODO: process arguments here
+	std::cout << "Open browser page at address http://localhost:8080" << std::endl;
 
 	// *** this code for tests
 	this_thread::sleep_for(chrono::seconds(1));
@@ -173,9 +216,9 @@ int		main(int argc, char **argv) {
 
 	TODO:
 		+1. Makefile for macos
-		2. -std=c++11 in Makefile ?
-		3. Start new thread to solve puzzle, and send signal if client
-			was send a stop message
+		+2. -std=c++11 in Makefile ?
+		-3. Start new thread to solve puzzle, and send signal if client
+			was send a stop message : server is not asynchronus
 		4. Use unsigned int in everywhere in NPuzzleSolver
 		5. Make an API of NPuzzleSolver, means in header files must be
 			everything what needs for NPuzzleSolver
@@ -199,4 +242,5 @@ int		main(int argc, char **argv) {
 		23. rewrite default GET method for server
 		24. Delete all debug print
 		25. validate map for numbers (clone numbers, empty numbers)
+		26. bug in N_MAXSWAP
 */
