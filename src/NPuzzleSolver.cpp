@@ -150,6 +150,10 @@ bool NPuzzleSolver::isSolvable(const int *map, int mapLength, int solutionType) 
 				return (-1);
 	};
 
+	for (int i = 0; i < mapLength; i++)
+		if (findIndexInMap(map, mapLength, i) == -1)
+			return (false);
+
 	if (isEven(size)) {
 		int zeroIdx;
 

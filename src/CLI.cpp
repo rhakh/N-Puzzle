@@ -36,14 +36,14 @@ bool	CLI::processArguments(int argc, char **argv) {
 		po::store(po::parse_command_line(argc, argv, this->desc), this->vm);
 		po::notify(this->vm);
 
-		if (this->vm.count("-v")) {
-			verboseLevel = this->vm["-v"].as<int>();
+		if (this->vm.count("verbose")) {
+			verboseLevel = this->vm["verbose"].as<int>();
 		}
-		if (this->vm.count("help") || this->vm.count("-h")) {
+		if (this->vm.count("help")) {
 			std::cout << desc << std::endl;
 		}
-		if (this->vm.count("-f")) {
-			fileName = this->vm["-f"].as<std::string>();
+		if (this->vm.count("file")) {
+			fileName = this->vm["file"].as<std::string>();
 		}
 	}
 	catch (po::error &e) {
@@ -78,12 +78,12 @@ static NP_retVal	solvePuzzle(const int *map, int mapSize) {
 
 	try {
 		start = clock();
-		solver.solve(0, 0, map, mapSize, result);
+		solver.solve(0, 0, map, mapSize * mapSize, result);
 		start = clock() - start;
 		double elapsedTime = (double)start / CLOCKS_PER_SEC;
 	}
 	catch (std::exception &e) {
-		std::cerr << e.what() << std::endl;
+		std::cerr << "Error: " << e.what() << std::endl;
 	}
 	return (result);
 }
@@ -110,6 +110,8 @@ void	CLI::startLogic() const {
 			for (auto str : strings) {
 				if (str.find('#') == std::string::npos)
 					resultVector.push_back(boost::lexical_cast<int>(str));
+				else
+					break;
 			}
 		}
 		catch(boost::bad_lexical_cast &e) {
