@@ -63,7 +63,6 @@ void	CSCP::constructErrorResponse(std::exception &e, std::string &resultStr) {
 void	CSCP::taskHandler(boost::property_tree::ptree &json, std::string &resultStr) {
 	namespace pt = boost::property_tree;
 
-	std::tuple<size_t, size_t, size_t>	retVal;
 	pt::ptree		mapNode = json.get_child("data.map");
 	pt::ptree		dataNode = json.get_child("data");
 	int				map[mapNode.size()];
@@ -71,6 +70,9 @@ void	CSCP::taskHandler(boost::property_tree::ptree &json, std::string &resultStr
 	clock_t			start;
 	NP_retVal		result;
 
+	result.maxOpen = 0;
+	result.closedNodes = 0;
+	result.usedMemory = 0;
 	pt::ptree::iterator		it = mapNode.begin();
 	for (i = 0; it != mapNode.end(); it++, i++)
 		map[i] = it->second.get<int>("");
@@ -88,7 +90,7 @@ void	CSCP::taskHandler(boost::property_tree::ptree &json, std::string &resultStr
 		constructErrorResponse(e, resultStr);
 	}
 
-	if (verboseLevel == SERVER)
+	if (verboseLevel & SERVER)
 		std::cout << "Server send response: " << resultStr
 					<< std::endl << std::flush;
 }
@@ -98,7 +100,7 @@ void	CSCP::processMessage(boost::property_tree::ptree &json, std::string &result
 
 	int		messageType = json.get<int>("messageType");
 
-	if (verboseLevel == SERVER) {
+	if (verboseLevel & SERVER) {
 		std::stringstream	ss;
 		boost::property_tree::json_parser::write_json(ss, json, false);
 		std::cout << "Server receive request: " << ss.str() << std::endl;
@@ -107,11 +109,10 @@ void	CSCP::processMessage(boost::property_tree::ptree &json, std::string &result
 	switch (messageType) {
 		case NP_TASK:
 			try {taskHandler(json, resultStr);}
-            catch (std::exception &e) {}
+			catch (std::exception &e) {}
 			break;
 		default:
 			CSCP_InvalidMessageType	e;
-
 			constructErrorResponse(e, resultStr);
 			break;
 	}
