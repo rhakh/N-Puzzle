@@ -128,11 +128,11 @@ void	clientCode() {
 		std::string	requestStr;
 
 		constructTaskRequest(requestStr);
-		if (verboseLevel == SERVER)
+		if (verboseLevel & SERVER)
 			std::cout << "Client send request: " << requestStr << std::endl;
 
 		auto r2 = client.request("POST", "/message", requestStr);
-		if (verboseLevel == SERVER)
+		if (verboseLevel & SERVER)
 			std::cout << "Client receive response: " << r2->content.rdbuf() << endl;
 	}
 	catch(const SimpleWeb::system_error &e) {
@@ -164,7 +164,7 @@ int		main(int argc, char **argv) {
 
 		if (cli.isFlagSet("file"))
 			cli.startLogic();
-		if (cli.isFlagSet("exit") || cli.isFlagSet("help"))
+		if (cli.isFlagSet("file") || cli.isFlagSet("help"))
 			return (0);
 
 		server_thread = mp.serverStart();

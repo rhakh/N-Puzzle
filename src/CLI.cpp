@@ -60,10 +60,20 @@ CLI::CLI(int argc, char **argv) : desc("Options") {
 			("help,h", "Print help")
 			("verbose,v", po::value<int>(), "Verbose level\n"
 								"\t0 -- no prints\n"
-								"\t1 -- server prints\n"
-								"\t2 -- algorithm prints")
-			("file,f", po::value<std::string>(), "File with map to solve")
-			("exit,e", "Close programm, when map will be solved");
+								"\t1 -- server prints (for server only)\n"
+								"\t2 -- print path\n"
+								"\t4 -- print result\n"
+								"\t7 -- enable all prints")
+			("heuristic,e", po::value<int>(), "Heuristic\n"
+								"\t0 -- misplaced tiles\n"
+								"\t1 -- manhattan distance\n"
+								"\t2 -- misplaced tiles + linear conflicts\n"
+								"\t3 -- manhattan distance + linear conflicts\n"
+								"\t4 -- nMaxSwap")
+			("solution,s", po::value<int>(), "Solution type\n"
+								"\t0 -- snail solution\n"
+								"\t1 -- linear solution\n")
+			("file,f", po::value<std::string>(), "File with map to solve");
 
 	if (!processArguments(argc, argv))
 		throw CLI_invalidArguments();
@@ -71,19 +81,30 @@ CLI::CLI(int argc, char **argv) : desc("Options") {
 
 CLI::~CLI() {}
 
-static NP_retVal	solvePuzzle(const int *map, int mapSize) {
+static NP_retVal	solvePuzzle(const int *map, int mapSize, int heuristic, int solutionType) {
 	NPuzzleSolver	solver;
 	NP_retVal		result;
 	clock_t			start;
+	float			elapsedTime;
 
+	result.maxOpen = 0;
+	result.closedNodes = 0;
+	result.usedMemory = 0;
 	try {
 		start = clock();
-		solver.solve(0, 0, map, mapSize * mapSize, result);
+		solver.solve(heuristic, solutionType, map, mapSize * mapSize, result);
 		start = clock() - start;
-		double elapsedTime = (double)start / CLOCKS_PER_SEC;
+		elapsedTime = (float)start / CLOCKS_PER_SEC;
 	}
 	catch (std::exception &e) {
 		std::cerr << "Error: " << e.what() << std::endl;
+	}
+	if (verboseLevel & NP_VBL_RESULT) {
+		std::cout << "#### Results ####" << std::endl;
+		std::cout << "Elapsed time: " << elapsedTime << " sec." << std::endl
+					<< "Max open nodes: " << result.maxOpen << std::endl
+					<< "Closed nodes: " << result.closedNodes << std::endl
+					<< "Used memory: " << result.usedMemory << " bytes" << std::endl;
 	}
 	return (result);
 }
@@ -94,7 +115,7 @@ void	CLI::startLogic() const {
 	std::ifstream		file(this->getStringFlag("file"));
 	std::string			line;
 	NP_retVal			result;
-	int					mapSize;
+	int					mapSize, heuristic = 0, solutionType = 0;
 
 	if (!file.good())
 		throw CLI_InvalidFile();
@@ -121,17 +142,19 @@ void	CLI::startLogic() const {
 	}
 	file.close();
 
-	for (auto it : resultVector)
-		std::cout << it << ", ";
-	std::cout << std::endl;
-	std::cout << "size = " << resultVector.size() << std::endl;
-
 	if (resultVector.size() < 2)
 		throw CLI_InvalidMap();
+
+	try {
+		heuristic = this->getIntFlag("heuristic");
+		solutionType = this->getIntFlag("solution");
+	}
+	catch (CLI::CLI_flagNotSet &e) {
+		// use default values
+	}
 
 	mapSize = resultVector[0];
 	for (unsigned i = 1; i < resultVector.size(); i++)
 		map.push_back(resultVector[i]);
-	result = solvePuzzle(map.data(), mapSize);
-	std::cout << "SUCCESS" << std::endl;
+	result = solvePuzzle(map.data(), mapSize, heuristic, solutionType);
 }

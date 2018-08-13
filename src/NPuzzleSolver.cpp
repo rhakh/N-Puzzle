@@ -206,7 +206,7 @@ void	NPuzzleSolver::solve(int heuristic, int solutionType,
 		throw NP_InvalidMap();
 
 	aStar(map, result);
-	if (verboseLevel == ALGO) {
+	if (verboseLevel & ALGO) {
 		try {
 			checkPath(State(map), result);
 		}
