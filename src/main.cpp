@@ -30,6 +30,7 @@
 
 std::string	fileName;
 int	verboseLevel = 0;
+int	optimisationByTime = 0;
 
 using namespace std;
 // Added for the json-example:
@@ -162,10 +163,12 @@ int		main(int argc, char **argv) {
 
 		signal(SIGSEGV, sigFaultHandler);
 
-		if (cli.isFlagSet("file"))
-			cli.startLogic();
-		if (cli.isFlagSet("file") || cli.isFlagSet("help"))
+		if (cli.isFlagSet("help"))
 			return (0);
+		if (cli.isFlagSet("file")) {
+			cli.startLogic();
+			return (0);
+		}
 
 		server_thread = mp.serverStart();
 		std::cout << "Open browser page at address http://localhost:8080" << std::endl;
@@ -235,3 +238,12 @@ Once, i've done fixes for issue I create pull request and in the pull request bo
 This automatically closes "issue #23"
 
 */
+
+
+/*
+ * How to profile N-Puzzle
+ * $ g++ -std=c++11 -O2 -pg ...
+ * $ ./a.out
+ * $ gprof a.out > prof.txt
+ * g++ -std=c++11 -I $HOME/.brew/Cellar/boost/1.67.0_1/include -L $HOME/.brew/Cellar/boost/1.67.0_1/lib  -lboost_system  -lboost_thread-mt
+ */

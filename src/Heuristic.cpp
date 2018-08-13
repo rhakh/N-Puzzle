@@ -103,20 +103,22 @@ int	Heuristic::nMaxSwap(const State *state) {
 		if (mapCopy[i] != finishMap[i]) {
 			zeroI = findIndexInMap(0, mapCopy, State::mapLength);
 			if (i != zeroI) {
-				// retVal++;
+				retVal++;
 				std::swap(mapCopy[i], mapCopy[zeroI]);
 				zeroI = i;
 			}
-			int j = findIndexInMap(finishMap[i], mapCopy, State::mapLength);
-			std::swap(mapCopy[j], mapCopy[zeroI]);
-			retVal++;
+			else {
+				int j = findIndexInMap(finishMap[i], mapCopy, State::mapLength);
+				std::swap(mapCopy[j], mapCopy[zeroI]);
+				retVal++;
+			}
 		}
 	}
 
-	for (int i = 0; i < State::mapLength; i++) {
-		zeroI = findIndexInMap(0, mapCopy, State::mapLength);
-		if (zeroI != i)
-	}
+	// for (int i = 0; i < State::mapLength; i++) {
+	// 	zeroI = findIndexInMap(0, mapCopy, State:mapLength);
+	// 	if (zeroI != i)
+	// }
 
 	// std::cout << __func__ << " ##### ";
 	// for (int i = 0; i < State::mapLength; i++) {

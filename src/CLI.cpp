@@ -73,6 +73,9 @@ CLI::CLI(int argc, char **argv) : desc("Options") {
 			("solution,s", po::value<int>(), "Solution type\n"
 								"\t0 -- snail solution\n"
 								"\t1 -- linear solution\n")
+			("optimisation,o", po::value<int>(), "Optimisation\n"
+								"\t0 -- optimisation by time\n"
+								"\t1 -- optimisation by paths' length\n")
 			("file,f", po::value<std::string>(), "File with map to solve");
 
 	if (!processArguments(argc, argv))
@@ -104,6 +107,7 @@ static NP_retVal	solvePuzzle(const int *map, int mapSize, int heuristic, int sol
 		std::cout << "Elapsed time: " << elapsedTime << " sec." << std::endl
 					<< "Max open nodes: " << result.maxOpen << std::endl
 					<< "Closed nodes: " << result.closedNodes << std::endl
+					<< "Paths' length: " << result.path.size() << std::endl
 					<< "Used memory: " << result.usedMemory << " bytes" << std::endl;
 	}
 	return (result);
@@ -136,7 +140,7 @@ void	CLI::startLogic() const {
 			}
 		}
 		catch(boost::bad_lexical_cast &e) {
-			std::cerr << e.what() << std::endl;
+			std::cerr << "Error: " << e.what() << std::endl;
 			throw CLI_InvalidMap();
 		}
 	}
@@ -148,6 +152,7 @@ void	CLI::startLogic() const {
 	try {
 		heuristic = this->getIntFlag("heuristic");
 		solutionType = this->getIntFlag("solution");
+		optimisationByTime = !this->getIntFlag("optimisation");
 	}
 	catch (CLI::CLI_flagNotSet &e) {
 		// use default values
