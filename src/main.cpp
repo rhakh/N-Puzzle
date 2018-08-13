@@ -223,6 +223,7 @@ int		main(int argc, char **argv) {
 		24. Delete all debug print
 		25. validate map for numbers (clone numbers, empty numbers)
 		26. bug in N_MAXSWAP
+		27. Check amount of numbers in line, when read from file
 */
 
 
