@@ -3,7 +3,7 @@
 #include <iostream>
 #include <functional>
 
-auto findIndexInMap = [](int value, const int *map, const int mapLength) {
+auto findIndexByValue = [](int value, const int *map, const int mapLength) {
 	for (int i = 0; i < mapLength; i++)
 		if (map[i] == value)
 			return (i);
@@ -33,7 +33,7 @@ int	Heuristic::manhattanDistance(const State *state) {
 			x1 = i % State::mapSize;
 			y1 = i / State::mapSize;
 
-			j = findIndexInMap(map[i], finishMap, State::mapLength);
+			j = findIndexByValue(map[i], finishMap, State::mapLength);
 
 			x2 = j % State::mapSize;
 			y2 = j / State::mapSize;
@@ -89,6 +89,61 @@ int	Heuristic::MTplusLinearConflicts(const State *state) {
 	return (misplacedTiles(state) + linearConflicts(state));
 }
 
+// int	Heuristic::nMaxSwap(const State *state) {
+// 	const int	*finishMap = state->finishState->getMapPtr();
+// 	const int	*map = state->getMapPtr();
+// 	int	mapCopy[State::mapLength];
+// 	int	retVal = 0;
+// 	int	zeroI = 0;
+//
+// 	for (int i = 0; i < State::mapLength; i++)
+// 		mapCopy[i] = map[i];
+//
+// 	for (int i = 0; i < State::mapLength; i++) {
+// 		if (mapCopy[i] != finishMap[i]) {
+// 			zeroI = findIndexByValue(0, mapCopy, State::mapLength);
+// 			if (i != zeroI) {
+// 				retVal++;
+// 				std::swap(mapCopy[i], mapCopy[zeroI]);
+// 				zeroI = i;
+// 			}
+// 			else {
+// 				int j = findIndexByValue(finishMap[i], mapCopy, State::mapLength);
+// 				std::swap(mapCopy[j], mapCopy[zeroI]);
+// 				retVal++;
+// 			}
+// 		}
+// 	}
+//
+// 	// for (int i = 0; i < State::mapLength; i++) {
+// 	// 	zeroI = findIndexByValue(0, mapCopy, State:mapLength);
+// 	// 	if (zeroI != i)
+// 	// }
+//
+// 	// std::cout << __func__ << " ##### ";
+// 	// for (int i = 0; i < State::mapLength; i++) {
+// 	// 	if (i % State::mapSize == 0)
+// 	// 		std::cout << std::endl << mapCopy[i] << " ";
+// 	// 	else
+// 	// 		std::cout << mapCopy[i] << " ";
+// 	// }
+// 	// std::cout << std::endl;
+//
+// 	return (retVal);
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
 int	Heuristic::nMaxSwap(const State *state) {
 	const int	*finishMap = state->finishState->getMapPtr();
 	const int	*map = state->getMapPtr();
@@ -100,25 +155,26 @@ int	Heuristic::nMaxSwap(const State *state) {
 		mapCopy[i] = map[i];
 
 	for (int i = 0; i < State::mapLength; i++) {
-		if (mapCopy[i] != finishMap[i]) {
-			zeroI = findIndexInMap(0, mapCopy, State::mapLength);
-			if (i != zeroI) {
-				retVal++;
-				std::swap(mapCopy[i], mapCopy[zeroI]);
-				zeroI = i;
-			}
-			else {
-				int j = findIndexInMap(finishMap[i], mapCopy, State::mapLength);
-				std::swap(mapCopy[j], mapCopy[zeroI]);
-				retVal++;
-			}
+		zeroI = findIndexByValue(0, mapCopy, State::mapLength);
+		// zero is not on right place
+		if (zeroI != findIndexByValue(0, finishMap, State::mapLength)) {
+			int swapI = findIndexByValue(finishMap[zeroI], mapCopy, State::mapLength);
+			std::swap(mapCopy[zeroI], mapCopy[swapI]);
+			retVal++;
+		}
+		else {
+			for (int i = 1; i < State::mapLength - 1; i++)
+				if (findIndexByValue(i, mapCopy, State::mapLength) !=
+					findIndexByValue(i, finishMap, State::mapLength)) {
+						int swapI = findIndexByValue(i, mapCopy, State::mapLength);
+						std::swap(mapCopy[zeroI], mapCopy[swapI]);
+						retVal++;
+						break;
+					}
+
 		}
 	}
 
-	// for (int i = 0; i < State::mapLength; i++) {
-	// 	zeroI = findIndexInMap(0, mapCopy, State:mapLength);
-	// 	if (zeroI != i)
-	// }
 
 	// std::cout << __func__ << " ##### ";
 	// for (int i = 0; i < State::mapLength; i++) {
