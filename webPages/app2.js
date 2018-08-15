@@ -168,6 +168,7 @@ function handleResponse(moves, puzzle) {
   for (let i = 1; i < moves.length; i++) {
     puzzle.swapCells(moves[i]);
     console.log('--------------------------------------');
+
   }
 }
 
