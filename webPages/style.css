@@ -2,8 +2,12 @@
     -webkit-user-select: none;
     background: #34495e;
     border-radius: 7px;
-    margin: 0 auto;
+    margin:100px auto;
     position: relative;
+}
+
+.nav {
+    background: #16a085;
 }
 
 .cell {
