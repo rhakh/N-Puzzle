@@ -494,7 +494,9 @@ def test_heuristic(pset):
 test1 = [[5,7,6],[2,4,3],[8,1,0]]
 test2 = [[7,0,8],[4,6,1],[5,3,2]]
 test3 = [[2,3,7],[1,8,0],[6,5,4]]
+test4 = [[5, 6, 11, 14],[1, 15, 3, 4],[8, 2, 10, 12],[0, 9, 7, 13]]
+
 unsolvable_test1 = [[2,1,0],[3,4,5],[6,7,8]]
-pset = [test1,test2,test3]
+pset = [test1,test2,test3,test4]
 
 test_heuristic(pset)

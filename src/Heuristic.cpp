@@ -150,11 +150,18 @@ int	Heuristic::nMaxSwap(const State *state) {
 	int	mapCopy[State::mapLength];
 	int	retVal = 0;
 	int	zeroI = 0;
+	auto misplaced = [&mapCopy, &finishMap]() {
+		for (int i = 0; i < State::mapLength; i++) {
+			if (mapCopy[i] != finishMap[i])
+				return (1);
+		}
+		return (0);
+	};
 
 	for (int i = 0; i < State::mapLength; i++)
 		mapCopy[i] = map[i];
 
-	for (int i = 0; i < State::mapLength; i++) {
+	while (misplaced()) {
 		zeroI = findIndexByValue(0, mapCopy, State::mapLength);
 		// zero is not on right place
 		if (zeroI != findIndexByValue(0, finishMap, State::mapLength)) {
@@ -171,19 +178,22 @@ int	Heuristic::nMaxSwap(const State *state) {
 						retVal++;
 						break;
 					}
-
 		}
 	}
 
-
-	// std::cout << __func__ << " ##### ";
 	// for (int i = 0; i < State::mapLength; i++) {
-	// 	if (i % State::mapSize == 0)
-	// 		std::cout << std::endl << mapCopy[i] << " ";
-	// 	else
-	// 		std::cout << mapCopy[i] << " ";
+	// 	if (mapCopy[i] != finishMap[i]) {
+	// 		std::cout << __func__ << " ##### ";
+	// 		for (int i = 0; i < State::mapLength; i++) {
+	// 			if (i % State::mapSize == 0)
+	// 				std::cout << std::endl << mapCopy[i] << " ";
+	// 			else
+	// 				std::cout << mapCopy[i] << " ";
+	// 		}
+	// 		std::cout << std::endl;
+	// 		break;
+	// 	}
 	// }
-	// std::cout << std::endl;
 
 	return (retVal);
 }

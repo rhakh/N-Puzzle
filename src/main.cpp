@@ -30,7 +30,7 @@
 
 std::string	fileName;
 int	verboseLevel = 0;
-int	optimisationByTime = 0;
+int	optimisationByTime = 1;
 
 using namespace std;
 // Added for the json-example:
@@ -227,6 +227,7 @@ int		main(int argc, char **argv) {
 		25. validate map for numbers (clone numbers, empty numbers)
 		26. bug in N_MAXSWAP
 		27. Check amount of numbers in line, when read from file
+		28. Strange flag parsing behavior
 */
 
 

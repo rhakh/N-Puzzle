@@ -58,7 +58,7 @@ CLI::CLI(int argc, char **argv) : desc("Options") {
 	namespace po = boost::program_options;
 	this->desc.add_options()
 			("help,h", "Print help")
-			("verbose,v", po::value<int>(), "Verbose level\n"
+			("verbose,v", po::value<int>(&verboseLevel), "Verbose level\n"
 								"\t0 -- no prints\n"
 								"\t1 -- server prints (for server only)\n"
 								"\t2 -- print path\n"
@@ -73,9 +73,9 @@ CLI::CLI(int argc, char **argv) : desc("Options") {
 			("solution,s", po::value<int>(), "Solution type\n"
 								"\t0 -- snail solution\n"
 								"\t1 -- linear solution\n")
-			("optimisation,o", po::value<int>(), "Optimisation\n"
-								"\t0 -- optimisation by time\n"
-								"\t1 -- optimisation by paths' length\n")
+			("optimisation,o", po::value<int>(&optimisationByTime), "Optimisation\n"
+								"\t0 -- optimisation by time (default)\n"
+								"\t1 -- optimisation by paths' length")
 			("file,f", po::value<std::string>(), "File with map to solve");
 
 	if (!processArguments(argc, argv))
