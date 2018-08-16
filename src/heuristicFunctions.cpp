@@ -34,10 +34,10 @@ int	manhattanDistance(const int *map, const int *finishMap, const int mapSize, c
 			x2 = j % size;
 			y2 = j / size;
 
-			if ((int8_t)(xres = x1 - x2) < 0)
+			if ((xres = x1 - x2) < 0)
 				xres *= -1;
 
-			if ((int8_t)(yres = y1 - y2) < 0)
+			if ((yres = y1 - y2) < 0)
 				yres *= -1;
 
 			price += xres + yres;

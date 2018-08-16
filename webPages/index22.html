@@ -25,7 +25,6 @@
     </body>
 	<script src = "app.js"></script>
     <script>
-       
 		// function sendJson(json){
   //  			var x = new XMLHttpRequest();
   //  			var json = document.getElementById("json_in").value;
@@ -41,7 +40,7 @@
 		$("#form").submit(function(e){
 			e.preventDefault()
 			side = JSON.parse(document.getElementById("json_in").value);
-			// var side = Object.keys(out.data["map"])  
+			// var side = Object.keys(out.data["map"])
  			var puzzle = new Puzzle(document.getElementById("puzzle"), 5);
 
 	          $.ajax({

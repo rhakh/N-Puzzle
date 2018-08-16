@@ -170,10 +170,13 @@ size_t HashState::operator()(const State* a) const {
 }
 
 bool CompareState::operator()(const State *a, const State *b) {
-	if (a->getPrice() != b->getPrice())
-		return a->getPrice() > b->getPrice();
-	else
-		return a->getLength() > b->getLength();
+	// if (a->getPrice() != b->getPrice())
+	// 	return a->getPrice() > b->getPrice();
+	// else
+	// 	return a->getLength() > b->getLength();
+
+	// TODO: think about that
+	return (a->getPrice() + a->getLength() > b->getPrice() + b->getLength());
 }
 
 bool EqualState::operator()(const State *lhs, const State *rhs) const {
