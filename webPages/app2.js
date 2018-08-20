@@ -44,8 +44,9 @@ Puzzle.prototype.swapCells = function (direction) {
 
   if (target > -1) {
     console.log('Move', target);
-    this.moveCell(target);
-    // setTimeout(this.moveCell, 1000, target, this);
+    // console.log("FN MS", this.moveCell);
+    setTimeout(this.moveCell(target), 20000)
+
   }
 };
 
@@ -58,9 +59,6 @@ Puzzle.prototype.moveCell = function (target) {
     if (parseInt(cell.innerHTML) === this.cells[target]) { break; }
   }
   const hole = document.getElementsByClassName('cell')[this.hole];
-  // console.log(`hole is -${hole.innerHTML}`);
-  // console.log(`inner is - ${cell.innerHTML}`);
-  // console.log(`selected is - ${cell.innerHTML}`);
   this.placeCell(cell, this.hole);
   this.cells[this.hole] = this.cells[target];
   this.cells[target] = 0;
@@ -177,10 +175,11 @@ function test(msg) {
 function handleResponse(moves, puzzle) {
   console.log(`moves is + ${moves}`);
   for (let i = 1; i < moves.length; i++) {
-    puzzle.swapCells(moves[i]);
-    // setTimeout(puzzle.swapCells, i * 1000, moves[i]);
-    setTimeout(test, i * 1000, i);
-    console.log('--------------------------------------');
+    setTimeout(puzzle.swapCells(moves[i]), 1000);
+  // var i = 0;
+  //   setInterval(puzzle.swapCells(moves[i]), 1000);
+    // setTimeout(test, i * 1000, i);s
+    // console.log('--------------------------------------');
 
   }
 }
@@ -203,7 +202,7 @@ function takeForm(form, puzzle) {
   recive.data.map = makePuzzle(elements.side.value, elements.iterations.value);
   console.log(`recieved = ${recive.data.map}`);
   elements.group1.forEach((item, i, arr) => {
-    if (item.checked === true) {
+    if (item.checked === true){
       recive.data.heuristicFunction = i;
     }
   });
