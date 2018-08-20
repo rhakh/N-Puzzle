@@ -17,8 +17,8 @@ public:
 
 	void	startLogic() const;
 	bool	isFlagSet(const std::string &flag) const;
-	std::string		getStringFlag(const std::string &flag) const;
-	int				getIntFlag(const std::string &flag) const;
+	bool	getFlag(const std::string &flag, std::string &result) const;
+	bool	getFlag(const std::string &flag, int &result) const;
 
 	class	CLI_invalidArguments : public std::exception {
 	public:

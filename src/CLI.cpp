@@ -12,22 +12,22 @@ bool	CLI::isFlagSet(const std::string &flag) const {
 	return (false);
 }
 
-int		CLI::getIntFlag(const std::string &flag) const {
+bool	CLI::getFlag(const std::string &flag, int &result) const {
 	if (this->vm.count(flag)) {
 		// trow exception if conversion failed
-		return (this->vm[flag].as<int>());
+		result = this->vm[flag].as<int>();
+		return (true);
 	}
-	throw CLI_flagNotSet();
-	return (0);
+	return (false);
 }
 
-std::string	CLI::getStringFlag(const std::string &flag) const {
+bool	CLI::getFlag(const std::string &flag, std::string &result) const {
 	if (this->vm.count(flag)) {
 		// trow exception if conversion failed
-		return (this->vm[flag].as<std::string>());
+		result = this->vm[flag].as<std::string>();
+		return (true);
 	}
-	throw CLI_flagNotSet();
-	return (0);
+	return (false);
 }
 
 bool	CLI::processArguments(int argc, char **argv) {
@@ -36,14 +36,11 @@ bool	CLI::processArguments(int argc, char **argv) {
 		po::store(po::parse_command_line(argc, argv, this->desc), this->vm);
 		po::notify(this->vm);
 
-		if (this->vm.count("verbose")) {
-			verboseLevel = this->vm["verbose"].as<int>();
-		}
+		this->getFlag("verbose", verboseLevel);
+		this->getFlag("file", fileName);
+
 		if (this->vm.count("help")) {
 			std::cout << desc << std::endl;
-		}
-		if (this->vm.count("file")) {
-			fileName = this->vm["file"].as<std::string>();
 		}
 	}
 	catch (po::error &e) {
@@ -58,7 +55,7 @@ CLI::CLI(int argc, char **argv) : desc("Options") {
 	namespace po = boost::program_options;
 	this->desc.add_options()
 			("help,h", "Print help")
-			("verbose,v", po::value<int>(), "Verbose level\n"
+			("verbose,v", po::value<int>(&verboseLevel), "Verbose level\n"
 								"\t0 -- no prints\n"
 								"\t1 -- server prints (for server only)\n"
 								"\t2 -- print path\n"
@@ -73,6 +70,9 @@ CLI::CLI(int argc, char **argv) : desc("Options") {
 			("solution,s", po::value<int>(), "Solution type\n"
 								"\t0 -- snail solution\n"
 								"\t1 -- linear solution\n")
+			("optimisation,o", po::value<int>(&optimisationByTime), "Optimisation\n"
+								"\t0 -- optimisation by paths' length\n"
+								"\t1 -- optimisation by time (default)")
 			("file,f", po::value<std::string>(), "File with map to solve");
 
 	if (!processArguments(argc, argv))
@@ -104,6 +104,7 @@ static NP_retVal	solvePuzzle(const int *map, int mapSize, int heuristic, int sol
 		std::cout << "Elapsed time: " << elapsedTime << " sec." << std::endl
 					<< "Max open nodes: " << result.maxOpen << std::endl
 					<< "Closed nodes: " << result.closedNodes << std::endl
+					<< "Paths' length: " << result.path.size() << std::endl
 					<< "Used memory: " << result.usedMemory << " bytes" << std::endl;
 	}
 	return (result);
@@ -112,10 +113,14 @@ static NP_retVal	solvePuzzle(const int *map, int mapSize, int heuristic, int sol
 void	CLI::startLogic() const {
 	std::vector<int>	resultVector;
 	std::vector<int>	map;
-	std::ifstream		file(this->getStringFlag("file"));
+	std::string			fileName;
+	std::ifstream		file;
 	std::string			line;
 	NP_retVal			result;
 	int					mapSize, heuristic = 0, solutionType = 0;
+
+	this->getFlag("file", fileName);
+	file = std::ifstream(fileName);
 
 	if (!file.good())
 		throw CLI_InvalidFile();
@@ -136,7 +141,7 @@ void	CLI::startLogic() const {
 			}
 		}
 		catch(boost::bad_lexical_cast &e) {
-			std::cerr << e.what() << std::endl;
+			std::cerr << "Error: " << e.what() << std::endl;
 			throw CLI_InvalidMap();
 		}
 	}
@@ -145,13 +150,9 @@ void	CLI::startLogic() const {
 	if (resultVector.size() < 2)
 		throw CLI_InvalidMap();
 
-	try {
-		heuristic = this->getIntFlag("heuristic");
-		solutionType = this->getIntFlag("solution");
-	}
-	catch (CLI::CLI_flagNotSet &e) {
-		// use default values
-	}
+	this->getFlag("heuristic", heuristic);
+	this->getFlag("solution", solutionType);
+	this->getFlag("optimisation", optimisationByTime);
 
 	mapSize = resultVector[0];
 	for (unsigned i = 1; i < resultVector.size(); i++)

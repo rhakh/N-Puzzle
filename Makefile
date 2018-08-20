@@ -9,14 +9,14 @@ ifeq ($(OS),Darwin)
   FLAGS = -std=c++11 -Wall -Wextra -Werror \
 			-lboost_filesystem  -lboost_system  -lboost_program_options \
 			-pthread -lboost_thread-mt -Wno-unused-command-line-argument \
-			-Wno-unused -Wno-unused-parameter -O2
+			-Wno-unused -Wno-unused-parameter #-O2
 else
   CXX=g++
   INCLUDE_AND_LIBS = -I Simple-Web-Server
   FLAGS = -std=c++11 -Wall -Wextra -Werror \
 			-lboost_filesystem  -lboost_system -lboost_program_options \
 			-pthread -lboost_thread -Wno-unused-command-line-argument \
-			-Wno-unused -Wno-unused-parameter -O2
+			-Wno-unused -Wno-unused-parameter #-O2
 endif
 
 

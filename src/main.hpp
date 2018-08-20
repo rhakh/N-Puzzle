@@ -13,5 +13,6 @@ enum verboseLevel_e { NONE, SERVER, ALGO };
 
 extern std::string	fileName;
 extern int	verboseLevel;
+extern int	optimisationByTime;
 
 #endif // MAIN_HPP

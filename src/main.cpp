@@ -30,6 +30,7 @@
 
 std::string	fileName;
 int	verboseLevel = 0;
+int	optimisationByTime = 1;
 
 using namespace std;
 // Added for the json-example:
@@ -162,10 +163,12 @@ int		main(int argc, char **argv) {
 
 		signal(SIGSEGV, sigFaultHandler);
 
-		if (cli.isFlagSet("file"))
-			cli.startLogic();
-		if (cli.isFlagSet("file") || cli.isFlagSet("help"))
+		if (cli.isFlagSet("help"))
 			return (0);
+		if (cli.isFlagSet("file")) {
+			cli.startLogic();
+			return (0);
+		}
 
 		server_thread = mp.serverStart();
 		std::cout << "Open browser page at address http://localhost:8080" << std::endl;
@@ -223,6 +226,8 @@ int		main(int argc, char **argv) {
 		24. Delete all debug print
 		25. validate map for numbers (clone numbers, empty numbers)
 		26. bug in N_MAXSWAP
+		27. Check amount of numbers in line, when read from file
+		28. Strange flag parsing behavior
 */
 
 
@@ -234,3 +239,12 @@ Once, i've done fixes for issue I create pull request and in the pull request bo
 This automatically closes "issue #23"
 
 */
+
+
+/*
+ * How to profile N-Puzzle
+ * $ g++ -std=c++11 -O2 -pg ...
+ * $ ./a.out
+ * $ gprof a.out > prof.txt
+ * g++ -std=c++11 -I $HOME/.brew/Cellar/boost/1.67.0_1/include -L $HOME/.brew/Cellar/boost/1.67.0_1/lib  -lboost_system  -lboost_thread-mt
+ */

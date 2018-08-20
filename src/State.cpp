@@ -5,6 +5,7 @@
 #include <cmath>
 #include <iomanip>
 #include <boost/functional/hash.hpp>
+#include "main.hpp"
 
 State	*State::finishState = nullptr;
 int		(*State::heuristicFunc)(const State *state) = nullptr;
@@ -169,16 +170,17 @@ size_t HashState::operator()(const State* a) const {
 }
 
 bool CompareState::operator()(const State *a, const State *b) {
+	// optimisation by time
+	if (optimisationByTime) {
+		if (a->getPrice() == b->getPrice())
+			return a->getLength() > b->getLength();
+		return a->getPrice() > b->getPrice();
+	}
 
-	// fast version
-	if (a->getPrice() == b->getPrice())
+	// optimisation by paths' length
+	if (a->getCost() == b->getCost())
 		return a->getLength() > b->getLength();
-	return a->getPrice() > b->getPrice();
-
-	// true version ?
-	// if (a->getCost() == b->getCost())
-	// 	return a->getLength() > b->getLength();
-	// return a->getCost() > b->getCost();
+	return a->getCost() > b->getCost();
 }
 
 bool EqualState::operator()(const State *lhs, const State *rhs) const {

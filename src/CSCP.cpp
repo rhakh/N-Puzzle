@@ -79,6 +79,8 @@ void	CSCP::taskHandler(boost::property_tree::ptree &json, std::string &resultStr
 
 	try {
 		start = clock();
+		// TODO:
+		// optimisationByTime = dataNode.get<int>("optimisation");
 		this->solver.solve(dataNode.get<int>("heuristicFunction"),
 							dataNode.get<int>("solutionType"),
 							map, mapNode.size(),
