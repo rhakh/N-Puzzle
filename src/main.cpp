@@ -114,6 +114,8 @@ void	constructTaskRequest(std::string &requestStr) {
 
 	dataNode.put("solutionType", SNAIL_SOLUTION);
 
+	dataNode.put("optimisation", 1);
+
 	taskJson.add_child("data", dataNode);
 
 	std::stringstream	ss;
