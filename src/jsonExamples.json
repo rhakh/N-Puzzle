@@ -4,7 +4,7 @@
 # map: pieces of puzzle
 # heuristicFunction: 0 - hammingDistance, 1 - manhattenDistance, 2 - MD + linearConflicts
 # solutionType: 0 - snail solution, 1 - normal solution
-# optimisation: 0 - optimisation by time , 1 - optimisation by paths' length
+# optimisation: 0 - optimisation by paths' length, 1 - optimisation by time
 {
 	"messageType": 0,
 	"data":
@@ -12,7 +12,7 @@
 		"map": [0, 3, 5, 6, 7, 1, 4, 2, 8],
 		"heuristicFunction": 0,
 		"solutionType" : 0,
-		"optimisation" : 0
+		"optimisation" : 1
 	}
 }
 

@@ -139,7 +139,7 @@ void	CSCP::serverInit() {
 						<< result;
 		}
 		catch(const std::exception &e) {
-			// TODO: construct json error here
+			// construct json error here
 			*response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << strlen(e.what()) << "\r\n\r\n"
 						<< e.what();
 		}
