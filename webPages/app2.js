@@ -18,6 +18,9 @@ function Puzzle(container, elements, json) {
 
 Puzzle.prototype.swapCells = function (direction) {
   let target = -1;
+
+  // console.log('Test', direction);
+
   switch (direction) {
     case '3':
       target = parseInt(this.hole) - 1;
@@ -40,26 +43,28 @@ Puzzle.prototype.swapCells = function (direction) {
   }
 
   if (target > -1) {
-    this.moveCell(target);
+    console.log('Move', target);
+    // console.log("FN MS", this.moveCell);
+    setTimeout(this.moveCell(target), 20000)
+
   }
 };
 
 Puzzle.prototype.moveCell = function (target) {
+  console.log('moveCell target', target);
+
   var cell = document.getElementsByClassName('cell')[5];
   for (let i = 0; i < this.total; i++) {
     var cell = document.getElementsByClassName('cell')[i];
     if (parseInt(cell.innerHTML) === this.cells[target]) { break; }
   }
   const hole = document.getElementsByClassName('cell')[this.hole];
-  console.log(`hole is -${hole.innerHTML}`);
-  console.log(`inner is - ${cell.innerHTML}`);
-  console.log(`selected is - ${cell.innerHTML}`);
   this.placeCell(cell, this.hole);
   this.cells[this.hole] = this.cells[target];
   this.cells[target] = 0;
   this.hole = target;
   totalMoves++;
-  console.log(`target was - ${target}`);
+  // console.log(`target was - ${target}`);
 };
 
 Puzzle.prototype.placeCell = function (cell, i) {
@@ -163,11 +168,18 @@ function makePuzzle(s, iterations) {
   return (p);
 }
 
+function test(msg) {
+  console.log(msg);
+}
+
 function handleResponse(moves, puzzle) {
   console.log(`moves is + ${moves}`);
   for (let i = 1; i < moves.length; i++) {
-    puzzle.swapCells(moves[i]);
-    console.log('--------------------------------------');
+    setTimeout(puzzle.swapCells(moves[i]), 1000);
+  // var i = 0;
+  //   setInterval(puzzle.swapCells(moves[i]), 1000);
+    // setTimeout(test, i * 1000, i);s
+    // console.log('--------------------------------------');
 
   }
 }
@@ -190,7 +202,7 @@ function takeForm(form, puzzle) {
   recive.data.map = makePuzzle(elements.side.value, elements.iterations.value);
   console.log(`recieved = ${recive.data.map}`);
   elements.group1.forEach((item, i, arr) => {
-    if (item.checked === true) {
+    if (item.checked === true){
       recive.data.heuristicFunction = i;
     }
   });
