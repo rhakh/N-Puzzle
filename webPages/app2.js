@@ -157,10 +157,6 @@ function makePuzzle(s, iterations) {
   return (p);
 }
 
-function test(msg) {
-  console.log(msg);
-}
-
 
 function newHandler(direction, i, puzzle) {
   var target = -1;
@@ -178,11 +174,6 @@ function newHandler(direction, i, puzzle) {
       target = puzzle.hole - puzzle.side;
       break;
   }
-
-  // if (target > -1) {
-  //   // console.log("FN MS", puzzle.moveCell);
-  //   setTimeout(puzzle.moveCell(target), 20000);
-  // }
   var cell;
   for (let j = 0; j < puzzle.total; j++) {
     cell = document.getElementsByClassName('cell')[j];
@@ -193,10 +184,14 @@ function newHandler(direction, i, puzzle) {
   puzzle.cells[target] = 0;
   puzzle.hole = target;
   if( i < (direction.length - 1)){
-      setTimeout(newHandler(direction, i + 1, puzzle), 1000);
+      setTimeout(() => newHandler(direction, i + 1, puzzle), 1000);
   }
 }
 
+
+function test(msg) {
+    console.log(msg);
+}
 
 function handleResponse(moves, puzzle) {
   console.log(`moves is + ${moves}`);
