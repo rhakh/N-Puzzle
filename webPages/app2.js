@@ -18,35 +18,25 @@ function Puzzle(container, elements, json) {
 
 Puzzle.prototype.swapCells = function (direction) {
   let target = -1;
-
-  // console.log('Test', direction);
-
   switch (direction) {
     case '3':
       target = parseInt(this.hole) - 1;
       break;
     case '2': // down
-      // if (this.hole < this.total - this.side) {
       target = parseInt(this.hole) + parseInt(this.side);
-      // }
       break;
     case '4': // right
-      // if (this.hole % this.side > 0) {
       target = this.hole + 1;
-      // }
       break;
     case '1': // up
-      // if (this.hole > this.side - 1) {
       target = this.hole - this.side;
-      // }
       break;
   }
 
   if (target > -1) {
     console.log('Move', target);
     // console.log("FN MS", this.moveCell);
-    setTimeout(this.moveCell(target), 20000)
-
+    setTimeout(this.moveCell(target), 20000);
   }
 };
 
@@ -58,7 +48,6 @@ Puzzle.prototype.moveCell = function (target) {
     var cell = document.getElementsByClassName('cell')[i];
     if (parseInt(cell.innerHTML) === this.cells[target]) { break; }
   }
-  const hole = document.getElementsByClassName('cell')[this.hole];
   this.placeCell(cell, this.hole);
   this.cells[this.hole] = this.cells[target];
   this.cells[target] = 0;
@@ -172,16 +161,53 @@ function test(msg) {
   console.log(msg);
 }
 
+
+function newHandler(direction, i, puzzle) {
+  var target = -1;
+  switch (direction[i]) {
+    case '3':
+      target = parseInt(puzzle.hole) - 1;
+      break;
+    case '2': // down
+      target = parseInt(puzzle.hole) + parseInt(puzzle.side);
+      break;
+    case '4': // right
+      target = puzzle.hole + 1;
+      break;
+    case '1': // up
+      target = puzzle.hole - puzzle.side;
+      break;
+  }
+
+  // if (target > -1) {
+  //   // console.log("FN MS", puzzle.moveCell);
+  //   setTimeout(puzzle.moveCell(target), 20000);
+  // }
+  var cell;
+  for (let j = 0; j < puzzle.total; j++) {
+    cell = document.getElementsByClassName('cell')[j];
+    if (parseInt(cell.innerHTML) === puzzle.cells[target]) { break; }
+  }
+  puzzle.placeCell(cell, puzzle.hole);
+  puzzle.cells[puzzle.hole] = puzzle.cells[target];
+  puzzle.cells[target] = 0;
+  puzzle.hole = target;
+  if( i < (direction.length - 1)){
+      setTimeout(newHandler(direction, i + 1, puzzle), 1000);
+  }
+}
+
+
 function handleResponse(moves, puzzle) {
   console.log(`moves is + ${moves}`);
-  for (let i = 1; i < moves.length; i++) {
-    setTimeout(puzzle.swapCells(moves[i]), 1000);
-  // var i = 0;
-  //   setInterval(puzzle.swapCells(moves[i]), 1000);
-    // setTimeout(test, i * 1000, i);s
-    // console.log('--------------------------------------');
-
-  }
+  // for (let i = 1; i < moves.length; i++) {
+  //   setTimeout(puzzle.swapCells(moves[i]), 1000);
+  // // var i = 0;
+  // //   setInterval(puzzle.swapCells(moves[i]), 1000);
+  //   // setTimeout(test, i * 1000, i);s
+  //   // console.log('--------------------------------------');
+  // }
+    newHandler(moves, 1, puzzle);
 }
 
 let puzzle;
