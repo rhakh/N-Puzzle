@@ -14,8 +14,13 @@ bool	CLI::isFlagSet(const std::string &flag) const {
 
 bool	CLI::getFlag(const std::string &flag, int &result) const {
 	if (this->vm.count(flag)) {
-		// trow exception if conversion failed
-		result = this->vm[flag].as<int>();
+		try {
+			result = this->vm[flag].as<int>();
+		}
+		catch (std::exception &e) {
+			std::cerr << "Error: " << e.what() << std::endl;
+			return (false);
+		}
 		return (true);
 	}
 	return (false);
@@ -23,8 +28,13 @@ bool	CLI::getFlag(const std::string &flag, int &result) const {
 
 bool	CLI::getFlag(const std::string &flag, std::string &result) const {
 	if (this->vm.count(flag)) {
-		// trow exception if conversion failed
-		result = this->vm[flag].as<std::string>();
+		try {
+			result = this->vm[flag].as<std::string>();
+		}
+		catch (std::exception &e) {
+			std::cerr << "Error: " << e.what() << std::endl;
+			return (false);
+		}
 		return (true);
 	}
 	return (false);
