@@ -159,7 +159,7 @@ function makePuzzle(s, iterations) {
 
 
 function newHandler(direction, i, puzzle) {
-  var target = -1;
+  let target = -1;
   switch (direction[i]) {
     case '3':
       target = parseInt(puzzle.hole) - 1;
@@ -174,7 +174,7 @@ function newHandler(direction, i, puzzle) {
       target = puzzle.hole - puzzle.side;
       break;
   }
-  var cell;
+  let cell;
   for (let j = 0; j < puzzle.total; j++) {
     cell = document.getElementsByClassName('cell')[j];
     if (parseInt(cell.innerHTML) === puzzle.cells[target]) { break; }
@@ -183,14 +183,14 @@ function newHandler(direction, i, puzzle) {
   puzzle.cells[puzzle.hole] = puzzle.cells[target];
   puzzle.cells[target] = 0;
   puzzle.hole = target;
-  if( i < (direction.length - 1)){
-      setTimeout(() => newHandler(direction, i + 1, puzzle), 1000);
+  if (i < (direction.length - 1)) {
+    setTimeout(() => newHandler(direction, i + 1, puzzle), 1000);
   }
 }
 
 
 function test(msg) {
-    console.log(msg);
+  console.log(msg);
 }
 
 function handleResponse(moves, puzzle) {
@@ -202,7 +202,7 @@ function handleResponse(moves, puzzle) {
   //   // setTimeout(test, i * 1000, i);s
   //   // console.log('--------------------------------------');
   // }
-    newHandler(moves, 1, puzzle);
+  newHandler(moves, 1, puzzle);
 }
 
 let puzzle;
@@ -210,27 +210,28 @@ function takeForm(form, puzzle) {
   const recive = {
     messageType: 0,
     data:
-        {
-          map: [],
-          algorithm: 0,
-          heuristicFunction: 0,
-          solutionType: 0,
-        },
+      {
+        map: [],
+        algorithm: 0,
+        heuristicFunction: 0,
+        solutionType: 0,
+        optimisation: 0,
+      },
   };
 
   const elements = form.elements;
 
   recive.data.map = makePuzzle(elements.side.value, elements.iterations.value);
   console.log(`recieved = ${recive.data.map}`);
-  elements.group1.forEach((item, i, arr) => {
-    if (item.checked === true){
+  elements.group1.forEach((item, i) => {
+    if (item.checked === true) {
       recive.data.heuristicFunction = i;
     }
   });
 
-  elements.group2.forEach((item, i, arr) => {
+  elements.group2.forEach((item, i) => {
     if (item.checked === true) {
-      recive.data.algorithm = i;
+      recive.data.optimisation = i;
     }
   });
 
