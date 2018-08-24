@@ -20,7 +20,7 @@
     cursor: pointer;
     height: 92px;
     width: 92px;
-    transition: 1s;
+    transition: 0.5s;
     border-radius: 5px;
     position: absolute;
 }

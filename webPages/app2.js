@@ -179,11 +179,11 @@ function newHandler(direction, i, puzzle) {
   puzzle.cells[target] = 0;
   puzzle.hole = target;
   if (i < (direction.length - 1)) {
-    setTimeout(() => newHandler(direction, i + 1, puzzle), 1000);
+   handle = setTimeout(() => newHandler(direction, i + 1, puzzle), 250);
   }
 }
 
-
+var handle;
 function test(msg) {
   console.log(msg);
 }
@@ -197,6 +197,7 @@ function handleResponse(moves, puzzle) {
   //   // setTimeout(test, i * 1000, i);s
   //   // console.log('--------------------------------------');
   // }
+  clearTimeout(handle);
   newHandler(moves, 1, puzzle);
 }
 
@@ -242,6 +243,7 @@ function takeForm(form, puzzle) {
       const moves = msg.data.movements;
       console.log(moves);
       console.log(msg);
+	  
       if (moves !== undefined) { handleResponse(msg.data.movements, puzzle); }
     },
   });
