@@ -16,7 +16,7 @@
 <body>
 <nav>
     <div class="nav-wrapper nav">
-        <a href="#" class="brand-logo">N-Puzzle</a>
+        <a href="#" class="brand-logo" style="margin-left: 30px">N-Puzzle</a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
             <li><a href="#">Link 1</a></li>
             <li><a href="#">Link 2</a></li>
@@ -28,10 +28,15 @@
     <div class="row">
         <div class="col s3">
             <form id="inputForm">
-
-                <input type="text" name="side" value="4"><br>
-                <input type="text" name="iterations" value="-1"><br>
-                <h3>Chose heuristic</h3>
+                <div class="input-field">
+                  <input id="side" type="text" name="side" value="4"><br>
+                  <label for="side">Side</label>
+                </div>
+                <div class="input-field">
+                  <input id="iterations" type="text" name="iterations" value="-1"><br>
+                  <label for="iterations">Num of iterations</label>
+                 </div>
+                <h5>Chose heuristic</h5>
                 <p>
                     <label>
                         <input class="with-gap" name="group1" type="radio" checked />
@@ -61,21 +66,23 @@
                         <input class="with-gap" name="group1" type="radio"  />
                         <span>N-maxswap</span>
                     </label>
-                <h3>Chose option of optimization</h3>
+                <h5>Chose option of optimization</h5>
+                <p>
+                    <label>
+                        <input class="with-gap" name="group2" type="radio"  />
+                        <span>by path length</span>
+                    </label>
+                </p>
                 <p>
                     <label>
                         <input class="with-gap" name="group2" type="radio" checked />
                         <span>by time</span>
                     </label>
                 </p>
-                <p>
-                    <label>
-                        <input class="with-gap" name="group2" type="radio"  />
-                        <span>by path lenght</span>
-                    </label>
-                </p>
-                <input class="waves-effect waves-light btn" type="button" onclick="takeForm(this.form, puzzle)" value="Submit">
+                <input class="waves-effect btn" type="button" onclick="takeForm(this.form, puzzle)" value="Submit">
             </form>
+            <hr>
+            <div class="row"><p>place for meta info</p></div>
         </div>
         <div class="col s9">
             <div id="puzzle">

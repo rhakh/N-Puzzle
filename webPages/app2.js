@@ -34,15 +34,12 @@ Puzzle.prototype.swapCells = function (direction) {
   }
 
   if (target > -1) {
-    console.log('Move', target);
     // console.log("FN MS", this.moveCell);
     setTimeout(this.moveCell(target), 20000);
   }
 };
 
 Puzzle.prototype.moveCell = function (target) {
-  console.log('moveCell target', target);
-
   var cell = document.getElementsByClassName('cell')[5];
   for (let i = 0; i < this.total; i++) {
     var cell = document.getElementsByClassName('cell')[i];
@@ -62,8 +59,6 @@ Puzzle.prototype.placeCell = function (cell, i) {
 };
 
 Puzzle.prototype.fillCells = function (map) {
-  console.log(map);
-
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < this.total; i++) {
     if (parseInt(map[i]) === 0) {
@@ -246,6 +241,7 @@ function takeForm(form, puzzle) {
       msg = JSON.parse(msg);
       const moves = msg.data.movements;
       console.log(moves);
+      console.log(msg);
       if (moves !== undefined) { handleResponse(msg.data.movements, puzzle); }
     },
   });
