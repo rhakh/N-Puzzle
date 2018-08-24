@@ -143,12 +143,18 @@ void	CLI::startLogic() const {
 		};
 
 		try {
+			int numberCount = 0;
 			for (auto str : strings) {
-				if (str.find('#') == std::string::npos)
+				if (str.find('#') == std::string::npos) {
 					resultVector.push_back(boost::lexical_cast<int>(str));
+					numberCount++;
+				}
 				else
 					break;
 			}
+			if (resultVector.size() > 1 && numberCount &&
+				numberCount / resultVector.at(0) != 1)
+				throw CLI_InvalidMap();
 		}
 		catch(boost::bad_lexical_cast &e) {
 			std::cerr << "Error: " << e.what() << std::endl;
