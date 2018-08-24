@@ -23,24 +23,19 @@ Puzzle.prototype.swapCells = function (direction) {
       target = parseInt(this.hole) - 1;
       break;
     case '2': // down
-      // if (this.hole < this.total - this.side) {
       target = parseInt(this.hole) + parseInt(this.side);
-      // }
       break;
     case '4': // right
-      // if (this.hole % this.side > 0) {
       target = this.hole + 1;
-      // }
       break;
     case '1': // up
-      // if (this.hole > this.side - 1) {
       target = this.hole - this.side;
-      // }
       break;
   }
 
   if (target > -1) {
-    this.moveCell(target);
+    // console.log("FN MS", this.moveCell);
+    setTimeout(this.moveCell(target), 20000);
   }
 };
 
@@ -50,16 +45,12 @@ Puzzle.prototype.moveCell = function (target) {
     var cell = document.getElementsByClassName('cell')[i];
     if (parseInt(cell.innerHTML) === this.cells[target]) { break; }
   }
-  const hole = document.getElementsByClassName('cell')[this.hole];
-  console.log(`hole is -${hole.innerHTML}`);
-  console.log(`inner is - ${cell.innerHTML}`);
-  console.log(`selected is - ${cell.innerHTML}`);
   this.placeCell(cell, this.hole);
   this.cells[this.hole] = this.cells[target];
   this.cells[target] = 0;
   this.hole = target;
   totalMoves++;
-  console.log(`target was - ${target}`);
+  // console.log(`target was - ${target}`);
 };
 
 Puzzle.prototype.placeCell = function (cell, i) {
@@ -68,8 +59,6 @@ Puzzle.prototype.placeCell = function (cell, i) {
 };
 
 Puzzle.prototype.fillCells = function (map) {
-  console.log(map);
-
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < this.total; i++) {
     if (parseInt(map[i]) === 0) {
@@ -163,13 +152,52 @@ function makePuzzle(s, iterations) {
   return (p);
 }
 
+
+function newHandler(direction, i, puzzle) {
+  let target = -1;
+  switch (direction[i]) {
+    case '3':
+      target = parseInt(puzzle.hole) - 1;
+      break;
+    case '2': // down
+      target = parseInt(puzzle.hole) + parseInt(puzzle.side);
+      break;
+    case '4': // right
+      target = puzzle.hole + 1;
+      break;
+    case '1': // up
+      target = puzzle.hole - puzzle.side;
+      break;
+  }
+  let cell;
+  for (let j = 0; j < puzzle.total; j++) {
+    cell = document.getElementsByClassName('cell')[j];
+    if (parseInt(cell.innerHTML) === puzzle.cells[target]) { break; }
+  }
+  puzzle.placeCell(cell, puzzle.hole);
+  puzzle.cells[puzzle.hole] = puzzle.cells[target];
+  puzzle.cells[target] = 0;
+  puzzle.hole = target;
+  if (i < (direction.length - 1)) {
+    setTimeout(() => newHandler(direction, i + 1, puzzle), 1000);
+  }
+}
+
+
+function test(msg) {
+  console.log(msg);
+}
+
 function handleResponse(moves, puzzle) {
   console.log(`moves is + ${moves}`);
-  for (let i = 1; i < moves.length; i++) {
-    puzzle.swapCells(moves[i]);
-    console.log('--------------------------------------');
-
-  }
+  // for (let i = 1; i < moves.length; i++) {
+  //   setTimeout(puzzle.swapCells(moves[i]), 1000);
+  // // var i = 0;
+  // //   setInterval(puzzle.swapCells(moves[i]), 1000);
+  //   // setTimeout(test, i * 1000, i);s
+  //   // console.log('--------------------------------------');
+  // }
+  newHandler(moves, 1, puzzle);
 }
 
 let puzzle;
@@ -177,27 +205,28 @@ function takeForm(form, puzzle) {
   const recive = {
     messageType: 0,
     data:
-        {
-          map: [],
-          algorithm: 0,
-          heuristicFunction: 0,
-          solutionType: 0,
-        },
+      {
+        map: [],
+        algorithm: 0,
+        heuristicFunction: 0,
+        solutionType: 0,
+        optimisation: 0,
+      },
   };
 
   const elements = form.elements;
 
   recive.data.map = makePuzzle(elements.side.value, elements.iterations.value);
   console.log(`recieved = ${recive.data.map}`);
-  elements.group1.forEach((item, i, arr) => {
+  elements.group1.forEach((item, i) => {
     if (item.checked === true) {
       recive.data.heuristicFunction = i;
     }
   });
 
-  elements.group2.forEach((item, i, arr) => {
+  elements.group2.forEach((item, i) => {
     if (item.checked === true) {
-      recive.data.algorithm = i;
+      recive.data.optimisation = i;
     }
   });
 
@@ -212,6 +241,7 @@ function takeForm(form, puzzle) {
       msg = JSON.parse(msg);
       const moves = msg.data.movements;
       console.log(moves);
+      console.log(msg);
       if (moves !== undefined) { handleResponse(msg.data.movements, puzzle); }
     },
   });

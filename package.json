@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
+    "concat-stream": "^1.6.2",
     "dotjs": "^0.2.0"
   },
   "devDependencies": {
