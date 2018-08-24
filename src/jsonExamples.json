@@ -2,16 +2,17 @@
 # data - payload of message
 # length: Does json knows length of array ?
 # map: pieces of puzzle
-# algorithm: 0 - AStar
 # heuristicFunction: 0 - hammingDistance, 1 - manhattenDistance, 2 - MD + linearConflicts
 # solutionType: 0 - snail solution, 1 - normal solution
+# optimisation: 0 - optimisation by paths' length, 1 - optimisation by time
 {
 	"messageType": 0,
 	"data":
 	{
 		"map": [0, 3, 5, 6, 7, 1, 4, 2, 8],
 		"heuristicFunction": 0,
-		"solutionType" : 0
+		"solutionType" : 0,
+		"optimisation" : 1
 	}
 }
 
@@ -35,14 +36,7 @@
 	}
 }
 
-# messageType: 2 - Stop, stops execution of current task
-# data - payload of message is empty
-{
-	"messageType": 2,
-	"data": {}
-}
-
-# messageType: 3 - Error, stops execution of current task
+# messageType: 2 - Error, stops execution of current task
 # data - payload of message is empty
 {
 	"messageType": 3,

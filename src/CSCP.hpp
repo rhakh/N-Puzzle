@@ -16,24 +16,19 @@ typedef enum MessageType_e {
 
 class CSCP {
 	SimpleWeb::Server<SimpleWeb::HTTP>	server;
-	NPuzzleSolver	solver;
+	NPuzzleSolver						solver;
 
-	void	constructTaskResponse(size_t openNodes, size_t closedNodes,
-									size_t usedMemory, double elapsedTime,
-									std::list<int> &result,
-									std::string &resultStr);
+	void	constructTaskResponse(double elapsedTime, NP_retVal &result, std::string &resultStr);
 	void	constructErrorResponse(std::exception &e, std::string &resultStr);
 	void	taskHandler(boost::property_tree::ptree &json, std::string &resultStr);
-
-	void			serverInit();
+	void	serverInit();
 
 public:
 	CSCP();
 	~CSCP();
 
 	boost::thread	*serverStart();
-
-	void	processMessage(boost::property_tree::ptree &json, std::string &result);
+	void			processMessage(boost::property_tree::ptree &json, std::string &result);
 
 	class	CSCP_InvalidMessageType : public std::exception {
 	public:

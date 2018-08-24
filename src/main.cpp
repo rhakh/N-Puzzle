@@ -26,8 +26,11 @@
 #include <string>
 
 #include "CSCP.hpp"
+#include "CLI.hpp"
 
-int verboseLevel = 0;
+std::string	fileName;
+int	verboseLevel = 0;
+int	optimisationByTime = 1;
 
 using namespace std;
 // Added for the json-example:
@@ -43,10 +46,10 @@ void	constructTaskRequest(std::string &requestStr) {
 	// std::array<int, 9>		map = {{0, 3, 5, 6, 7, 1, 4, 2, 8}};
 
 	// solvable for snail
-	// std::array<int, 16>		map = {{11, 0, 9, 4, 2, 15, 7, 1, 13, 3, 12, 5, 8, 6, 10, 14}};
+//	std::array<int, 16>		map = {{11, 0, 9, 4, 2, 15, 7, 1, 13, 3, 12, 5, 8, 6, 10, 14}};
 
 	// solvable for snail
-	std::array<int, 16>		map = {{5, 6, 11, 14, 1, 15, 3, 4, 8, 2, 10, 12, 0, 9, 7, 13}};
+	 std::array<int, 16>		map = {{5, 6, 11, 14, 1, 15, 3, 4, 8, 2, 10, 12, 0, 9, 7, 13}};
 
 	// unsolvable snail, solvable for norm
 	// std::array<int, 36>		map = {{1, 14, 2, 4, 6, 18,
@@ -57,13 +60,7 @@ void	constructTaskRequest(std::string &requestStr) {
 	// 								25, 0, 32, 28, 34, 35}};
 	// /* 1,14,2,4,6,18,9,13,3,17,11,33,19,7,16,10,5,12,8,26,20,15,22,24,21,31,27,29,23,30,25,0,32,28,34,35 */
 
-	// snail solution
-	// std::array<int, 16>		map = {{0,	10,	5,	7,
-	// 								11,	14,	4,	8,
-	// 								1,	2,	6,	13,
-	// 								12,	3,	15,	9}};
-
-	// regular solution
+	// snail ok and regular solution
 	// std::array<int, 16>		map = {{12, 1, 11, 0,
 	// 								3, 2, 14, 10,
 	// 								15, 6, 4, 5,
@@ -117,6 +114,8 @@ void	constructTaskRequest(std::string &requestStr) {
 
 	dataNode.put("solutionType", SNAIL_SOLUTION);
 
+	dataNode.put("optimisation", 1);
+
 	taskJson.add_child("data", dataNode);
 
 	std::stringstream	ss;
@@ -132,11 +131,11 @@ void	clientCode() {
 		std::string	requestStr;
 
 		constructTaskRequest(requestStr);
-		if (verboseLevel)
+		if (verboseLevel & SERVER)
 			std::cout << "Client send request: " << requestStr << std::endl;
 
 		auto r2 = client.request("POST", "/message", requestStr);
-		if (verboseLevel)
+		if (verboseLevel & SERVER)
 			std::cout << "Client receive response: " << r2->content.rdbuf() << endl;
 	}
 	catch(const SimpleWeb::system_error &e) {
@@ -145,7 +144,7 @@ void	clientCode() {
 }
 // *** delete this
 
-void sigFaultHanfler(int sig) {
+void sigFaultHandler(int sig) {
 	void *array[10];
 	size_t size;
 
@@ -158,97 +157,37 @@ void sigFaultHanfler(int sig) {
 	exit(1);
 }
 
-bool	processArgs(int argc, char **argv) {
-	namespace po = boost::program_options;
-
+int		main(int argc, char **argv) {
 	try {
-		po::options_description	desc("Options");
-		po::variables_map		vm;
+		boost::thread	*server_thread;
+		CLI				cli(argc, argv);
+		CSCP			mp;
 
-		desc.add_options()
-			("help,h", "print help")
-			("verbose,v", "enable server prints");
-		try {
-			po::store(po::parse_command_line(argc, argv, desc), vm);
+		signal(SIGSEGV, sigFaultHandler);
 
-			if (vm.count("verbose") || vm.count("v"))
-				verboseLevel = 1;
-			if (vm.count("help") || vm.count("h")) {
-				std::cout << desc << std::endl;
-				return (false);
-			}
+		if (cli.isFlagSet("help"))
+			return (0);
+		if (cli.isFlagSet("file")) {
+			cli.startLogic();
+			return (0);
 		}
-		catch (po::error &e) {
-			std::cerr << "Error: " << e.what() << std::endl;
-			std::cerr << desc << std::endl;
-			return (false);
-		}
+
+		server_thread = mp.serverStart();
+		std::cout << "Open browser page at address http://localhost:8080" << std::endl;
+
+		// *** this code for tests
+		this_thread::sleep_for(chrono::seconds(1));
+		thread	client_thread([]() {
+			clientCode();
+		});
+		client_thread.join();
+		// *** delete this
+
+		server_thread->join();
+		delete server_thread;
 	}
 	catch (std::exception &e) {
-		std::cerr << "Unhandled exception: " << e.what() << std::endl;
-		return (false);
+		std::cerr << e.what() << std::endl;
 	}
-	return (true);
-}
-
-int		main(int argc, char **argv) {
-	boost::thread			*server_thread;
-	CSCP					mp;
-
-	if (!processArgs(argc, argv))
-		return (-1);
-
-	signal(SIGSEGV, sigFaultHanfler);
-	server_thread = mp.serverStart();
-	std::cout << "Open browser page at address http://localhost:8080" << std::endl;
-
-	// *** this code for tests
-	this_thread::sleep_for(chrono::seconds(1));
-	thread	client_thread([]() {
-		clientCode();
-	});
-	client_thread.join();
-	// *** delete this
-
-	server_thread->join();
-	delete server_thread;
 	return (0);
 }
-
-/*
-	Code conventions:
-		1. Everything in camelCase
-		2. 'using' / 'using namespace' can be applied in scope of function
-		3. Short alias for this namespace -> namespace pt = boost::property_tree;
-		4. Names of enumes and defines starts with 'NP_'
-
-	TODO:
-		+1. Makefile for macos
-		+2. -std=c++11 in Makefile ?
-		-3. Start new thread to solve puzzle, and send signal if client
-			was send a stop message : server is not asynchronus
-		4. Use unsigned int in everywhere in NPuzzleSolver
-		5. Make an API of NPuzzleSolver, means in header files must be
-			everything what needs for NPuzzleSolver
-		6. Think about using enum as argument in NPuzzleSolver class
-		7. Use incline function in NPuzzleSolver.cpp instead of SWAP
-		8. Leaks in NPsolver
-		9. Add -O2 flag to Makefile
-		10. Includes must be in cpp files, not in hpp
-		*11. Use multithreads to find solution in NPuzzleSolver.cpp
-		12. Put to NPuzzleSolver opennodes, closednodes, momory used
-		13. rvalue reference, use it to return value from function
-		14. Add mutex to NPuzzleSolver: stop task only when task is running
-		15. Snail solution, discovery
-		16. Asynchronus response from server
-		17. Figure out how to build finishState
-		18. Fix manhattanDistance for snail solution
-		19. Redesign class State
-		20. Abort when solving 3*3 puzzle
-		21. Rename HAMMILTON_DISTANCE to MISPLACED_TILES
-		22. Usetwo dimension array in State.cpp
-		23. rewrite default GET method for server
-		24. Delete all debug print
-		25. validate map for numbers (clone numbers, empty numbers)
-		26. bug in N_MAXSWAP
-*/
