@@ -201,6 +201,17 @@ function handleResponse(moves, puzzle) {
   newHandler(moves, 1, puzzle);
 }
 
+function handleMetainfo(msg) {
+  var openNodes = document.getElementById('oN');
+  var closedNodes = document.getElementById('cN');
+  var elapsedTime = document.getElementById('eTime');
+  var usedMemory = document.getElementById('usedMemory');
+  openNodes.innerHTML = '<b>Open nodes:</b> ' + msg.data.openNodes;
+  closedNodes.innerHTML = '<b>Closed nodes:</b> ' + msg.data.closedNodes;
+  elapsedTime.innerHTML = '<b>Elapsed time:</b> ' + msg.data.elapsedTime + ' seconds';
+  usedMemory.innerHTML = '<b>Used memory:</b> ' + msg.data.usedMemory + ' bytes';
+}
+
 let puzzle;
 function takeForm(form, puzzle) {
   const recive = {
@@ -243,7 +254,7 @@ function takeForm(form, puzzle) {
       const moves = msg.data.movements;
       console.log(moves);
       console.log(msg);
-	  
+	  handleMetainfo(msg);
       if (moves !== undefined) { handleResponse(msg.data.movements, puzzle); }
     },
   });

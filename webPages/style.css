@@ -34,3 +34,7 @@
 .error {
     color: red !important;
 }
+
+.meta {
+	margin: 6px;
+}
