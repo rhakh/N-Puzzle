@@ -130,8 +130,7 @@ function gK(obj) {
 }
 
 function makePuzzle(s, iterations) {
-  if (parseInt(iterations) === 0) { iterations = 100; }
-  if (parseInt(iterations) === -1) { iterations = 0; }
+  if (parseInt(iterations) < 0) { iterations = -iterations; }
   const p = makeGoal(s);
   function swapEmpty(p) {
     const idx = parseInt(gK(p));
@@ -155,6 +154,8 @@ function makePuzzle(s, iterations) {
 
 function newHandler(direction, i, puzzle) {
   let target = -1;
+  if (direction.length === 1)
+    return ;
   switch (direction[i]) {
     case '3':
       target = parseInt(puzzle.hole) - 1;
@@ -201,6 +202,14 @@ function handleResponse(moves, puzzle) {
   newHandler(moves, 1, puzzle);
 }
 
+function hellSecret(num) {
+    if (num % 2 != 0) {
+        num = parseInt(num) + 1;
+    }
+    console.log(num);
+    return (num);
+}
+
 function handleMetainfo(msg) {
   var openNodes = document.getElementById('oN');
   var closedNodes = document.getElementById('cN');
@@ -228,7 +237,7 @@ function takeForm(form, puzzle) {
 
   const elements = form.elements;
 
-  recive.data.map = makePuzzle(elements.side.value, elements.iterations.value);
+  recive.data.map = makePuzzle(elements.side.value, hellSecret(elements.iterations.value));
   console.log(`recieved = ${recive.data.map}`);
   elements.group1.forEach((item, i) => {
     if (item.checked === true) {
