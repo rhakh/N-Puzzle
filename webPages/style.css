@@ -38,3 +38,10 @@
 .meta {
 	margin: 6px;
 }
+
+.infoBlock {
+    margin: 1px !important;
+    border: 1px solid #9a9a9a;
+    min-height: 100px;
+    box-shadow: 1px 1px #b5b5b5;
+}
