@@ -9,18 +9,24 @@
 
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+    <!-- CDN -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Abel" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Abel|Mukta+Malar" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans" rel="stylesheet">
     <script src = "app2.js"></script>
     <link rel="stylesheet" href="style.css">
 
 </head>
-<body>
+<body style="font-family: 'Work Sans', sans-serif;">
 <nav>
     <div class="nav-wrapper nav">
-        <a href="#" class="brand-logo" style="margin-left: 30px">N-Puzzle</a>
+        <a href="#" class="brand-logo" style="margin-left: 30px"><i class="material-icons left">extension</i> N-Puzzle</a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li><a href="#">Link 1</a></li>
-            <li><a href="#">Link 2</a></li>
-            <li><a href="#">Link 3</a></li>
+            <li><a href="https://profile.intra.42.fr/users/rhakh">rhakh</a></li>
+            <li><a href="https://profile.intra.42.fr/users/vrudakov">vrudakov</a></li>
+            <li><a href="https://github.com/rhakh/N-Puzzle/network">Workflow</a></li>
         </ul>
     </div>
 </nav>
@@ -30,11 +36,11 @@
             <form id="inputForm">
                 <div class="input-field">
                   <input id="side" type="text" name="side" value="4"><br>
-                  <label for="side">Side</label>
+                  <label for="side">Enter size of side of N-Puzzle</label>
                 </div>
                 <div class="input-field">
-                  <input id="iterations" type="text" name="iterations" value="-1"><br>
-                  <label for="iterations">Num of iterations</label>
+                  <input id="iterations" type="text" name="iterations" value="42"><br>
+                  <label for="iterations">Enter number of iterations</label>
                  </div>
                 <h5>Chose heuristic</h5>
                 <p>
@@ -79,11 +85,27 @@
                         <span>by time</span>
                     </label>
                 </p>
+                <h5>Chose type</h5>
+                <p>
+                    <label>
+                        <input class="with-gap" name="group3" type="radio" checked />
+                        <span>Snail</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input class="with-gap" name="group3" type="radio"  />
+                        <span>Classic</span>
+                    </label>
+                </p>
                 <input class="waves-effect btn" type="button" onclick="takeForm(this.form, puzzle)" value="Submit">
             </form>
             <hr>
-            <div class="row">
-				<p>place for meta info</p>
+            <div class="row infoBlock">
+				<p id="oN" class="meta"></p>
+				<p id=cN class="meta"></p>
+				<p id="eTime" class="meta"></p>
+				<p id="usedMemory" class="meta"></p>
 			</div>
         </div>
         <div class="col s9">
@@ -91,6 +113,5 @@
             </div>
         </div>
     </div>
-    <input class="btn" type="button" onclick="testTest()" value="Down">
 </body>
 </html>

@@ -87,9 +87,16 @@ Puzzle.prototype.fillCells = function (map) {
   this.board.style.height = this.board.style.width = `${this.side * (CELL_SIZE + CELL_GAP) + CELL_GAP}px`;
 };
 
-function makeGoal(s) {
+function makeGoal(s, type) {
   const ts = s * s;
   const puzzle = [];
+  if (parseInt(type) === 1) {
+    puzzle[ts - 1] = 0;
+    for (var i = 1;i < ts; i++){
+      puzzle[i - 1] = i;
+    }
+    return (puzzle);
+  }
   for (let i = 0; i < ts; i++) {
     puzzle[i] = -1;
   }
@@ -129,10 +136,9 @@ function gK(obj) {
   }
 }
 
-function makePuzzle(s, iterations) {
-  if (parseInt(iterations) === 0) { iterations = 100; }
-  if (parseInt(iterations) === -1) { iterations = 0; }
-  const p = makeGoal(s);
+function makePuzzle(s, iterations, type) {
+  if (parseInt(iterations) < 0) { iterations = -iterations; }
+  const p = makeGoal(s, type);
   function swapEmpty(p) {
     const idx = parseInt(gK(p));
     const poss = [];
@@ -155,6 +161,8 @@ function makePuzzle(s, iterations) {
 
 function newHandler(direction, i, puzzle) {
   let target = -1;
+  if (direction.length === 1)
+    return ;
   switch (direction[i]) {
     case '3':
       target = parseInt(puzzle.hole) - 1;
@@ -190,15 +198,27 @@ function test(msg) {
 
 function handleResponse(moves, puzzle) {
   console.log(`moves is + ${moves}`);
-  // for (let i = 1; i < moves.length; i++) {
-  //   setTimeout(puzzle.swapCells(moves[i]), 1000);
-  // // var i = 0;
-  // //   setInterval(puzzle.swapCells(moves[i]), 1000);
-  //   // setTimeout(test, i * 1000, i);s
-  //   // console.log('--------------------------------------');
-  // }
   clearTimeout(handle);
   newHandler(moves, 1, puzzle);
+}
+
+function hellSecret(num) {
+    if (num % 2 != 0) {
+        num = parseInt(num) + 1;
+    }
+    console.log(num);
+    return (num);
+}
+
+function handleMetainfo(msg) {
+  var openNodes = document.getElementById('oN');
+  var closedNodes = document.getElementById('cN');
+  var elapsedTime = document.getElementById('eTime');
+  var usedMemory = document.getElementById('usedMemory');
+  openNodes.innerHTML = '<b>Open nodes:</b> ' + msg.data.openNodes;
+  closedNodes.innerHTML = '<b>Closed nodes:</b> ' + msg.data.closedNodes;
+  elapsedTime.innerHTML = '<b>Elapsed time:</b> ' + msg.data.elapsedTime + ' seconds';
+  usedMemory.innerHTML = '<b>Used memory:</b> ' + msg.data.usedMemory + ' bytes';
 }
 
 let puzzle;
@@ -217,7 +237,7 @@ function takeForm(form, puzzle) {
 
   const elements = form.elements;
 
-  recive.data.map = makePuzzle(elements.side.value, elements.iterations.value);
+
   console.log(`recieved = ${recive.data.map}`);
   elements.group1.forEach((item, i) => {
     if (item.checked === true) {
@@ -231,6 +251,20 @@ function takeForm(form, puzzle) {
     }
   });
 
+  elements.group3.forEach((item, i) => {
+    if (item.checked === true) {
+      recive.data.solutionType = i;
+    }
+  });
+  if (isNaN(elements.side.value) || isNaN(elements.iterations.value)) {
+    $('#cN').empty();
+    $('#eTime').empty();
+    $('#usedMemory').empty();
+    var openNodes = document.getElementById('oN');
+    openNodes.innerHTML = '<b style="color: #ff148c;">INPUT ONLY INT IN FORMS</b>';
+    return;
+  }
+  recive.data.map = makePuzzle(elements.side.value, hellSecret(elements.iterations.value), recive.data.solutionType);
   JSON.stringify(recive);
   puzzle = new Puzzle(document.getElementById('puzzle'), elements, recive);
 
@@ -243,7 +277,7 @@ function takeForm(form, puzzle) {
       const moves = msg.data.movements;
       console.log(moves);
       console.log(msg);
-	  
+	  handleMetainfo(msg);
       if (moves !== undefined) { handleResponse(msg.data.movements, puzzle); }
     },
   });
