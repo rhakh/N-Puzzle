@@ -12,10 +12,10 @@ ifeq ($(OS),Darwin)
 			-Wno-unused -Wno-unused-parameter -O2
 else
   CXX=g++
-  INCLUDE_AND_LIBS = -I Simple-Web-Server
+  INCLUDE_AND_LIBS = -I Simple-Web-Server -L /usr/lib/x86_64-linux-gnu -I /usr/include/boost
   FLAGS = -std=c++11 -Wall -Wextra -Werror \
-			-lboost_filesystem  -lboost_system -lboost_program_options \
-			-pthread -lboost_thread -Wno-unused-command-line-argument \
+			-lboost_system -lboost_filesystem -lboost_program_options \
+			-lpthread -lboost_thread -Wno-unused-command-line-argument \
 			-Wno-unused -Wno-unused-parameter -O2
 endif
 
@@ -42,10 +42,10 @@ make_dir:
 	mkdir -p $(OBJDIR)
 
 $(OBJDIR)%.o: $(SRCDIR)%.cpp
-	$(CXX) $(FLAGS) $(INCLUDE_AND_LIBS) -o $@ -c $<
+	$(CXX) $(INCLUDE_AND_LIBS) $(FLAGS) -o $@ -c $<
 
 $(NAME): $(OBJ) $(SRC)
-	$(CXX) $(FLAGS) $(INCLUDE_AND_LIBS) -o $(NAME) $(OBJ)
+	$(CXX) $(INCLUDE_AND_LIBS) -o $(NAME) $(OBJ) $(FLAGS)
 
 clean:
 	rm -rf $(OBJDIR)
