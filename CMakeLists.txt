@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.9)
 project(N_Puzzle)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
-include_directories(/Users/rhakh/.brew/Cellar/boost/1.67.0_1/include)
+set (CMAKE_CXX_FLAGS "-${CMAKE_CXX_FLAGS} ${SEQAN_CXX_FLAGS} -ltbb")
+
+include_directories(/usr/local/Cellar/boost/1.72.0_3/include)
 include_directories(/Users/rhakh/N-Puzzle/Simple-Web-Server)
-link_directories(/Users/rhakh/.brew/Cellar/boost/1.67.0_1/lib)
+link_directories(/usr/local/Cellar/boost/1.72.0_3/lib)
 
 add_executable(N_Puzzle
         Simple-Web-Server/client_http.hpp

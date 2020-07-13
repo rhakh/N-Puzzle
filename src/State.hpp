@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <iostream>
 #include <vector>
+#include <memory>
 #include "Heuristic.hpp"
 
 enum moves { ROOT, UP, DOWN, LEFT, RIGHT, LAST };
@@ -25,8 +26,8 @@ private:
 	static int		(*heuristicFunc)(const State *state);
 	static int		mapSize, mapLength;
 
-	int		cost;
-	int		price;
+	int		cost;	// price + length
+	int		price;	// value of heuristic func
 	int		length;
 	int		movement;
 	std::vector<int>	map;
@@ -71,15 +72,15 @@ public:
 };
 
 struct HashState {
-	size_t operator()(const State* a) const;
+	size_t operator()(const std::unique_ptr<State> &a) const;
 };
 
 struct CompareState {
-	bool operator()(const State *a, const State *b);
+	bool operator()(const std::unique_ptr<State> &a, const std::unique_ptr<State> &b);
 };
 
 struct EqualState {
-	bool operator()(const State *lhs, const State *rhs) const;
+	bool operator()(const std::unique_ptr<State> &lhs, const std::unique_ptr<State> &rhs) const;
 };
 
 #endif /* STATE_HPP */

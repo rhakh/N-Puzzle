@@ -162,14 +162,14 @@ void	State::printState() const {
 	std::cout << std::endl << std::endl;
 }
 
-size_t HashState::operator()(const State* a) const {
+size_t HashState::operator()(const std::unique_ptr<State> &a) const {
 	const int	*map = a->getMapPtr();
 	const int	mapLength = a->getMapLength();
 
 	return boost::hash_range(map, map + mapLength);
 }
 
-bool CompareState::operator()(const State *a, const State *b) {
+bool CompareState::operator()(const std::unique_ptr<State> &a, const std::unique_ptr<State> &b) {
 	// optimisation by time
 	if (optimisationByTime) {
 		if (a->getPrice() == b->getPrice())
@@ -183,7 +183,7 @@ bool CompareState::operator()(const State *a, const State *b) {
 	return a->getCost() > b->getCost();
 }
 
-bool EqualState::operator()(const State *lhs, const State *rhs) const {
+bool EqualState::operator()(const std::unique_ptr<State> &lhs, const std::unique_ptr<State> &rhs) const {
 	const int *pa = rhs->getMapPtr();
 	const int *pb = lhs->getMapPtr();
 	const int mapLength = lhs->getMapLength();

@@ -5,6 +5,8 @@
 #include <list>
 #include <queue>
 #include <unordered_set>
+#include "tbb/concurrent_priority_queue.h"
+#include "tbb/concurrent_unordered_set.h"
 #include "State.hpp"
 
 class NP_retVal {
@@ -16,14 +18,16 @@ public:
 };
 
 class NPuzzleSolver {
-typedef std::priority_queue<State *, std::vector<State *>, CompareState>	NPqueue;
-typedef std::unordered_set<State *, HashState, EqualState>					NPset;
+typedef tbb::concurrent_priority_queue<std::unique_ptr<State>, CompareState>			NPqueue;
+typedef tbb::concurrent_unordered_set<std::unique_ptr<State>, HashState, EqualState>	NPset;
+
 private:
 	void	aStar(const int *map, NP_retVal &result);
+	void	aStar_concurrent(const int *map, NP_retVal &result);
 	void	checkPath(const State &root, const NP_retVal &result) const;
 	void 	createPath(const State *curr, NP_retVal &result) const;
-	void 	createRetVal(NPqueue *open, NPset *closed, const State *curr,
-							unsigned int maxOpen, NP_retVal &result) const;
+	// void 	createRetVal(NPqueue *open, NPset *closed, const State *curr,
+							// unsigned int maxOpen, NP_retVal &result) const;
 	bool	isSolvable(const int *map, int mapSize, int solutionType);
 
 public:

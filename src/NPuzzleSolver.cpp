@@ -6,30 +6,16 @@
 #include <cmath>
 #include <functional>
 #include <map>
+#include <memory>
+#include <thread>
+#include <iostream>
 #include "NPuzzleSolver.hpp"
 #include "Heuristic.hpp"
 
-typedef std::priority_queue<State *, std::vector<State *>, CompareState>	NPqueue;
-typedef std::unordered_set<State *, HashState, EqualState>	NPset;
+typedef tbb::concurrent_priority_queue<std::unique_ptr<State>, CompareState>			NPqueue;
+typedef tbb::concurrent_unordered_set<std::unique_ptr<State>, HashState, EqualState>	NPset;
 
-static inline void	freeMem(NPqueue *open, NPset *closed) {
-	State	*curr = nullptr;
-
-	while (!open->empty()) {
-		curr = open->top();
-		open->pop();
-		 delete curr;
-	}
-
-	State	*element = nullptr;
-	std::unordered_set<State*, HashState, EqualState>::iterator i;
-	for (i = closed->begin(); i != closed->end(); i++) {
-		element = *i;
-		 delete element;
-	}
-}
-
-void	NPuzzleSolver::checkPath(const State &root, const NP_retVal &result) const {
+void NPuzzleSolver::checkPath(const State &root, const NP_retVal &result) const {
 	std::string ss[] = {"ROOT", "UP", "DOWN", "LEFT", "RIGHT"};
 	State *state = nullptr;
 	State *prev = nullptr;
@@ -52,12 +38,12 @@ void	NPuzzleSolver::checkPath(const State &root, const NP_retVal &result) const 
 		 delete state;
 }
 
-void 	NPuzzleSolver::createRetVal(NPqueue *open, NPset *closed, const State *curr, unsigned int maxOpen, NP_retVal &result) const {
-	size_t	summ = open->size() + closed->size();
+static void createRetVal(NPqueue &open, NPset &closed, const State *curr, unsigned int maxOpen, NP_retVal &result) {
+	size_t	summ = open.size() + closed.size();
 
 	result.maxOpen = maxOpen;
-	result.usedMemory = summ * (sizeof(State) + sizeof(int) * State::mapLength);
-	result.closedNodes = closed->size();
+	result.usedMemory = summ * (sizeof(State) + sizeof(int) * 1 /* curr->mapLength */ );
+	result.closedNodes = closed.size();
 	while (curr->getMove() != ROOT) {
 		result.path.push_front(curr->getMove());
 		curr = curr->getPrev();
@@ -65,7 +51,8 @@ void 	NPuzzleSolver::createRetVal(NPqueue *open, NPset *closed, const State *cur
 	result.path.push_front(ROOT);
 }
 
-void	NPuzzleSolver::aStar(const int *map, NP_retVal &result) {
+#if 0
+void NPuzzleSolver::aStar(const int *map, NP_retVal &result) {
 	NPqueue	open;
 	NPset	closed;
 	State	*curr = nullptr;
@@ -90,7 +77,8 @@ void	NPuzzleSolver::aStar(const int *map, NP_retVal &result) {
 
 		if (curr->getPrice() == 0) {
 			createRetVal(&open, &closed, curr, maxOpen, result);
-			freeMem(&open, &closed);
+			open.clear();
+			closed.clear();
 			return ;
 		}
 
@@ -105,24 +93,98 @@ void	NPuzzleSolver::aStar(const int *map, NP_retVal &result) {
 			catch (std::exception &e) {
 				std::cout << "Error:" << __func__ << ":" << __LINE__ << ":"
 							<< e.what() << std::endl;
-				freeMem(&open, &closed);
+				open.clear();
+				closed.clear();
 				throw e;
 			}
 		}
-
-		if (open.size() > maxOpen)
-			maxOpen = open.size();
 	}
-	freeMem(&open, &closed);
+
+	open.clear();
+	closed.clear();
 	// can't find solution, throw an exception
 	throw NP_InvalidMap();
 	return ;
 }
+#endif
+
+#if 1
+// aStar_concurrent
+void NPuzzleSolver::aStar(const int *map, NP_retVal &result) {
+	NPqueue 				open;
+	NPset 					closed;
+	std::atomic_bool		solved(false);
+
+	auto root = std::make_unique<State>(map);
+	open.push(std::move(root));
+
+	auto thread_func = [&open, &closed, &solved, &result]() {
+		std::unique_ptr<State>	curr;
+
+		// std::cout << "Start thread: " << std::this_thread::get_id() << std::endl;
+
+		while (!open.empty() && !solved) {
+			if (!open.try_pop(curr))
+				continue ;
+
+			// curr->printState();
+			// std::cout << "if (curr->getPrice() == 0)" << std::endl;
+
+			if (curr->getPrice() == 0) {
+				// std::cout << "curr->getPrice() == 0" << std::endl;
+				solved = true;
+				createRetVal(open, closed, curr.get(), 0, result);
+				open.clear();
+				closed.clear();
+				// exit(0);
+			}
+
+			// std::cout << "for (int move = UP" << std::endl;
+
+			for (int move = UP; move < LAST; move++) {
+				// std::cout << "move " << move << std::endl;
+
+				try {
+					auto newState = std::make_unique<State>(*curr.get(), move);
+					// std::cout << "auto newState" << std::endl;
+
+					// If already exist in closed set
+					if (closed.find(newState) != closed.end()) {
+						// std::cout << "If already exist in closed set" << std::endl;
+						continue ;
+					}
+
+					open.push(std::move(newState));
+					// std::cout << "open.push" << std::endl;
+				}
+				catch (State::NP_InvalidMove &e) {
+					// can't create State with this move, let's try next move
+					// std::cout << "can't create State with this move, let's try next move" << std::endl;
+				}
+			}
+
+			closed.insert(std::move(curr));
+		}
+
+		// std::cout << "Finish thread: " << std::this_thread::get_id() << std::endl;
+	};
+
+	std::vector<std::thread> threads;
+
+	for (unsigned i = 0; i < std::thread::hardware_concurrency(); i++)
+		threads.push_back(std::thread(thread_func));
+
+	for (auto &th : threads)
+		th.join();
+
+	return ;
+}
+#endif
 
 NPuzzleSolver::NPuzzleSolver() {
 }
 
-static inline int	getInversions(const int *map, int mapLength) {
+static inline int getInversions(const int *map, int mapLength) {
 	int inversions = 0;
 
 	for (int i = 0; i < mapLength; i++)
@@ -167,7 +229,7 @@ bool NPuzzleSolver::isSolvable(const int *map, int mapLength, int solutionType) 
 	return !(isEven(inversionsMap) ^ isEven(inversionsFin));
 }
 
-void	NPuzzleSolver::solve(int heuristic, int solutionType,
+void NPuzzleSolver::solve(int heuristic, int solutionType,
 		const int *map, const int mapLength, NP_retVal &result)
 {
 	if (mapLength < 9 ||
