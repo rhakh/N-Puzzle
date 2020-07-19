@@ -12,8 +12,12 @@
 #include "NPuzzleSolver.hpp"
 #include "Heuristic.hpp"
 
-typedef tbb::concurrent_priority_queue<std::unique_ptr<State>, CompareState>			NPqueue;
-typedef tbb::concurrent_unordered_set<std::unique_ptr<State>, HashState, EqualState>	NPset;
+//typedef tbb::concurrent_priority_queue<std::unique_ptr<State>, CompareState>			NPqueue;
+//typedef tbb::concurrent_unordered_set<std::unique_ptr<State>, HashState, EqualState>	NPset;
+
+typedef std::priority_queue<std::shared_ptr<State>, std::vector<std::shared_ptr<State>>, CompareState>  NPqueue;
+typedef std::unordered_set<std::shared_ptr<State>, HashState, EqualState>                               NPset;
+
 
 void NPuzzleSolver::checkPath(const State &root, const NP_retVal &result) const {
 	std::string ss[] = {"ROOT", "UP", "DOWN", "LEFT", "RIGHT"};
@@ -38,15 +42,19 @@ void NPuzzleSolver::checkPath(const State &root, const NP_retVal &result) const 
 		 delete state;
 }
 
-static void createRetVal(NPqueue &open, NPset &closed, const State *curr, unsigned int maxOpen, NP_retVal &result) {
+static void createRetVal(NPqueue &open, NPset &closed, const std::shared_ptr<State> &curr, unsigned int maxOpen, NP_retVal &result) {
 	size_t	summ = open.size() + closed.size();
+	size_t i = 0;
+	const State *ptr = curr.get();
 
 	result.maxOpen = maxOpen;
 	result.usedMemory = summ * (sizeof(State) + sizeof(int) * 1 /* curr->mapLength */ );
 	result.closedNodes = closed.size();
-	while (curr->getMove() != ROOT) {
-		result.path.push_front(curr->getMove());
-		curr = curr->getPrev();
+
+	while (ptr->getMove() != ROOT) {
+	    i++;
+		result.path.push_front(ptr->getMove());
+        ptr = ptr->getPrev();
 	}
 	result.path.push_front(ROOT);
 }
@@ -109,35 +117,92 @@ void NPuzzleSolver::aStar(const int *map, NP_retVal &result) {
 #endif
 
 #if 1
+void NPuzzleSolver::aStar(const int *map, NP_retVal &result) {
+    NPqueue	open;
+    NPset	closed;
+
+    auto addNewMove = [&open, &closed](const std::shared_ptr<State> &curr, int move) {
+        try {
+            auto newState = std::make_shared<State>(*(curr.get()), move);
+            open.push(std::move(newState));
+        }
+        catch (State::NP_InvalidMove &e) {
+            // can't create State with this move, let's try next move
+            // std::cout << "can't create State with this move, let's try next move" << std::endl;
+        }
+    };
+
+    auto root = std::make_shared<State>(map);
+    open.push(std::move(root));
+
+    while (!open.empty()) {
+
+        auto curr = std::move(open.top());
+        open.pop();
+
+        // If already exist in closed set
+        if (closed.find(curr) != closed.end()) {
+            // std::cout << "If already exist in closed set" << std::endl;
+            continue;
+        }
+
+        if (curr->getPrice() == 0) {
+            // std::cout << "curr->getPrice() == 0" << std::endl;
+            curr->printState();
+            createRetVal(open, closed, curr, 0, result);
+            return;
+        }
+
+        for (int move = UP; move < LAST; move++)
+            addNewMove(curr, move);
+
+        closed.insert(std::move(curr));
+    }
+}
+#endif
+
+#if 0
 // aStar_concurrent
 void NPuzzleSolver::aStar(const int *map, NP_retVal &result) {
 	NPqueue 				open;
 	NPset 					closed;
 	std::atomic_bool		solved(false);
+	std::mutex              mtx;
 
 	auto root = std::make_unique<State>(map);
+	printf("P = %p\n", root.get());
 	open.push(std::move(root));
 
-	auto thread_func = [&open, &closed, &solved, &result]() {
+	auto thread_func = [&open, &closed, &solved, &result, &mtx]() {
 		std::unique_ptr<State>	curr;
 
 		// std::cout << "Start thread: " << std::this_thread::get_id() << std::endl;
 
-		while (!open.empty() && !solved) {
+		while (!solved) {
+
 			if (!open.try_pop(curr))
 				continue ;
+
+			// If already exist in closed set
+			if (closed.find(curr) != closed.end()) {
+				// std::cout << "If already exist in closed set" << std::endl;
+				continue ;
+			}
 
 			// curr->printState();
 			// std::cout << "if (curr->getPrice() == 0)" << std::endl;
 
-			if (curr->getPrice() == 0) {
-				// std::cout << "curr->getPrice() == 0" << std::endl;
-				solved = true;
-				createRetVal(open, closed, curr.get(), 0, result);
-				open.clear();
-				closed.clear();
-				// exit(0);
-			}
+            {
+                std::unique_lock<std::mutex> lock(mtx);
+
+                if (curr->getPrice() == 0 && !solved) {
+                    // std::cout << "curr->getPrice() == 0" << std::endl;
+                    solved = true;
+                    curr->printState();
+                    createRetVal(open, closed, curr, 0, result);
+                    return ;
+                }
+            }
 
 			// std::cout << "for (int move = UP" << std::endl;
 
@@ -149,10 +214,10 @@ void NPuzzleSolver::aStar(const int *map, NP_retVal &result) {
 					// std::cout << "auto newState" << std::endl;
 
 					// If already exist in closed set
-					if (closed.find(newState) != closed.end()) {
-						// std::cout << "If already exist in closed set" << std::endl;
-						continue ;
-					}
+					// if (closed.find(newState) != closed.end()) {
+					// 	// std::cout << "If already exist in closed set" << std::endl;
+					// 	continue ;
+					// }
 
 					open.push(std::move(newState));
 					// std::cout << "open.push" << std::endl;
@@ -162,20 +227,23 @@ void NPuzzleSolver::aStar(const int *map, NP_retVal &result) {
 					// std::cout << "can't create State with this move, let's try next move" << std::endl;
 				}
 			}
-
 			closed.insert(std::move(curr));
 		}
 
 		// std::cout << "Finish thread: " << std::this_thread::get_id() << std::endl;
+		return ;
 	};
 
 	std::vector<std::thread> threads;
 
-	for (unsigned i = 0; i < std::thread::hardware_concurrency(); i++)
-		threads.push_back(std::thread(thread_func));
+	for (unsigned i = 0; i <  std::thread::hardware_concurrency(); i++)
+		threads.emplace_back(std::thread(thread_func));
 
 	for (auto &th : threads)
 		th.join();
+
+	open.clear();
+	closed.clear();
 
 	return ;
 }

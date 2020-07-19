@@ -72,15 +72,15 @@ public:
 };
 
 struct HashState {
-	size_t operator()(const std::unique_ptr<State> &a) const;
+	size_t operator()(const std::shared_ptr<State> &a) const;
 };
 
 struct CompareState {
-	bool operator()(const std::unique_ptr<State> &a, const std::unique_ptr<State> &b);
+	bool operator()(const std::shared_ptr<State> &a, const std::shared_ptr<State> &b);
 };
 
 struct EqualState {
-	bool operator()(const std::unique_ptr<State> &lhs, const std::unique_ptr<State> &rhs) const;
+	bool operator()(const std::shared_ptr<State> &lhs, const std::shared_ptr<State> &rhs) const;
 };
 
 #endif /* STATE_HPP */

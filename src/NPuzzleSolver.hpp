@@ -18,8 +18,8 @@ public:
 };
 
 class NPuzzleSolver {
-typedef tbb::concurrent_priority_queue<std::unique_ptr<State>, CompareState>			NPqueue;
-typedef tbb::concurrent_unordered_set<std::unique_ptr<State>, HashState, EqualState>	NPset;
+    typedef std::priority_queue<std::shared_ptr<State>, std::vector<std::shared_ptr<State>>, CompareState>  NPqueue;
+    typedef std::unordered_set<std::shared_ptr<State>, HashState, EqualState>                               NPset;
 
 private:
 	void	aStar(const int *map, NP_retVal &result);
