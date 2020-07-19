@@ -35,6 +35,6 @@ target_link_libraries(N_Puzzle boost_system-mt)
 target_link_libraries(N_Puzzle boost_system)
 target_link_libraries(N_Puzzle boost_thread-mt)
 target_link_libraries(N_Puzzle boost_program_options)
-target_link_libraries(N_Puzzle tbb)
+#target_link_libraries(N_Puzzle tbb)
 
 
